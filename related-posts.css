@@ -26,11 +26,11 @@ Version: 2A.0
 	margin: 5px 10px 0 0;
 }
 .rel-post-widget ul li {
+	border-bottom: 1px solid #ccc;
 	list-style: none;
 	list-style-type: none;
 	margin: 3px 0;
 	padding: 3px 0;
-	border-bottom: 1px solid #ccc;
 }
 .rel-post-widget ul li:last-child {
 	border-bottom: none;
@@ -39,8 +39,8 @@ Version: 2A.0
 	display: inline;
 }
 .rel-post-widget .post-entry { 
-   padding: 0 0 5px 0;
-   overflow: hidden;
+   	overflow: hidden;
+   	padding: 0 0 5px 0;
 }
 .rel-post-widget .comment-num {
 }
