@@ -135,18 +135,14 @@ class RelatedPosts extends WP_Widget {
 		$post = $post_old; // Restore the post object.
 	}
 
-	// Form processing... Dead simple.
+	/**
+	 * Update the options
+	 *
+	 * @param  array $new_instance
+	 * @param  array $old_instance
+	 * @return array
+	 */
 	function update($new_instance, $old_instance) {
-		/**
-		 * Save the thumbnail dimensions outside so we can
-		 * register the sizes easily. We have to do this
-		 * because the sizes must registered beforehand
-		 * in order for WP to hard crop images (this in
-		 * turn is because WP only hard crops on upload).
-		 * The code inside the widget is executed only when
-		 * the widget is shown so we register the sizes
-		 * outside of the widget class.
-		 */
 		if ( function_exists('the_post_thumbnail') )
 		{
 			$sizes = get_option('mkrdip_related_post_thumb_sizes');
@@ -158,7 +154,12 @@ class RelatedPosts extends WP_Widget {
 		return $new_instance;
 	}
 
-	// The configuration form.
+	/**
+	 * The widget configuration form back end.
+	 *
+	 * @param  array $instance
+	 * @return void
+	 */
 	function form($instance) {
 		$instance = wp_parse_args( ( array ) $instance, array(
 			'title'          => __( '' ),
@@ -248,10 +249,11 @@ class RelatedPosts extends WP_Widget {
 			</p>
 			<?php endif; ?>
 
-	<?php
+			<?php
 
 	}
 
 }
 
 add_action( 'widgets_init', create_function('', 'return register_widget("RelatedPosts");') );
+
