@@ -1,12 +1,12 @@
 === Related Posts Widget ===
 Contributors: mkrdip
-Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=NTWS85XTUQP26&lc=US&item_name=Related%20Posts%20Widget&item_number=03&currency_code=USD&bn=PP%2dDonationsBF%3abtn_donateCC_LG%2egif%3aNonHosted
-Tags: related, posts, widget, similar posts widget, related posts
-Requires at least: 2.8
-Tested up to: 3.9.1
+Donate link: http://mkrdip.me/donate
+Tags: similar posts widget, related posts widget, related posts
+Requires at least: 3.0
+Tested up to: 4.2.2
 Stable tag: 2.0
 
-Adds a widget that shows posts related to the current post.
+Adds a widget that shows posts related to the current post based on tags.
 
 == Description ==
 
@@ -40,6 +40,8 @@ In the search field type “Related Posts Widget” and click Search Plugins. On
 3. Goto the Plugins section of the WordPress admin and activate the plugin.
 4. Now, goto the Widgets page of the Appearance section and configure the Related Posts widget.
 
+Read more about installting plugins at [WordPress Codex] (https://codex.wordpress.org/Managing_Plugins#Installing_Plugins)
+
 == Screenshots ==
 
 1. The widget configuration dialog.
@@ -49,8 +51,9 @@ In the search field type “Related Posts Widget” and click Search Plugins. On
 
 2.0 
 
-* Added CSS file for post styling 
+* Added CSS file for posts styling 
 * Now compaitable with latest versions of WordPress
+* Better code quality
 
 1.1
 
