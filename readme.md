@@ -16,10 +16,11 @@ Related Posts Widget shows a list of posts with similar tags to the current post
 * Multiple widgets.
 
 **Contribute**
+
 While using this plugin if you find any bug or any conflict, please submit an issue at 
 [Github](https://github.com/mkrdip/related-posts-widget) (If possible with a pull request). 
 
-**Installation**
+**Installation:**
 
 **Automatic installation**
 
