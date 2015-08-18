@@ -52,7 +52,7 @@ Read more about installting plugins at [WordPress Codex] (https://codex.wordpres
 2.0.1
 
 * Added PHP5 Constructor
-* Compaitable with WordPress 4.3
+* Compatible with WordPress 4.3
 
 2.0 
 
