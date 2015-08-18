@@ -45,9 +45,9 @@ if ( function_exists('add_image_size') )
  */
 class RelatedPosts extends WP_Widget {
 
-	function RelatedPosts() {
+	function __construct() {
 		$widget_ops = array('classname' => 'rel-post-widget', 'description' => __('List related posts in sidebar based on tag'));
-		$this->WP_Widget('related-posts', __('Related Posts'), $widget_ops);
+		parent::__construct('related-posts', __('Related Posts'), $widget_ops);
 	}
 
 	// Displays a list of related posts on single post pages.
