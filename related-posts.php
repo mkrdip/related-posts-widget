@@ -4,7 +4,7 @@ Plugin Name: Related Posts Widget
 Plugin URI: https://wordpress.org/plugins/related-posts-widget/
 Description: Adds a widget that shows a list of related posts in single post pages.
 Author: Mrinal Kanti Roy	
-Version: 2.0
+Version: 2.0.1
 Author URI: http://profiles.wordpress.org/mkrdip/
 */
 
