@@ -3,8 +3,8 @@ Contributors: mkrdip
 Donate link: http://mkrdip.me/donate
 Tags: similar posts widget, related posts widget, related posts
 Requires at least: 3.0
-Tested up to: 4.2.2
-Stable tag: 2.0
+Tested up to: 4.3
+Stable tag: 2.0.1
 
 Adds a widget that shows posts related to the current post based on tags.
 
@@ -48,6 +48,11 @@ Read more about installting plugins at [WordPress Codex] (https://codex.wordpres
 2. Front end of the widget using a default WordPress Theme.
 
 == Changelog ==
+
+2.0.1
+
+* Added PHP5 Constructor
+* Compaitable with WordPress 4.3
 
 2.0 
 
