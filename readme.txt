@@ -10,7 +10,7 @@ Adds a widget that shows posts from the same category to the current post.
 
 == Description ==
 
-Same Category Posts shows a list of same posts to the current post. The widget is only shown on single post pages. The Related Post widget only shows & loads it's file in front end when `is_single()` returns `true` & post tag(s) is similar.
+Same Category Posts shows a list of same posts to the current post. The widget is only shown on single post pages. The Same Category Posts widget only shows & loads it's file in front end when `is_single()` returns `true` & post tag(s) is similar.
 
 = Features =
 
