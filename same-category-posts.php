@@ -1,11 +1,11 @@
 <?php
 /*
-Plugin Name: Related Posts Widget
-Plugin URI: https://wordpress.org/plugins/related-posts-widget/
-Description: Adds a widget that shows a list of related posts in single post pages.
-Author: Mrinal Kanti Roy	
-Version: 2.0.1
-Author URI: http://profiles.wordpress.org/mkrdip/
+Plugin Name: Same Category Posts
+Plugin URI: https://wordpress.org/plugins/same-category-posts/
+Description: Adds a widget that shows the most recent posts from a single category.
+Author: Daniel Flöter, Mrinal Kanti Roy	
+Version: 1.0
+Author URI: https://profiles.wordpress.org/kometschuh/ and http://profiles.wordpress.org/mkrdip/
 */
 
 // Don't call the file directly
@@ -16,11 +16,11 @@ if ( !defined( 'ABSPATH' ) ) exit;
  *
  * @return void
  */
-add_action( 'wp_enqueue_scripts', 'related_posts_widget_styles' );
+add_action( 'wp_enqueue_scripts', 'same_category_posts_styles' );
 
-function related_posts_widget_styles() {
-	wp_register_style( 'related-posts-widget', plugins_url( 'related-posts-widget/related-posts.css' ) );
-	wp_enqueue_style( 'related-posts-widget' );
+function same_category_posts_styles() {
+	wp_register_style( 'same-category-posts', plugins_url( 'same-category-posts/same-category-posts.css' ) );
+	wp_enqueue_style( 'same-category-posts' );
 }
 
 /**
@@ -30,7 +30,7 @@ function related_posts_widget_styles() {
  */
 if ( function_exists('add_image_size') )
 {
-	$sizes = get_option('mkrdip_related_post_thumb_sizes');
+	$sizes = get_option('kts_same_category_post_thumb_sizes');
 	if ( $sizes )
 	{
 		foreach ( $sizes as $id=>$size )
@@ -41,16 +41,16 @@ if ( function_exists('add_image_size') )
 /**
  * Related Posts Widget Class
  *
- * Shows the related posts with some configurable options
+ * Shows posts from same category with some configurable options
  */
-class RelatedPosts extends WP_Widget {
+class SameCategoryPosts extends WP_Widget {
 
 	function __construct() {
-		$widget_ops = array('classname' => 'rel-post-widget', 'description' => __('List related posts in sidebar based on tag'));
-		parent::__construct('related-posts', __('Related Posts'), $widget_ops);
+		$widget_ops = array('classname' => 'same-category-posts', 'description' => __('List posts from same category in sidebar based on shown category'));
+		parent::__construct('same-category-posts', __('Same Category Posts'), $widget_ops);
 	}
 
-	// Displays a list of related posts on single post pages.
+	// Displays a list of posts from same category on single post pages.
 	function widget($args, $instance) {
 		// Only show widget if on a post page.
 		if ( !is_single() ) return;
@@ -75,8 +75,7 @@ class RelatedPosts extends WP_Widget {
 			foreach($tags as $individual_tag) $tag_ids[] = $individual_tag->term_id;
 		
 			$args=array(
-				'tag__in' => $tag_ids,
-				'post__not_in' => array($post->ID),
+				'cat' => $post->ID,
 				'showposts'=> $instance['num'], // Number of related posts that will be shown.
 				'ignore_sticky_posts'=>1
 				);
@@ -145,10 +144,10 @@ class RelatedPosts extends WP_Widget {
 	function update($new_instance, $old_instance) {
 		if ( function_exists('the_post_thumbnail') )
 		{
-			$sizes = get_option('mkrdip_related_post_thumb_sizes');
+			$sizes = get_option('kts_same_category_post_thumb_sizes');
 			if ( !$sizes ) $sizes = array();
 			$sizes[$this->id] = array($new_instance['thumb_w'], $new_instance['thumb_h']);
-			update_option('mkrdip_related_post_thumb_sizes', $sizes);
+			update_option('kts_same_category_post_thumb_sizes', $sizes);
 		}
 		
 		return $new_instance;
@@ -176,7 +175,7 @@ class RelatedPosts extends WP_Widget {
 
 		$title          = $instance['title'];
 		$num            = $instance['num'];
-		$title_link		= $instance['title_link'];		
+		$title_link	= $instance['title_link'];		
 		$excerpt        = $instance['excerpt'];
 		$excerpt_length = $instance['excerpt_length'];
 		$comment_num    = $instance['comment_num'];
@@ -255,5 +254,5 @@ class RelatedPosts extends WP_Widget {
 
 }
 
-add_action( 'widgets_init', create_function('', 'return register_widget("RelatedPosts");') );
+add_action( 'widgets_init', create_function('', 'return register_widget("SameCategoryPosts");') );
 
