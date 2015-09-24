@@ -1,4 +1,4 @@
-=== Related Posts Widget ===
+=== Same Category Posts ===
 Contributors: kometschuh, mkrdip
 Donate link: http://mkrdip.me/donate
 Tags: category, posts, similar posts, related posts, single category, category recent posts
