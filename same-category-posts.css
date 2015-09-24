@@ -2,45 +2,45 @@
 Default CSS Styles for Same Category Posts plugin
 Version: 1.0
 */
-.rel-post-widget * {
+.same-category-posts * {
 	margin: 0;
 	padding: 0;
 }
-.rel-post-widget {
+.same-category-posts {
 	font-size: 12px;	
 	line-height: 18px;
 }
-.rel-post-widget p {
+.same-category-posts p {
 	margin-bottom: 0;
 }
-.rel-post-widget .post-title {
+.same-category-posts .post-title {
 	font-size: 15px;	
 	font-weight: bold;
 }
-.rel-post-widget .post-date {
+.same-category-posts .post-date {
 	font-style: italic;
 	margin-bottom: 10px;
 }
-.rel-post-widget img {
+.same-category-posts img {
 	float: left;
 	margin: 5px 10px 0 0;
 }
-.rel-post-widget ul li {
+.same-category-posts ul li {
 	border-bottom: 1px solid #ccc;
 	list-style: none;
 	list-style-type: none;
 	margin: 3px 0;
 	padding: 3px 0;
 }
-.rel-post-widget ul li:last-child {
+.same-category-posts ul li:last-child {
 	border-bottom: none;
 }
-.rel-post-widget .more-link {
+.same-category-posts .more-link {
 	display: inline;
 }
-.rel-post-widget .post-entry { 
+.same-category-posts .post-entry { 
    	overflow: hidden;
    	padding: 0 0 5px 0;
 }
-.rel-post-widget .comment-num {
+.same-category-posts .comment-num {
 }

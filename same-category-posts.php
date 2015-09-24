@@ -3,9 +3,9 @@
 Plugin Name: Same Category Posts
 Plugin URI: https://wordpress.org/plugins/same-category-posts/
 Description: Adds a widget that shows the most recent posts from a single category.
-Author: Daniel Flöter, Mrinal Kanti Roy	
+Author: DFlöter
 Version: 1.0
-Author URI: https://profiles.wordpress.org/kometschuh/ and http://profiles.wordpress.org/mkrdip/
+Author URI: https://profiles.wordpress.org/kometschuh/
 */
 
 // Don't call the file directly
@@ -46,7 +46,7 @@ if ( function_exists('add_image_size') )
 class SameCategoryPosts extends WP_Widget {
 
 	function __construct() {
-		$widget_ops = array('classname' => 'same-category-posts', 'description' => __('List posts from same category in sidebar based on shown category'));
+		$widget_ops = array('classname' => 'same-category-posts', 'description' => __('List posts from same category in sidebar based on shown post\'s category'));
 		parent::__construct('same-category-posts', __('Same Category Posts'), $widget_ops);
 	}
 
@@ -93,7 +93,7 @@ class SameCategoryPosts extends WP_Widget {
 			{
 				$my_query->the_post();
 				?>
-				<li class="related-post-item">
+				<li class="same-category-posts">
 					<a class="post-title" href="<?php the_permalink() ?>" rel="bookmark" title="Permanent Link to <?php the_title_attribute(); ?>"><?php the_title(); ?></a>
 					
 					<?php if ( isset( $instance['date'] ) ) : ?>
