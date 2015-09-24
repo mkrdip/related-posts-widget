@@ -6,7 +6,7 @@ Requires at least: 3.0
 Tested up to: 4.3
 Stable tag: 1.0
 
-Adds a widget that shows same posts to the current post.
+Adds a widget that shows posts from the same category to the current post.
 
 == Description ==
 
