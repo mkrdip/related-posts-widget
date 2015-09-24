@@ -60,73 +60,72 @@ class SameCategoryPosts extends WP_Widget {
 		
 		extract( $args );
 		
-		if( !$instance["title"] )
-			$instance["title"] = "Related Posts";
+		$categories = get_the_category();
+		$category = $categories[0]->cat_ID;
+		
+		if( !$instance["title"] ) {
+			$category_info = get_category( $category );
+			$instance["title"] = $category_info->name;
+		}
 		
 		// Excerpt length filter
 		$new_excerpt_length = create_function('$length', "return " . $instance["excerpt_length"] . ";");
 		if ( $instance["excerpt_length"] > 0 )
 			add_filter('excerpt_length', $new_excerpt_length);
 
-		$tags = wp_get_post_tags($post->ID);
-
-		if ($tags) {
-			$tag_ids = array();
-			foreach($tags as $individual_tag) $tag_ids[] = $individual_tag->term_id;
+		$args=array(
+			'cat' => $category,
+			'showposts'=> $instance['num'], // Number of related posts that will be shown.
+			'ignore_sticky_posts'=>1
+			);
+		$my_query = new WP_Query($args);
 		
-			$args=array(
-				'cat' => $post->ID,
-				'showposts'=> $instance['num'], // Number of related posts that will be shown.
-				'ignore_sticky_posts'=>1
-				);
-			$my_query = new WP_Query($args);
-			if( $my_query->have_posts() )
-			{
-				echo $before_widget;
+		if( $my_query->have_posts() )
+		{
+			echo $before_widget;
 
-				// Widget title
-				echo $before_title . $instance["title"] . $after_title;
-				
-				// Post list
-				echo "<ul>\n";
-				while ($my_query->have_posts())
-				{
-					$my_query->the_post();
-					?>
-					<li class="related-post-item">
-						<a class="post-title" href="<?php the_permalink() ?>" rel="bookmark" title="Permanent Link to <?php the_title_attribute(); ?>"><?php the_title(); ?></a>
-						
-						<?php if ( isset( $instance['date'] ) ) : ?>
-						<p class="post-date"><?php the_time("j M Y"); ?></p>
-						<?php endif; ?>					
-						
-						<?php
-							if (
-								function_exists('the_post_thumbnail') && 
-								current_theme_supports("post-thumbnails") &&
-								isset ( $instance["thumb"] ) &&
-								has_post_thumbnail()
-							) :
-						?>
-							<a href="<?php the_permalink(); ?>" title="<?php the_title_attribute(); ?>">
-							<?php the_post_thumbnail( 'related_post_thumb_size'.$this->id ); ?>
-							</a>
-						<?php endif; ?>
-						
-						<?php if ( isset ( $instance['excerpt'] ) ) : ?>
-						<?php the_excerpt(); ?> 
-						<?php endif; ?>
-						
-						<?php if ( isset ( $instance['comment_num'] ) ) : ?>
-						<p class="comment-num">(<?php comments_number(); ?>)</p>
-						<?php endif; ?>
-					</li>
+			// Widget title
+			echo $before_title . $instance["title"] . $after_title;
+			
+			// Post list
+			echo "<ul>\n";
+			while ($my_query->have_posts())
+			{
+				$my_query->the_post();
+				?>
+				<li class="related-post-item">
+					<a class="post-title" href="<?php the_permalink() ?>" rel="bookmark" title="Permanent Link to <?php the_title_attribute(); ?>"><?php the_title(); ?></a>
+					
+					<?php if ( isset( $instance['date'] ) ) : ?>
+					<p class="post-date"><?php the_time("j M Y"); ?></p>
+					<?php endif; ?>					
+					
 					<?php
-				}
-				echo "</ul>\n";
-				
-				echo $after_widget;
+						if (
+							function_exists('the_post_thumbnail') && 
+							current_theme_supports("post-thumbnails") &&
+							isset ( $instance["thumb"] ) &&
+							has_post_thumbnail()
+						) :
+					?>
+						<a href="<?php the_permalink(); ?>" title="<?php the_title_attribute(); ?>">
+						<?php the_post_thumbnail( 'related_post_thumb_size'.$this->id ); ?>
+						</a>
+					<?php endif; ?>
+					
+					<?php if ( isset ( $instance['excerpt'] ) ) : ?>
+					<?php the_excerpt(); ?> 
+					<?php endif; ?>
+					
+					<?php if ( isset ( $instance['comment_num'] ) ) : ?>
+					<p class="comment-num">(<?php comments_number(); ?>)</p>
+					<?php endif; ?>
+				</li>
+				<?php
 			}
+			echo "</ul>\n";
+			
+			echo $after_widget;
 		}
 
 		remove_filter('excerpt_length', $new_excerpt_length);
@@ -255,4 +254,3 @@ class SameCategoryPosts extends WP_Widget {
 }
 
 add_action( 'widgets_init', create_function('', 'return register_widget("SameCategoryPosts");') );
-
