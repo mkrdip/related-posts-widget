@@ -1,7 +1,7 @@
 === Same Category Posts ===
-Contributors: kometschuh
+Contributors: kometschuh, mkrdip
 Donate link: http://mkrdip.me/donate
-Tags: similar posts, related posts, same category, recent posts
+Tags: similar posts, related posts, post list, recent posts, same category
 Requires at least: 3.0
 Tested up to: 4.3
 Stable tag: 1.0
