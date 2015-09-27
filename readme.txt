@@ -1,10 +1,12 @@
 === Same Category Posts ===
-Contributors: kometschuh, mkrdip
+Contributors: kometschuh
 Donate link: http://mkrdip.me/donate
 Tags: similar posts, related posts, same category, recent posts
 Requires at least: 3.0
 Tested up to: 4.3
 Stable tag: 1.0
+License: GPLv2 or later 
+License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
 Adds a widget that shows posts from the same category to the current post.
 
@@ -49,6 +51,10 @@ Read more about installting plugins at [WordPress Codex] (https://codex.wordpres
 
 == Changelog ==
 
-1.0
-
+= 1.0 =
 * Initial release.
+
+== Upgrade Notice ==
+
+= 1.0 =
+* Designing a new widget, always a problem can be solved in the best possible.
