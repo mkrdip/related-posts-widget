@@ -4,11 +4,7 @@ Donate link: http://mkrdip.me/donate
 Tags: similar posts, related posts, post list, recent posts, same category
 Requires at least: 3.0
 Tested up to: 4.3
-<<<<<<< HEAD
 Stable tag: 1.0.1
-=======
-Stable tag: 1.0
->>>>>>> origin/master
 License: GPLv2 or later 
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -56,25 +52,16 @@ Read more about installting plugins at [WordPress Codex] (https://codex.wordpres
 
 == Changelog ==
 
-<<<<<<< HEAD
 = 1.0.1 =
 * Option exclude a category.
 
-=======
->>>>>>> origin/master
 = 1.0 =
 * Initial release.
 
 == Upgrade Notice ==
 
-<<<<<<< HEAD
 = 1.0.1 =
 * Support question for a option that exclude a certain category.
 
 = 1.0 =
 * Designing a new widget, always a problem can be solved in the best possible.
-
-=======
-= 1.0 =
-* Designing a new widget, always a problem can be solved in the best possible.
->>>>>>> origin/master
