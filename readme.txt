@@ -1,10 +1,12 @@
 === Same Category Posts ===
 Contributors: kometschuh, mkrdip
 Donate link: http://mkrdip.me/donate
-Tags: similar posts, related posts, same category, recent posts
+Tags: similar posts, related posts, post list, recent posts, same category
 Requires at least: 3.0
 Tested up to: 4.3
-Stable tag: 1.0
+Stable tag: 1.0.1
+License: GPLv2 or later 
+License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
 Adds a widget that shows posts from the same category to the current post.
 
@@ -16,6 +18,7 @@ Same Category Posts shows a list of same posts to the current post. The widget i
 
 * Option to show post thumbnail & set dimension by width & height.
 * Set how many posts to show.
+* Option exclude a category
 * Option to show the post excerpt and how long the excerpt should be.
 * Option to show the post date.
 * Option to show the comment count.
@@ -49,6 +52,16 @@ Read more about installting plugins at [WordPress Codex] (https://codex.wordpres
 
 == Changelog ==
 
-1.0
+= 1.0.1 =
+* Option exclude a category.
 
+= 1.0 =
 * Initial release.
+
+== Upgrade Notice ==
+
+= 1.0.1 =
+* Support question for a option that exclude a certain category.
+
+= 1.0 =
+* Designing a new widget, always a problem can be solved in the best possible.

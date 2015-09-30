@@ -4,7 +4,7 @@ Plugin Name: Same Category Posts
 Plugin URI: https://wordpress.org/plugins/same-category-posts/
 Description: Adds a widget that shows the most recent posts from a single category.
 Author: DFlöter
-Version: 1.0
+Version: 1.0.1
 Author URI: https://profiles.wordpress.org/kometschuh/
 */
 
@@ -72,9 +72,9 @@ class SameCategoryPosts extends WP_Widget {
 		$new_excerpt_length = create_function('$length', "return " . $instance["excerpt_length"] . ";");
 		if ( $instance["excerpt_length"] > 0 )
 			add_filter('excerpt_length', $new_excerpt_length);
-
+		
 		$args=array(
-			'cat' => $category,
+			'cat' => $category . ',' . -$instance['exclude_category'],
 			'showposts'=> $instance['num'], // Number of related posts that will be shown.
 			'ignore_sticky_posts'=>1
 			);
@@ -160,28 +160,30 @@ class SameCategoryPosts extends WP_Widget {
 	 */
 	function form($instance) {
 		$instance = wp_parse_args( ( array ) $instance, array(
-			'title'          => __( '' ),
-			'num'            => __( '' ),
-			'title_link'	 => __( '' ),
-			'excerpt'        => __( '' ),
-			'excerpt_length' => __( '' ),
-			'comment_num'    => __( '' ),
-			'date'           => __( '' ),
-			'thumb'          => __( '' ),
-			'thumb_w'        => __( '' ),
-			'thumb_h'        => __( '' )
+			'title'            => __( '' ),
+			'num'              => __( '' ),
+			'title_link'	   => __( '' ),
+			'exclude_category' => __( '' ),			
+			'excerpt'          => __( '' ),
+			'excerpt_length'   => __( '' ),
+			'comment_num'      => __( '' ),
+			'date'             => __( '' ),
+			'thumb'            => __( '' ),
+			'thumb_w'          => __( '' ),
+			'thumb_h'          => __( '' )
 		) );
 
-		$title          = $instance['title'];
-		$num            = $instance['num'];
-		$title_link	= $instance['title_link'];		
-		$excerpt        = $instance['excerpt'];
-		$excerpt_length = $instance['excerpt_length'];
-		$comment_num    = $instance['comment_num'];
-		$date           = $instance['date'];
-		$thumb          = $instance['thumb'];
-		$thumb_w        = $instance['thumb_w'];
-		$thumb_h        = $instance['thumb_h'];		
+		$title            = $instance['title'];
+		$num              = $instance['num'];
+		$title_link       = $instance['title_link'];
+		$exclude_category = $instance['exclude_category'];
+		$excerpt          = $instance['excerpt'];
+		$excerpt_length   = $instance['excerpt_length'];
+		$comment_num      = $instance['comment_num'];
+		$date             = $instance['date'];
+		$thumb            = $instance['thumb'];
+		$thumb_w          = $instance['thumb_w'];
+		$thumb_h          = $instance['thumb_h'];		
 		
 			?>
 			<p>
@@ -197,6 +199,13 @@ class SameCategoryPosts extends WP_Widget {
 					<input style="text-align: center;" id="<?php echo $this->get_field_id("num"); ?>" name="<?php echo $this->get_field_name("num"); ?>" type="text" value="<?php echo absint($instance["num"]); ?>" size='3' />
 				</label>
 			</p>
+			
+			<p>
+				<label>
+					<?php _e( 'Exclude category' ); ?>:
+					<?php wp_dropdown_categories( array( 'show_option_none' => ' ', 'name' => $this->get_field_name("exclude_category"), 'selected' => $instance["exclude_category"] ) ); ?>
+				</label>
+			</p>			
 			
 			<p>
 				<label for="<?php echo $this->get_field_id("excerpt"); ?>">
