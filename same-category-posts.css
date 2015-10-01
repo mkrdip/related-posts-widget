@@ -1,46 +1,51 @@
 /*
 Default CSS Styles for Same Category Posts plugin
-Version: 1.0.1
+Version: 1.0.2
 */
-.same-category-posts * {
-	margin: 0;
-	padding: 0;
+.same-category-post-current,
+.post-date,
+.same-category-post-comment-num  {
+	font-size: 12px;
 }
-.same-category-posts {
-	font-size: 12px;	
-	line-height: 18px;
-}
-.same-category-posts p {
-	margin-bottom: 0;
-}
-.same-category-posts .post-title {
+.post-title {
 	font-size: 15px;	
 	font-weight: bold;
 }
-.same-category-posts .post-date {
+.same-category-post-current a {
+	font-weight: bold;
+	text-transform: uppercase;
+}
+.post-date {
 	font-style: italic;
 	margin-bottom: 10px;
 }
-.same-category-posts img {
+.same-category-post-thumbnail img {
 	float: left;
-	margin: 5px 10px 0 0;
+	margin: 5px 10px 5px 0;
 }
-.same-category-posts ul li {
+.more-link {
+	display: inline;
+}
+.post-entry { 
+   	overflow: hidden;
+   	padding: 0 0 5px 0;
+}
+.same-category-post-comment-num {
+}
+.same-category-post-item {
 	border-bottom: 1px solid #ccc;
 	list-style: none;
 	list-style-type: none;
 	margin: 3px 0;
 	padding: 3px 0;
 }
-.same-category-posts ul li:last-child {
+.same-category-post-item:last-child {
 	border-bottom: none;
 }
-.same-category-posts .more-link {
-	display: inline;
-}
-.same-category-posts .post-entry { 
-   	overflow: hidden;
-   	padding: 0 0 5px 0;
-}
-.same-category-posts .comment-num {
+.same-category-post-item:before,
+.same-category-post-item:after {
+	content: "";
+ 	display: table;
+	clear: both;
+
 }
