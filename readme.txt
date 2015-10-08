@@ -3,8 +3,8 @@ Contributors: kometschuh, mkrdip
 Donate link: http://mkrdip.me/donate
 Tags: similar posts, related posts, post list, recent posts, same category
 Requires at least: 3.0
-Tested up to: 4.3
-Stable tag: 1.0.2
+Tested up to: 4.3.1
+Stable tag: 1.0.3
 License: GPLv2 or later 
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -13,6 +13,7 @@ Adds a widget that shows posts from the same category to the current post.
 == Description ==
 
 Same Category Posts shows a list of same posts to the current post. The widget is only shown on single post pages. The Same Category Posts widget only shows & loads it's file in front end when `is_single()` returns `true`.
+Fork form [Related Posts Widget](https://wordpress.org/plugins/related-posts-widget).
 
 = Features =
 
@@ -20,9 +21,11 @@ Same Category Posts shows a list of same posts to the current post. The widget i
 * Option to put thumbnail on top.
 * Option to change ordering of posts.
 * Set how many posts to show.
+* Placeholder in title string
 * Option to make the widget title link to the category page.
 * Option to show/hide the title.
 * Option exclude a category.
+* Option exclude current post.
 * Option to show the post excerpt and how long the excerpt should be.
 * Option to show the post date.
 * Option to show the comment count.
@@ -55,6 +58,12 @@ Read more about installting plugins at [WordPress Codex] (https://codex.wordpres
 2. Front end of the widget using a default WordPress Theme.
 
 == Changelog ==
+
+= 1.0.3 =
+* Placeholder in title string
+* Added Option exclude current post
+* CSS class for current post
+* Bugfixes
 
 = 1.0.2 =
 * Added Option to change ordering of posts

@@ -4,7 +4,7 @@ Plugin Name: Same Category Posts
 Plugin URI: https://wordpress.org/plugins/same-category-posts/
 Description: Adds a widget that shows the most recent posts from a single category.
 Author: DFlöter
-Version: 1.0.2
+Version: 1.0.3
 Author URI: https://profiles.wordpress.org/kometschuh/
 */
 
@@ -62,9 +62,9 @@ class SameCategoryPosts extends WP_Widget {
 		
 		$categories = get_the_category();
 		$category = $categories[0]->cat_ID;
+		$category_info = get_category( $category );
 		
-		if( !$instance["title"] ) {
-			$category_info = get_category( $category );
+		if( !$instance["title"] ) {		
 			$instance["title"] = $category_info->name;
 		}
 		
@@ -83,9 +83,18 @@ class SameCategoryPosts extends WP_Widget {
 			$sort_order = 'DESC';
 		}		
 		
+		// Exclude category
+		$exclude_category = (isset( $instance['exclude_category'] ) && $instance['exclude_category'] != -1) ? $instance['exclude_category'] : "";
+		
+		// Exclude current post
+		$current_post_id = get_the_ID();
+		$exclude_current_post = (isset( $instance['exclude_current_post'] ) && $instance['exclude_current_post'] != -1) ? $current_post_id : "";
+
 		$args = array(
-			'cat' => $category . ',' . -$instance['exclude_category'],
-			'showposts' => $instance['num'], // Number of related posts that will be shown.
+			'cat' => $category,
+			'category__not_in' => array( $exclude_category ),
+			'post__not_in' => array( $exclude_current_post ),
+			'showposts' => $instance['num'], // Number of same posts that will be shown
 			'ignore_sticky_posts' => 1,
 			'orderby' => $sort_by,
 			'order' => $sort_order
@@ -100,9 +109,9 @@ class SameCategoryPosts extends WP_Widget {
 			if( !isset ( $instance["hide_title"] ) ) {
 				echo $before_title;
 				if( isset ( $instance["title_link"] ) ) {
-					echo '<a href="' . get_category_link( $category ) . '">' . $instance["title"] . '</a>';
+					echo '<a href="' . get_category_link( $category ) . '">' . str_replace( "%cat%", $category_info->name, $instance["title"]) . '</a>';
 				} else {
-					echo $instance["title"];
+					echo str_replace( "%cat%", $category_info->name, $instance["title"]);
 				}
 				echo $after_title;
 			}
@@ -113,7 +122,7 @@ class SameCategoryPosts extends WP_Widget {
 			{
 				$my_query->the_post();
 				?>
-				<li class="same-category-post-item">
+				<li class="same-category-post-item <?php if ( $post->ID == $current_post_id ) { echo "same_category-post-current"; } ?>" >
 				
 					<?php 
 						if( isset( $instance["thumbTop"] ) ) : 
@@ -196,44 +205,47 @@ class SameCategoryPosts extends WP_Widget {
 	 */
 	function form($instance) {
 		$instance = wp_parse_args( ( array ) $instance, array(
-			'title'            => __( '' ),
-			'hide_title'       => __( '' ),
-			'num'              => __( '' ),
-			'sort_by'          => __( '' ),
-			'asc_sort_order'   => __( '' ),
-			'title_link'	   => __( '' ),
-			'exclude_category' => __( '' ),			
-			'excerpt'          => __( '' ),
-			'excerpt_length'   => __( '' ),
-			'comment_num'      => __( '' ),
-			'date'             => __( '' ),
-			'thumb'            => __( '' ),
-			'thumbTop'         => __( '' ),
-			'thumb_w'          => __( '' ),
-			'thumb_h'          => __( '' )
+			'title'                => __( '' ),
+			'hide_title'           => __( '' ),
+			'num'                  => __( '' ),
+			'sort_by'              => __( '' ),
+			'asc_sort_order'       => __( '' ),
+			'title_link'           => __( '' ),
+			'exclude_category'     => __( '' ),
+			'exclude_current_post' => __( '' ),
+			'excerpt'              => __( '' ),
+			'excerpt_length'       => __( '' ),
+			'comment_num'          => __( '' ),
+			'date'                 => __( '' ),
+			'thumb'                => __( '' ),
+			'thumbTop'             => __( '' ),
+			'thumb_w'              => __( '' ),
+			'thumb_h'              => __( '' )
 		) );
 
-		$title            = $instance['title'];
-		$hide_title       = $instance['hide_title'];
-		$num              = $instance['num'];
-		$sort_by          = $instance['sort_by'];
-		$asc_sort_order   = $instance['asc_sort_order'];
-		$title_link       = $instance['title_link'];
-		$exclude_category = $instance['exclude_category'];
-		$excerpt          = $instance['excerpt'];
-		$excerpt_length   = $instance['excerpt_length'];
-		$comment_num      = $instance['comment_num'];
-		$date             = $instance['date'];
-		$thumb            = $instance['thumb'];
-		$thumbTop         = $instance['thumbTop'];
-		$thumb_w          = $instance['thumb_w'];
-		$thumb_h          = $instance['thumb_h'];		
+		$title                = $instance['title'];
+		$hide_title           = $instance['hide_title'];
+		$num                  = $instance['num'];
+		$sort_by              = $instance['sort_by'];
+		$asc_sort_order       = $instance['asc_sort_order'];
+		$title_link           = $instance['title_link'];
+		$exclude_category     = $instance['exclude_category'];
+		$exclude_current_post = $instance['exclude_current_post'];
+		$excerpt              = $instance['excerpt'];
+		$excerpt_length       = $instance['excerpt_length'];
+		$comment_num          = $instance['comment_num'];
+		$date                 = $instance['date'];
+		$thumb                = $instance['thumb'];
+		$thumbTop             = $instance['thumbTop'];
+		$thumb_w              = $instance['thumb_w'];
+		$thumb_h              = $instance['thumb_h'];		
 		
 			?>
 			<p>
 				<label for="<?php echo $this->get_field_id("title"); ?>">
 					<?php _e( 'Title' ); ?>:
 					<input class="widefat" id="<?php echo $this->get_field_id("title"); ?>" name="<?php echo $this->get_field_name("title"); ?>" type="text" value="<?php echo esc_attr($instance["title"]); ?>" />
+					<span>(Placeholder: '%cat%' will replaced with the category name in the string above.)</span>
 				</label>
 			</p>
 
@@ -286,6 +298,13 @@ class SameCategoryPosts extends WP_Widget {
 					<?php wp_dropdown_categories( array( 'show_option_none' => ' ', 'name' => $this->get_field_name("exclude_category"), 'selected' => $instance["exclude_category"] ) ); ?>
 				</label>
 			</p>
+			
+			<p>
+				<label for="<?php echo $this->get_field_id("exclude_current_post"); ?>">
+					<input type="checkbox" class="checkbox" id="<?php echo $this->get_field_id("exclude_current_post"); ?>" name="<?php echo $this->get_field_name("exclude_current_post"); ?>"<?php checked( (bool) $instance["exclude_current_post"], true ); ?> />
+					<?php _e( 'Exclude current post' ); ?>
+				</label>
+			</p>			
 			
 			<p>
 				<label for="<?php echo $this->get_field_id("excerpt"); ?>">
