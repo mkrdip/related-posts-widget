@@ -12,8 +12,7 @@ Adds a widget that shows posts from the same category to the current post.
 
 == Description ==
 
-Same Category Posts shows a list of same posts to the current post. The widget is only shown on single post pages. The Same Category Posts widget only shows & loads it's file in front end when `is_single()` returns `true`.
-Fork form [Related Posts Widget](https://wordpress.org/plugins/related-posts-widget).
+Same Category Posts shows a list of same posts to the current post. The widget is only shown on single post pages. Forked from [Related Posts Widget](https://wordpress.org/plugins/related-posts-widget).
 
 = Features =
 
