@@ -20,7 +20,7 @@ Same Category Posts shows a list of same posts to the current post. The widget i
 * Option to put thumbnail on top.
 * Option to change ordering of posts.
 * Set how many posts to show.
-* Placeholder in title string
+* Placeholder in title string.
 * Option to make the widget title link to the category page.
 * Option to show/hide the title.
 * Option exclude a category.
@@ -29,6 +29,10 @@ Same Category Posts shows a list of same posts to the current post. The widget i
 * Option to show the post date.
 * Option to show the comment count.
 * Multiple widgets.
+
+= Placeholder =
+
+In text boxes '%cat%' will replaced with the category name, e.g. "There are a lot of '%cat%'-News." -> "There are a lot of Tech-News."
 
 = Contribute =
 While using this plugin if you find any bug or any conflict, please submit an issue at 
