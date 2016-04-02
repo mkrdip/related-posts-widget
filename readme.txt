@@ -3,8 +3,8 @@ Contributors: kometschuh, mkrdip
 Donate link: http://mkrdip.me/donate
 Tags: similar posts, related posts, post list, recent posts, same category
 Requires at least: 3.0
-Tested up to: 4.4
-Stable tag: 1.0.3
+Tested up to: 4.5 beta3
+Stable tag: 1.0.4
 License: GPLv2 or later 
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -14,9 +14,13 @@ Adds a widget that shows posts from the same category to the current post.
 
 Same Category Posts shows a list of same posts to the current post. The widget is only shown on single post pages. Forked from [Related Posts Widget](https://wordpress.org/plugins/related-posts-widget).
 
+= Tip Top Press =
+We're <a target="_blank" href="http://tiptoppress.com/">Tip Top Press</a> and create widgets for Wordpress. If you want to know about what we're working on and you are interested in backgrounds then you can read all newes storys on our <a target="_blank" href="http://tiptoppress.com/blog/">blog</a>.
+
 = Features =
 
 * Option to show post thumbnail & set dimension by width & height.
+* Option to crop thumbnails with CSS. <a target="_blank" href="http://tiptoppress.com/css-image-crop/">What is 'CSS Image Crop'</a>.
 * Option to put thumbnail on top.
 * Option to change ordering of posts.
 * Set how many posts to show.
@@ -55,12 +59,25 @@ In the search field type “Same Category Posts” and click Search Plugins. Onc
 
 Read more about installting plugins at [WordPress Codex] (https://codex.wordpress.org/Managing_Plugins#Installing_Plugins)
 
+== Frequently Asked Questions ==
+= The feature image dimention are not correctly displayed? =
+Enable the option "Use CSS cropping". This option don't care about stored setting (Settings > Media) or added image sizes. <a target="_blank" href="http://tiptoppress.com/css-image-crop/">What is 'CSS Image Crop'.</a> 
+
+= Excerpt length filter doesn't works =
+When a post has no manual excerpt WordPress generates an excerpt automatically by selecting the first 55 words of the post or the first words number setted by the excerpt filter length. This means the excerpt length filter works only with automatic excerpt. If you manually added an excerpt, you'd want it all to be shown.
+WordPress Codex: <a target="_blank" href="http://codex.wordpress.org/Excerpt#Excerpt.2C_automatic_excerpt.2C_and_teaser">3 Excerpt, automatic excerpt, and teaser</a>
+
+= I want the title as a link pointing to the selected Categorie page? =
+Enable the check box "Make widget title link".
+
 == Screenshots ==
 
 1. The widget configuration dialog.
 2. Front end of the widget using a default WordPress Theme.
 
 == Changelog ==
+= 1.0.4 - April 2 2016 =
+* Add option CSS cropping for thumbnails.
 
 = 1.0.3 =
 * Placeholder in title string

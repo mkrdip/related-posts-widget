@@ -4,7 +4,7 @@ Plugin Name: Same Category Posts
 Plugin URI: https://wordpress.org/plugins/same-category-posts/
 Description: Adds a widget that shows the most recent posts from a single category.
 Author: DFlöter
-Version: 1.0.3
+Version: 1.0.4
 Author URI: https://profiles.wordpress.org/kometschuh/
 */
 
@@ -39,6 +39,41 @@ if ( function_exists('add_image_size') )
 }
 
 /**
+ * Get image size
+ *
+ * $thumb_w, $thumb_h - the width and height of the thumbnail in the widget settings
+ * $image_w,$image_h - the width and height of the actual image being displayed
+ *
+ * return: an array with the width and height of the element containing the image
+ */
+function same_category_posts_get_image_size( $thumb_w,$thumb_h,$image_w,$image_h) {
+	
+	$image_size = array('image_h' => $thumb_h, 'image_w' => $thumb_w, 'marginAttr' => '', 'marginVal' => '');
+	$relation_thumbnail = $thumb_w / $thumb_h;
+	$relation_cropped = $image_w / $image_h;
+	
+	if ($relation_thumbnail < $relation_cropped) {
+		// crop left and right site
+		// thumbnail width/height ration is smaller, need to inflate the height of the image to thumb height
+		// and adjust width to keep aspect ration of image
+		$image_size['image_h'] = $thumb_h;
+		$image_size['image_w'] = $thumb_h / $image_h * $image_w; 
+		$image_size['marginAttr'] = 'margin-left';
+		$image_size['marginVal'] = ($image_size['image_w'] - $thumb_w) / 2;
+	} else {
+		// crop top and bottom
+		// thumbnail width/height ration is bigger, need to inflate the width of the image to thumb width
+		// and adjust height to keep aspect ration of image
+		$image_size['image_w'] = $thumb_w;
+		$image_size['image_h'] = $thumb_w / $image_w * $image_h; 
+		$image_size['marginAttr'] = 'margin-top';
+		$image_size['marginVal'] = ($image_size['image_h'] - $thumb_h) / 2;
+	}
+	
+	return $image_size;
+}
+
+/**
  * Related Posts Widget Class
  *
  * Shows posts from same category with some configurable options
@@ -48,6 +83,81 @@ class SameCategoryPosts extends WP_Widget {
 	function __construct() {
 		$widget_ops = array('classname' => 'same-category-posts', 'description' => __('List posts from same category in sidebar based on shown post\'s category'));
 		parent::__construct('same-category-posts', __('Same Category Posts'), $widget_ops);
+	}
+	
+	/*
+		override the thumbnail htmo to insert cropping when needed
+	*/
+	function post_thumbnail_html($html, $post_id, $post_thumbnail_id, $size, $attr){
+		if ( empty($this->instance['thumb_w']) || empty($this->instance['thumb_w']))
+			return $html; // bail out if no full dimensions defined
+
+		$meta = image_get_intermediate_size($post_thumbnail_id,$size);
+		$origfile = get_attached_file( $post_thumbnail_id, true); // the location of the full file
+		$file =	dirname($origfile) .'/'.$meta['file']; // the location of the file displayed as thumb
+		list( $width, $height ) = getimagesize($file);  // get actual size of the thumb file
+		
+		if ($width / $height == $this->instance['thumb_w'] / $this->instance['thumb_h']) {
+			// image is same ratio as asked for, nothing to do here as the browser will handle it correctly
+			;
+		} else if (isset($this->instance['use_css_cropping'])) {
+			$image = same_category_posts_get_image_size($this->instance['thumb_w'],$this->instance['thumb_h'],$width,$height);			
+
+			// replace srcset
+			$array = array();
+			preg_match( '/width="([^"]*)"/i', $html, $array ) ;
+			$pattern = "/".$array[1]."w/";
+			$html = preg_replace($pattern, $image['image_w']."w", $html);			
+			// replace size
+			$pattern = "/".$array[1]."px/";
+			$html = preg_replace($pattern, $image['image_w']."px", $html);						
+			// replace width
+			$pattern = "/width=\"[0-9]*\"/";
+			$html = preg_replace($pattern, "width='".$image['image_w']."'", $html);
+			// replace height
+			$pattern = "/height=\"[0-9]*\"/";
+			$html = preg_replace($pattern, "height='".$image['image_h']."'", $html);			
+			// set margin
+			$html = str_replace('<img ','<img style="'.$image['marginAttr'].':-'.$image['marginVal'].'px;height:'.$image['image_h']
+				.'px;clip:rect(auto,'.($this->instance['thumb_w']+$image['marginVal']).'px,auto,'.$image['marginVal']
+				.'px);width:auto;max-width:initial;" ',$html);
+			// wrap span
+			$html = '<span style="width:'.$this->instance['thumb_w'].'px;height:'.$this->instance['thumb_h'].'px;">'
+				.$html.'</span>';
+		} else {
+			// if use_css_cropping not used
+			// no interface changes: leave without change
+		}
+		return $html;
+	}	
+	
+	/*
+		wrapper to execute the the_post_thumbnail with filters
+	*/
+	function the_post_thumbnail($size= 'post-thumbnail',$attr='') {
+		add_filter('post_thumbnail_html',array($this,'post_thumbnail_html'),1,5);
+		the_post_thumbnail($size,$attr);
+		remove_filter('post_thumbnail_html',array($this,'post_thumbnail_html'),1,5);
+	}
+
+	/*
+		Show the thumb of the current post
+	*/
+	function show_thumb() {
+		if ( function_exists('the_post_thumbnail') && 
+				current_theme_supports("post-thumbnails") &&
+				isset ( $this->instance["thumb"] ) &&
+				has_post_thumbnail() ) : ?>
+			<a <?php
+			$use_css_cropping = isset($this->instance['use_css_cropping']) ? "same-category-post-css-cropping" : "";
+			echo "class=\"same-category-post-thumbnail " . $use_css_cropping . "\"";
+			?>
+			href="<?php the_permalink(); ?>" title="<?php the_title_attribute(); ?>">
+			<?php 
+				$this->the_post_thumbnail( array($this->instance['thumb_w'],$this->instance['thumb_h']));
+			?>
+			</a>
+		<?php endif;
 	}
 
 	// Displays a list of posts from same category on single post pages.
@@ -59,6 +169,7 @@ class SameCategoryPosts extends WP_Widget {
 		$post_old = $post; // Save the post object.
 		
 		extract( $args );
+		$this->instance = $instance;
 		
 		$categories = get_the_category();
 		$category = $categories[0]->cat_ID;
@@ -124,17 +235,9 @@ class SameCategoryPosts extends WP_Widget {
 				?>
 				<li class="same-category-post-item <?php if ( $post->ID == $current_post_id ) { echo "same_category-post-current"; } ?>" >
 				
-					<?php 
+					<?php
 						if( isset( $instance["thumbTop"] ) ) : 
-							if (
-								function_exists('the_post_thumbnail') && 
-								current_theme_supports("post-thumbnails") &&
-								isset ( $instance["thumb"] ) &&
-								has_post_thumbnail() ) : ?>
-							<a class="same-category-post-thumbnail" href="<?php the_permalink(); ?>" title="<?php the_title_attribute(); ?>">
-							<?php the_post_thumbnail( 'related_post_thumb_size'.$this->id ); ?>
-							</a>
-						<?php endif; 
+							$this->show_thumb();
 						endif; 
 					?>				
 				
@@ -146,15 +249,7 @@ class SameCategoryPosts extends WP_Widget {
 					
 					<?php 
 						if( !isset( $instance["thumbTop"] ) ) : 
-							if (
-								function_exists('the_post_thumbnail') && 
-								current_theme_supports("post-thumbnails") &&
-								isset ( $instance["thumb"] ) &&
-								has_post_thumbnail() ) : ?>
-							<a class="same-category-post-thumbnail" href="<?php the_permalink(); ?>" title="<?php the_title_attribute(); ?>">
-							<?php the_post_thumbnail( 'related_post_thumb_size'.$this->id ); ?>
-							</a>
-						<?php endif; 
+							$this->show_thumb(); 
 						endif; 
 					?>
 					
@@ -220,7 +315,8 @@ class SameCategoryPosts extends WP_Widget {
 			'thumb'                => __( '' ),
 			'thumbTop'             => __( '' ),
 			'thumb_w'              => __( '' ),
-			'thumb_h'              => __( '' )
+			'thumb_h'              => __( '' ),
+			'use_css_cropping'     => __( '' )
 		) );
 
 		$title                = $instance['title'];
@@ -238,14 +334,15 @@ class SameCategoryPosts extends WP_Widget {
 		$thumb                = $instance['thumb'];
 		$thumbTop             = $instance['thumbTop'];
 		$thumb_w              = $instance['thumb_w'];
-		$thumb_h              = $instance['thumb_h'];		
+		$thumb_h              = $instance['thumb_h'];
+		$use_css_cropping     = $instance['use_css_cropping'];		
 		
 			?>
 			<p>
 				<label for="<?php echo $this->get_field_id("title"); ?>">
 					<?php _e( 'Title' ); ?>:
 					<input class="widefat" id="<?php echo $this->get_field_id("title"); ?>" name="<?php echo $this->get_field_name("title"); ?>" type="text" value="<?php echo esc_attr($instance["title"]); ?>" />
-					<span>(Placeholder: '%cat%' - category name)</span>
+					<span>(Placeholder: '%cat%' will replaced with the category name in the string above.)</span>
 				</label>
 			</p>
 
@@ -266,7 +363,7 @@ class SameCategoryPosts extends WP_Widget {
 			<p>
 				<label for="<?php echo $this->get_field_id("num"); ?>">
 					<?php _e('Number of posts to show'); ?>:
-					<input style="text-align: center; width: 30%;" id="<?php echo $this->get_field_id("num"); ?>" name="<?php echo $this->get_field_name("num"); ?>" type="number" min="0" value="<?php echo absint($instance["num"]); ?>" />
+					<input style="text-align: center;" id="<?php echo $this->get_field_id("num"); ?>" name="<?php echo $this->get_field_name("num"); ?>" type="text" value="<?php echo absint($instance["num"]); ?>" size='3' />
 				</label>
 			</p>
 			
@@ -317,7 +414,7 @@ class SameCategoryPosts extends WP_Widget {
 				<label for="<?php echo $this->get_field_id("excerpt_length"); ?>">
 					<?php _e( 'Excerpt length (in words):' ); ?>
 				</label>
-				<input style="text-align: center; width: 30%;" type="number" min="0" id="<?php echo $this->get_field_id("excerpt_length"); ?>" name="<?php echo $this->get_field_name("excerpt_length"); ?>" value="<?php echo $instance["excerpt_length"]; ?>" />
+				<input style="text-align: center;" type="text" id="<?php echo $this->get_field_id("excerpt_length"); ?>" name="<?php echo $this->get_field_name("excerpt_length"); ?>" value="<?php echo $instance["excerpt_length"]; ?>" size="3" />
 			</p>
 			
 			<p>
@@ -353,14 +450,28 @@ class SameCategoryPosts extends WP_Widget {
 					<label>
 						<?php _e('Thumbnail dimensions (in pixels)'); ?>:<br />
 						<label for="<?php echo $this->get_field_id("thumb_w"); ?>">
-							Width: <input class="widefat" style="width:30%;" type="number" min="1" id="<?php echo $this->get_field_id("thumb_w"); ?>" name="<?php echo $this->get_field_name("thumb_w"); ?>" value="<?php echo $instance["thumb_w"]; ?>" />
+							Width: <input class="widefat" style="width:30%;" type="text" id="<?php echo $this->get_field_id("thumb_w"); ?>" name="<?php echo $this->get_field_name("thumb_w"); ?>" value="<?php echo $instance["thumb_w"]; ?>" />
 						</label>
 						
 						<label for="<?php echo $this->get_field_id("thumb_h"); ?>">
-							Height: <input class="widefat" style="width:30%;" type="number" min="1" id="<?php echo $this->get_field_id("thumb_h"); ?>" name="<?php echo $this->get_field_name("thumb_h"); ?>" value="<?php echo $instance["thumb_h"]; ?>" />
+							Height: <input class="widefat" style="width:30%;" type="text" id="<?php echo $this->get_field_id("thumb_h"); ?>" name="<?php echo $this->get_field_name("thumb_h"); ?>" value="<?php echo $instance["thumb_h"]; ?>" />
 						</label>
 					</label>
-				</p>			
+				</p>
+				<p>
+					<label for="<?php echo $this->get_field_id("use_css_cropping"); ?>">
+						<input type="checkbox" class="checkbox" id="<?php echo $this->get_field_id("use_css_cropping"); ?>" name="<?php echo $this->get_field_name("use_css_cropping"); ?>"<?php checked( (bool) $instance["use_css_cropping"], true ); ?> />
+						<?php _e( 'Use CSS cropping' ); ?>
+					</label>
+				</p>
+				<hr>
+				<p>
+					<label>
+						<p>Follow us on: <a target="_blank" href="https://www.facebook.com/TipTopPress">Facebook</a> and
+						<a target="_blank" href="https://twitter.com/TipTopPress">Twitter</a></p>
+					</label>
+				</p>
+				
 			<?php 
 				endif; 
 			?>
