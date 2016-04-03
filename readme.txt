@@ -14,13 +14,10 @@ Adds a widget that shows posts from the same category to the current post.
 
 Same Category Posts shows a list of same posts to the current post. The widget is only shown on single post pages. Forked from [Related Posts Widget](https://wordpress.org/plugins/related-posts-widget).
 
-= Tip Top Press =
-We're <a target="_blank" href="http://tiptoppress.com/">Tip Top Press</a> and create widgets for Wordpress. If you want to know about what we're working on and you are interested in backgrounds then you can read all newes storys on our <a target="_blank" href="http://tiptoppress.com/blog/">blog</a>.
-
 = Features =
 
 * Option to show post thumbnail & set dimension by width & height.
-* Option to crop thumbnails with CSS. <a target="_blank" href="http://tiptoppress.com/css-image-crop/">What is 'CSS Image Crop'</a>.
+* Option to crop thumbnails with CSS <a target="_blank" href="http://tiptoppress.com/css-image-crop/">What is 'CSS Image Crop'</a>.
 * Option to put thumbnail on top.
 * Option to change ordering of posts.
 * Set how many posts to show.
@@ -42,6 +39,9 @@ In text boxes '%cat%' will replaced with the category name, e.g. "There are a lo
 While using this plugin if you find any bug or any conflict, please submit an issue at 
 [Github](https://github.com/DanielFloeter/same-category-posts) (If possible with a pull request). 
 
+= Tip Top Press =
+We're <a target="_blank" href="http://tiptoppress.com/">Tip Top Press</a> and create widgets for Wordpress. If you want to know about what we're working on and you are interested in backgrounds then you can read our <a target="_blank" href="http://tiptoppress.com/blog/">blog</a>.
+
 == Installation ==
 
 = Automatic installation =
@@ -57,15 +57,16 @@ In the search field type “Same Category Posts” and click Search Plugins. Onc
 3. Goto the Plugins section of the WordPress admin and activate the plugin.
 4. Now, goto the Widgets page of the Appearance section and configure the Related Posts widget.
 
-Read more about installting plugins at [WordPress Codex] (https://codex.wordpress.org/Managing_Plugins#Installing_Plugins)
+Read more about installting plugins at [WordPress Codex](https://codex.wordpress.org/Managing_Plugins#Installing_Plugins)
 
 == Frequently Asked Questions ==
+
 = The feature image dimention are not correctly displayed? =
-Enable the option "Use CSS cropping". This option don't care about stored setting (Settings > Media) or added image sizes. <a target="_blank" href="http://tiptoppress.com/css-image-crop/">What is 'CSS Image Crop'.</a> 
+Enable the option "Use CSS cropping". This option don't care about stored setting (Settings > Media) or added image sizes. [What is 'CSS feature image cropping'](http://tiptoppress.com/css-image-crop/)?
 
 = Excerpt length filter doesn't works =
 When a post has no manual excerpt WordPress generates an excerpt automatically by selecting the first 55 words of the post or the first words number setted by the excerpt filter length. This means the excerpt length filter works only with automatic excerpt. If you manually added an excerpt, you'd want it all to be shown.
-WordPress Codex: <a target="_blank" href="http://codex.wordpress.org/Excerpt#Excerpt.2C_automatic_excerpt.2C_and_teaser">3 Excerpt, automatic excerpt, and teaser</a>
+WordPress Codex: [Excerpt, automatic excerpt, and teaser](http://codex.wordpress.org/Excerpt#Excerpt.2C_automatic_excerpt.2C_and_teaser)
 
 = I want the title as a link pointing to the selected Categorie page? =
 Enable the check box "Make widget title link".
@@ -76,7 +77,8 @@ Enable the check box "Make widget title link".
 2. Front end of the widget using a default WordPress Theme.
 
 == Changelog ==
-= 1.0.4 - April 2 2016 =
+
+= 1.0.4 - April 2rd 2016 =
 * Add option CSS cropping for thumbnails.
 
 = 1.0.3 =
@@ -108,3 +110,8 @@ Enable the check box "Make widget title link".
 
 = 1.0 =
 * Designing a new widget, always a problem can be solved in the best possible.
+
+== Upgrade Notice ==
+
+= 1.0.4 =
+CSS feature image cropping was added. Read more in our [blog](http://tiptoppress.com/same-category-posts-v1-0-5-gets-css-cropping-feature/).
