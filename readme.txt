@@ -14,10 +14,14 @@ Adds a widget that shows posts from the same category to the current post.
 
 Same Category Posts shows a list of same posts to the current post. The widget is only shown on single post pages. Forked from [Related Posts Widget](https://wordpress.org/plugins/related-posts-widget).
 
+= Tip Top Press =
+
+We're [Tip Top Press](http://tiptoppress.com) and create widgets for Wordpress. If you want to know about what we're working on and you are interested in backgrounds then you can read all newes storys on our [blog](http://tiptoppress.com/blog).
+
 = Features =
 
 * Option to show post thumbnail & set dimension by width & height.
-* Option to crop thumbnails with CSS <a target="_blank" href="http://tiptoppress.com/css-image-crop/">What is 'CSS Image Crop'</a>.
+* Option to crop thumbnails with CSS [What is 'CSS Image Crop'](http://tiptoppress.com/css-image-crop).
 * Option to put thumbnail on top.
 * Option to change ordering of posts.
 * Set how many posts to show.
@@ -38,9 +42,6 @@ In text boxes '%cat%' will replaced with the category name, e.g. "There are a lo
 = Contribute =
 While using this plugin if you find any bug or any conflict, please submit an issue at 
 [Github](https://github.com/DanielFloeter/same-category-posts) (If possible with a pull request). 
-
-= Tip Top Press =
-We're <a target="_blank" href="http://tiptoppress.com/">Tip Top Press</a> and create widgets for Wordpress. If you want to know about what we're working on and you are interested in backgrounds then you can read our <a target="_blank" href="http://tiptoppress.com/blog/">blog</a>.
 
 == Installation ==
 
