@@ -21,7 +21,7 @@ We're [Tip Top Press](http://tiptoppress.com) and create widgets for Wordpress. 
 = Features =
 
 * Option to show post thumbnail & set dimension by width & height.
-* Option to crop thumbnails with CSS [What is 'CSS Image Crop'](http://tiptoppress.com/css-image-crop).
+* Option to crop thumbnails with CSS [What is 'CSS Image Crop'?](http://tiptoppress.com/css-image-crop)
 * Option to put thumbnail on top.
 * Option to change ordering of posts.
 * Set how many posts to show.
