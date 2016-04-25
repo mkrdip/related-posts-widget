@@ -93,6 +93,12 @@ class SameCategoryPosts extends WP_Widget {
 			return $html; // bail out if no full dimensions defined
 
 		$meta = image_get_intermediate_size($post_thumbnail_id,$size);
+		
+		if ( empty( $meta )) {		
+			$post_img = wp_get_attachment_metadata($post_thumbnail_id, $size);
+			$meta['file'] = basename( $post_img['file'] );
+		}		
+		
 		$origfile = get_attached_file( $post_thumbnail_id, true); // the location of the full file
 		$file =	dirname($origfile) .'/'.$meta['file']; // the location of the file displayed as thumb
 		list( $width, $height ) = getimagesize($file);  // get actual size of the thumb file
@@ -171,12 +177,26 @@ class SameCategoryPosts extends WP_Widget {
 		extract( $args );
 		$this->instance = $instance;
 		
-		$categories = get_the_category();
-		$category = $categories[0]->cat_ID;
-		$category_info = get_category( $category );
+		// Get taxonomies
+		// $term_query = get_the_taxonomies( $post->ID ); echo var_dump( $term_query );
 		
-		if( !$instance["title"] ) {		
-			$instance["title"] = $category_info->name;
+		
+		
+		// Get category
+		$categories = get_the_category();
+		if(!empty($categories[0])) {
+			$category = $categories[0]->cat_ID;
+			$category_info = get_category( $category );
+			
+			if( !$instance["title"] ) {		
+				$instance["title"] = $category_info->name;
+			}
+		}else{
+			$category_info = (object) array( 'name' => get_post_type($post->ID));
+			
+			if( !$instance["title"] ) {		
+				$instance["title"] = $category_info->name;
+			}			 
 		}
 		
 		// Excerpt length filter
@@ -195,21 +215,35 @@ class SameCategoryPosts extends WP_Widget {
 		}		
 		
 		// Exclude category
-		$exclude_category = (isset( $instance['exclude_category'] ) && $instance['exclude_category'] != -1) ? $instance['exclude_category'] : "";
+		if(!empty($categories[0])) {
+			$exclude_category = (isset( $instance['exclude_category'] ) && $instance['exclude_category'] != -1) ? $instance['exclude_category'] : "";
+			if($exclude_category == $categories[0]->cat_ID)
+				return;
+		}
 		
 		// Exclude current post
 		$current_post_id = get_the_ID();
 		$exclude_current_post = (isset( $instance['exclude_current_post'] ) && $instance['exclude_current_post'] != -1) ? $current_post_id : "";
 
-		$args = array(
-			'cat' => $category,
-			'category__not_in' => array( $exclude_category ),
-			'post__not_in' => array( $exclude_current_post ),
-			'showposts' => $instance['num'], // Number of same posts that will be shown
-			'ignore_sticky_posts' => 1,
-			'orderby' => $sort_by,
-			'order' => $sort_order
-			);
+		if(!empty($categories[0])) {
+			$args = array(
+				'cat' => $category,
+				'category__not_in' => array( $exclude_category ),
+				'post__not_in' => array( $exclude_current_post ),
+				'showposts' => $instance['num'], // Number of same posts that will be shown
+				'ignore_sticky_posts' => 1,
+				'orderby' => $sort_by,
+				'order' => $sort_order
+				);
+		}else{
+			$args = array(
+				'post_type' => $category_info,
+				'showposts' => $instance['num'], // Number of same posts that will be shown
+				'ignore_sticky_posts' => 1,
+				'orderby' => $sort_by,
+				'order' => $sort_order
+				);		
+		}
 		$my_query = new WP_Query($args);
 		
 		if( $my_query->have_posts() )
@@ -465,11 +499,9 @@ class SameCategoryPosts extends WP_Widget {
 					</label>
 				</p>
 				<hr>
-				<p>
-					<label>
-						<p>Follow us on: <a target="_blank" href="https://www.facebook.com/TipTopPress">Facebook</a> and
-						<a target="_blank" href="https://twitter.com/TipTopPress">Twitter</a></p>
-					</label>
+				<p style="text-align:right;">
+					Follow us on <a target="_blank" href="https://www.facebook.com/TipTopPress">Facebook</a> and 
+					<a target="_blank" href="https://twitter.com/TipTopPress">Twitter</a></br></br>
 				</p>
 				
 			<?php 

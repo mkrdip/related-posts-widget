@@ -15,13 +15,13 @@ Adds a widget that shows posts from the same category to the current post.
 Same Category Posts shows a list of same posts to the current post. The widget is only shown on single post pages. Forked from [Related Posts Widget](https://wordpress.org/plugins/related-posts-widget).
 
 = Tip Top Press =
-
 We're [Tip Top Press](http://tiptoppress.com) and create widgets for Wordpress. If you want to know about what we're working on and you are interested in backgrounds then you can read all newes storys on our [blog](http://tiptoppress.com/blog).
 
 = Features =
 
 * Option to show post thumbnail & set dimension by width & height.
-* Option to crop thumbnails with CSS [What is 'CSS Image Crop'?](http://tiptoppress.com/css-image-crop)
+* Option to crop thumbnails with CSS. [What is 'CSS Image Crop'](http://tiptoppress.com/css-image-crop).
+* Custom Post Types support.
 * Option to put thumbnail on top.
 * Option to change ordering of posts.
 * Set how many posts to show.
@@ -78,6 +78,9 @@ Enable the check box "Make widget title link".
 2. Front end of the widget using a default WordPress Theme.
 
 == Changelog ==
+
+= 1.0.4 - April 2rd 2016 =
+* Added Custom Post Types support
 
 = 1.0.4 - April 2rd 2016 =
 * Add option CSS cropping for thumbnails.
