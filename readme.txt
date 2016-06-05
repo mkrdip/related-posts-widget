@@ -4,7 +4,7 @@ Donate link: http://mkrdip.me/donate
 Tags: similar posts, related posts, post list, recent posts, same category
 Requires at least: 3.0
 Tested up to: 4.5.2
-Stable tag: 1.0.5
+Stable tag: 1.0.6
 License: GPLv2 or later 
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -32,6 +32,7 @@ We're [Tip Top Press](http://tiptoppress.com) and create widgets for Wordpress. 
 * Option exclude current post.
 * Option to show the post excerpt and how long the excerpt should be.
 * Option to show the post date.
+* Option to show the post author.
 * Option to show the comment count.
 * Multiple widgets.
 
@@ -79,7 +80,10 @@ Enable the check box "Make widget title link".
 
 == Changelog ==
 
-= 1.0.4 - April 2rd 2016 =
+= 1.0.6 - June 5rd 2016 =
+* Added option to show post author
+
+= 1.0.5 - April 2rd 2016 =
 * Added Custom Post Types support
 
 = 1.0.4 - April 2rd 2016 =
