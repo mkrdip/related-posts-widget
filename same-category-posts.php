@@ -294,6 +294,13 @@ class SameCategoryPosts extends WP_Widget {
 					<?php if ( isset ( $instance['comment_num'] ) ) : ?>
 					<p class="same-category-post-comment-num">(<?php comments_number(); ?>)</p>
 					<?php endif; ?>
+					
+					<?php if ( isset( $instance['author'] ) ) : ?>
+						<p class="post-author cat-post-author">
+							<?php the_author_posts_link(); ?>
+						</p>
+					<?php endif; ?>
+					
 				</li>
 				<?php
 			}
@@ -342,6 +349,7 @@ class SameCategoryPosts extends WP_Widget {
 			'title_link'           => __( '' ),
 			'exclude_category'     => __( '' ),
 			'exclude_current_post' => __( '' ),
+			'author'               => __( '' ),
 			'excerpt'              => __( '' ),
 			'excerpt_length'       => __( '' ),
 			'comment_num'          => __( '' ),
@@ -361,6 +369,7 @@ class SameCategoryPosts extends WP_Widget {
 		$title_link           = $instance['title_link'];
 		$exclude_category     = $instance['exclude_category'];
 		$exclude_current_post = $instance['exclude_current_post'];
+		$author               = $instance['author'];
 		$excerpt              = $instance['excerpt'];
 		$excerpt_length       = $instance['excerpt_length'];
 		$comment_num          = $instance['comment_num'];
@@ -462,6 +471,13 @@ class SameCategoryPosts extends WP_Widget {
 				<label for="<?php echo $this->get_field_id("date"); ?>">
 					<input type="checkbox" class="checkbox" id="<?php echo $this->get_field_id("date"); ?>" name="<?php echo $this->get_field_name("date"); ?>"<?php checked( (bool) $instance["date"], true ); ?> />
 					<?php _e( 'Show post date' ); ?>
+				</label>
+			</p>
+			
+			<p>
+				<label for="<?php echo $this->get_field_id("author"); ?>">
+					<input type="checkbox" class="checkbox" id="<?php echo $this->get_field_id("author"); ?>" name="<?php echo $this->get_field_name("author"); ?>"<?php checked( (bool) $instance["author"], true ); ?> />
+					<?php _e( 'Show post author' ); ?>
 				</label>
 			</p>
 			
