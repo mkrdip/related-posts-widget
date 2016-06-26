@@ -4,7 +4,7 @@ Plugin Name: Same Category Posts
 Plugin URI: https://wordpress.org/plugins/same-category-posts/
 Description: Adds a widget that shows the most recent posts from a single category.
 Author: DFlöter
-Version: 1.0.6
+Version: 1.0.7
 Author URI: https://profiles.wordpress.org/kometschuh/
 */
 
@@ -178,20 +178,22 @@ class SameCategoryPosts extends WP_Widget {
 		$this->instance = $instance;
 		
 		// Get taxonomies
-		// $term_query = get_the_taxonomies( $post->ID ); echo var_dump( $term_query );
-		
-		
-		
+		// $term_query = get_the_taxonomies( $post->ID );
+
 		// Get category
 		$categories = get_the_category();
-		if(!empty($categories[0])) {
-			$category = $categories[0]->cat_ID;
+		if( sizeof($categories) > 0 ) {
+			$category = '';
+			foreach ($categories as $key => $val) {
+				$category .= $val->cat_ID . ",";
+			}
+			$category = trim($category, ",");
+
 			$category_info = get_category( $category );
-			
 			if( !$instance["title"] ) {		
 				$instance["title"] = $category_info->name;
 			}
-		}else{
+		}else{ // get post types
 			$category_info = (object) array( 'name' => get_post_type($post->ID));
 			
 			if( !$instance["title"] ) {		
@@ -227,7 +229,7 @@ class SameCategoryPosts extends WP_Widget {
 
 		if(!empty($categories[0])) {
 			$args = array(
-				'cat' => $category,
+				'cat' => array( 'cat' => $category),
 				'category__not_in' => array( $exclude_category ),
 				'post__not_in' => array( $exclude_current_post ),
 				'showposts' => $instance['num'], // Number of same posts that will be shown
