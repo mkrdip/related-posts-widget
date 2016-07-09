@@ -31,6 +31,7 @@ We're [Tip Top Press](http://tiptoppress.com) and create widgets for Wordpress. 
 * Option exclude a category.
 * Option exclude current post.
 * Option to show the post excerpt and how long the excerpt should be.
+* Option change excerpt 'more' text.
 * Option to show the post date.
 * Option to show the post author.
 * Option to show the comment count.
@@ -79,6 +80,9 @@ Enable the check box "Make widget title link".
 2. Front end of the widget using a default WordPress Theme.
 
 == Changelog ==
+
+= 1.0.8 - Juli 07 2016 =
+* Add option change excerpt 'more' text.
 
 = 1.0.7 - June 26 2016 =
 * Show all assigned categories

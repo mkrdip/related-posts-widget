@@ -165,6 +165,13 @@ class SameCategoryPosts extends WP_Widget {
 			</a>
 		<?php endif;
 	}
+	
+	/**
+	 * Excerpt more link filter
+	 */
+	function excerpt_more_filter($more) {
+		return ' <a class="cat-post-excerpt-more" href="'. get_permalink() . '">' . esc_html($this->instance["excerpt_more_text"]) . '</a>';
+	}
 
 	// Displays a list of posts from same category on single post pages.
 	function widget($args, $instance) {
@@ -214,6 +221,12 @@ class SameCategoryPosts extends WP_Widget {
 			// by default, display latest first
 			$sort_by = 'date';
 			$sort_order = 'DESC';
+		}
+
+		// Excerpt more_text
+		if( isset($instance["excerpt_more_text"]) && ltrim($instance["excerpt_more_text"]) != '' )
+		{
+			add_filter('excerpt_more', array($this,'excerpt_more_filter'));
 		}		
 		
 		// Exclude category
@@ -312,6 +325,7 @@ class SameCategoryPosts extends WP_Widget {
 		}
 
 		remove_filter('excerpt_length', $new_excerpt_length);
+		remove_filter('excerpt_more', array($this,'excerpt_more_filter'));
 
 		$post = $post_old; // Restore the post object.
 	}
@@ -354,6 +368,7 @@ class SameCategoryPosts extends WP_Widget {
 			'author'               => __( '' ),
 			'excerpt'              => __( '' ),
 			'excerpt_length'       => __( '' ),
+			'excerpt_more_text'    => __( '' ),
 			'comment_num'          => __( '' ),
 			'date'                 => __( '' ),
 			'thumb'                => __( '' ),
@@ -374,6 +389,7 @@ class SameCategoryPosts extends WP_Widget {
 		$author               = $instance['author'];
 		$excerpt              = $instance['excerpt'];
 		$excerpt_length       = $instance['excerpt_length'];
+		$excerpt_more_text    = $instance['excerpt_more_text'];
 		$comment_num          = $instance['comment_num'];
 		$date                 = $instance['date'];
 		$thumb                = $instance['thumb'];
@@ -460,6 +476,13 @@ class SameCategoryPosts extends WP_Widget {
 					<?php _e( 'Excerpt length (in words):' ); ?>
 				</label>
 				<input style="text-align: center;" type="number" min="0" id="<?php echo $this->get_field_id("excerpt_length"); ?>" name="<?php echo $this->get_field_name("excerpt_length"); ?>" value="<?php echo $instance["excerpt_length"]; ?>" size="3" />
+			</p>
+			
+			<p>
+				<label for="<?php echo $this->get_field_id("excerpt_more_text"); ?>">
+					<?php _e( 'Excerpt \'more\' text:' ); ?>
+				</label>
+				<input class="widefat" style="width:50%;" placeholder="<?php _e('... more')?>" id="<?php echo $this->get_field_id("excerpt_more_text"); ?>" name="<?php echo $this->get_field_name("excerpt_more_text"); ?>" type="text" value="<?php echo esc_attr($instance["excerpt_more_text"]); ?>" />
 			</p>
 			
 			<p>
