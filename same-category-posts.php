@@ -189,16 +189,19 @@ class SameCategoryPosts extends WP_Widget {
 
 		// Get category
 		$categories = get_the_category();
+		$categoryName = "";
 		if( sizeof($categories) > 0 ) {
 			$category = '';
 			foreach ($categories as $key => $val) {
 				$category .= $val->cat_ID . ",";
+				$categoryName .= $val->name . ", ";
 			}
 			$category = trim($category, ",");
+			$categoryName = trim($categoryName, ",");
 
 			$category_info = get_category( $category );
 			if( !$instance["title"] ) {		
-				$instance["title"] = $category_info->name;
+				$instance["title"] = $categoryName;
 			}
 		}else{ // get post types
 			$category_info = (object) array( 'name' => get_post_type($post->ID));
@@ -269,9 +272,15 @@ class SameCategoryPosts extends WP_Widget {
 			if( !isset ( $instance["hide_title"] ) ) {
 				echo $before_title;
 				if( isset ( $instance["title_link"] ) ) {
-					echo '<a href="' . get_category_link( $category ) . '">' . str_replace( "%cat%", $category_info->name, $instance["title"]) . '</a>';
+					$linkList = "";
+					foreach($categories as $cat) {
+						$linkList .= '<a href="' . get_category_link( $cat ) . '">'. $cat->name . '</a>, ';
+					}
+					$linkList = trim($linkList, ", ");
+					$linkList = str_replace( "%cat%", $linkList, $instance["title"]);
+					echo $linkList;
 				} else {
-					echo str_replace( "%cat%", $category_info->name, $instance["title"]);
+					echo str_replace( "%cat%", $categoryName, $instance["title"]);
 				}
 				echo $after_title;
 			}
@@ -403,7 +412,7 @@ class SameCategoryPosts extends WP_Widget {
 				<label for="<?php echo $this->get_field_id("title"); ?>">
 					<?php _e( 'Title' ); ?>:
 					<input class="widefat" id="<?php echo $this->get_field_id("title"); ?>" name="<?php echo $this->get_field_name("title"); ?>" type="text" value="<?php echo esc_attr($instance["title"]); ?>" />
-					<span>(Placeholder: '%cat%' will replaced with the category name in the string above.)</span>
+					<span>(Placeholder: '%cat%' will be replaced with all referenced categories in the string above.)</span>
 				</label>
 			</p>
 
