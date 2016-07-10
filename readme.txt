@@ -24,6 +24,7 @@ We're [Tip Top Press](http://tiptoppress.com) and create widgets for Wordpress. 
 * Custom Post Types support.
 * Option to put thumbnail on top.
 * Option to change ordering of posts.
+* Option seperate categories if more than one is assigned
 * Set how many posts to show.
 * Placeholder in title string.
 * Option to make the widget title link to the category page.
@@ -82,6 +83,7 @@ Enable the check box "Make widget title link".
 == Changelog ==
 
 = 1.0.8 - Juli 07 2016 =
+* Add option seperate categories if more than one is assigned
 * Add option change excerpt 'more' text.
 * Title show and link to all referenced categories
 * Placeholder in the title gets (show and link) all referenced categories
