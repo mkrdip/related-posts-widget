@@ -83,6 +83,8 @@ Enable the check box "Make widget title link".
 
 = 1.0.8 - Juli 07 2016 =
 * Add option change excerpt 'more' text.
+* Title show and link to all referenced categories
+* Placeholder in the title gets (show and link) all referenced categories
 
 = 1.0.7 - June 26 2016 =
 * Show all assigned categories

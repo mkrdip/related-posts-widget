@@ -11,17 +11,29 @@ Author URI: https://profiles.wordpress.org/kometschuh/
 // Don't call the file directly
 if ( !defined( 'ABSPATH' ) ) exit;
 
+define( 'SAME_CATEGORY_POSTS_VERSION', "1.0.7");
+
 /**
  * Register our styles
  *
  * @return void
  */
-add_action( 'wp_enqueue_scripts', 'same_category_posts_styles' );
-
 function same_category_posts_styles() {
 	wp_register_style( 'same-category-posts', plugins_url( 'same-category-posts/same-category-posts.css' ) );
 	wp_enqueue_style( 'same-category-posts' );
 }
+add_action( 'wp_enqueue_scripts', 'same_category_posts_styles' );
+
+/**
+ * Register our admin scripts
+ *
+ * @return void
+ */
+function same_category_posts_admin_scripts($hook) {
+	wp_register_script( 'same_category-posts-admin-js', plugins_url( 'same-category-posts/js/admin/same-category-posts.js' ), array('jquery') , SAME_CATEGORY_POSTS_VERSION , true );
+	wp_enqueue_script( 'same_category-posts-admin-js' );
+}
+add_action('admin_enqueue_scripts', 'same_category_posts_admin_scripts');
 
 /**
  * Register thumbnail sizes.
@@ -89,7 +101,7 @@ class SameCategoryPosts extends WP_Widget {
 		override the thumbnail htmo to insert cropping when needed
 	*/
 	function post_thumbnail_html($html, $post_id, $post_thumbnail_id, $size, $attr){
-		if ( empty($this->instance['thumb_w']) || empty($this->instance['thumb_w']))
+		if ( empty($this->instance['thumb_w']) || empty($this->instance['thumb_h']))
 			return $html; // bail out if no full dimensions defined
 
 		$meta = image_get_intermediate_size($post_thumbnail_id,$size);
@@ -141,29 +153,52 @@ class SameCategoryPosts extends WP_Widget {
 		wrapper to execute the the_post_thumbnail with filters
 	*/
 	function the_post_thumbnail($size= 'post-thumbnail',$attr='') {
+        if (empty($size))  // if junk value, make it a normal thumb
+            $size= 'post-thumbnail';
+        else if (is_array($size) && (count($size)==2)) {  // good format at least
+            // normalize to ints first
+            $size[0] = (int) $size[0];
+            $size[1] = (int) $size[1];
+            if (($size[0] == 0) && ($size[1] == 0)) //both values zero then revert to thumbnail
+                $size= 'post-thumbnail';
+            // if one value is zero make a square using the other value
+            else if (($size[0] == 0) && ($size[1] != 0))
+                $size[0] = $size[1];
+            else if (($size[0] != 0) && ($size[1] == 0))
+                $size[1] = $size[0];
+        } else 
+			$size= 'post-thumbnail'; // yet another form of junk
+            
 		add_filter('post_thumbnail_html',array($this,'post_thumbnail_html'),1,5);
-		the_post_thumbnail($size,$attr);
+		$ret = get_the_post_thumbnail( null,$size,'');
 		remove_filter('post_thumbnail_html',array($this,'post_thumbnail_html'),1,5);
+        return $ret;
 	}
 
-	/*
-		Show the thumb of the current post
-	*/
-	function show_thumb() {
+	/**
+	 * Calculate the HTML for showing the thumb of a post item.
+     * Expected to be called from a loop with globals properly set
+	 *
+	 * @param  array $instance Array which contains the various settings
+	 * @return string The HTML for the thumb related to the post
+     *
+     * @since 1.0.8
+	 */
+	function show_thumb($instance) {
+        $ret = '';
+
 		if ( function_exists('the_post_thumbnail') && 
 				current_theme_supports("post-thumbnails") &&
 				isset ( $this->instance["thumb"] ) &&
-				has_post_thumbnail() ) : ?>
-			<a <?php
+				has_post_thumbnail() ) {
+			$ret .= '<a ';
 			$use_css_cropping = isset($this->instance['use_css_cropping']) ? "same-category-post-css-cropping" : "";
-			echo "class=\"same-category-post-thumbnail " . $use_css_cropping . "\"";
-			?>
-			href="<?php the_permalink(); ?>" title="<?php the_title_attribute(); ?>">
-			<?php 
-				$this->the_post_thumbnail( array($this->instance['thumb_w'],$this->instance['thumb_h']));
-			?>
-			</a>
-		<?php endif;
+			$ret .= 'class="same-category-post-thumbnail ' . $use_css_cropping . '"';
+			$ret .= 'href="' . get_the_permalink() . '" title="' . get_the_title() . '">';
+			$ret .= $this->the_post_thumbnail( array($this->instance['thumb_w'],$this->instance['thumb_h']));
+			$ret .= '</a>';
+		}
+		return $ret;
 	}
 	
 	/**
@@ -171,6 +206,54 @@ class SameCategoryPosts extends WP_Widget {
 	 */
 	function excerpt_more_filter($more) {
 		return ' <a class="cat-post-excerpt-more" href="'. get_permalink() . '">' . esc_html($this->instance["excerpt_more_text"]) . '</a>';
+	}
+	
+	/**
+	 * Calculate the HTML for a post item based on the widget settings and post.
+     * Expected to be called in an active loop with all the globals set
+	 *
+	 * @param  array $instance Array which contains the various settings
+     * $param  null|integer $current_post_id If on singular page specifies the id of
+     *                      the post, otherwise null
+	 * @return string The HTML for item related to the post
+     *
+     * @since 1.0.8
+	 */
+    function itemHTML($instance,$current_post_id) {
+        global $post;
+		
+        $ret = '<li class="same-category-post-item ' . ($post->ID == $current_post_id ? 'same_category-post-current' : '') . '">';
+		
+		if( isset( $instance["thumbTop"] ) ) : 
+			$ret .= $this->show_thumb($instance);
+		endif; 		
+
+		$ret .= '<a class="post-title" href="' . get_the_permalink() . '" rel="bookmark" title="Permanent Link to ' . get_the_title() . '">' . get_the_title() . '</a>';
+
+		if ( isset( $instance['date'] ) ) {
+			$ret .= '<p class="post-date">' . get_the_time("j M Y") . '</p>';
+		}
+		
+		if( !isset( $instance["thumbTop"] ) ) : 
+			$ret .= $this->show_thumb($instance);
+		endif;
+		
+		if ( isset ( $instance['excerpt'] ) ) {
+			$ret .= apply_filters('the_excerpt', get_the_excerpt());;
+		}
+
+		if ( isset ( $instance['comment_num'] ) ) {
+			$ret .= '<p class="same-category-post-comment-num">(' . get_comments_number() . ')</p>';
+		}
+		
+		if ( isset( $instance['author'] ) ) {
+			$ret .= '<p class="post-author cat-post-author">';
+				$ret .=  get_the_author_posts_link();
+			$ret .= '</p>';
+		}
+
+		$ret .= '</li>';
+		return $ret;
 	}
 
 	// Displays a list of posts from same category on single post pages.
@@ -270,19 +353,26 @@ class SameCategoryPosts extends WP_Widget {
 
 			// Widget title
 			if( !isset ( $instance["hide_title"] ) ) {
-				echo $before_title;
-				if( isset ( $instance["title_link"] ) ) {
-					$linkList = "";
+				if( isset( $instance["separate_categories"] ) && $instance["separate_categories"] ) { // Separate categories
 					foreach($categories as $cat) {
-						$linkList .= '<a href="' . get_category_link( $cat ) . '">'. $cat->name . '</a>, ';
+						$widgetHTML[$cat->name]['ID'] = $cat->cat_ID;
+						$widgetHTML[$cat->name]['title'] = $before_title . $cat->name . $after_title;
 					}
-					$linkList = trim($linkList, ", ");
-					$linkList = str_replace( "%cat%", $linkList, $instance["title"]);
-					echo $linkList;
 				} else {
-					echo str_replace( "%cat%", $categoryName, $instance["title"]);
+					echo $before_title;
+					if( isset ( $instance["title_link"] ) ) {
+						$linkList = "";
+						foreach($categories as $cat) {
+							$linkList .= '<a href="' . get_category_link( $cat ) . '">'. $cat->name . '</a>, ';
+						}
+						$linkList = trim($linkList, ", ");
+						$linkList = str_replace( "%cat%", $linkList, $instance["title"]);
+						echo $linkList;
+					} else {
+						echo str_replace( "%cat%", $categoryName, $instance["title"]);
+					}
+					echo $after_title;
 				}
-				echo $after_title;
 			}
 			
 			// Post list
@@ -290,46 +380,36 @@ class SameCategoryPosts extends WP_Widget {
 			while ($my_query->have_posts())
 			{
 				$my_query->the_post();
-				?>
-				<li class="same-category-post-item <?php if ( $post->ID == $current_post_id ) { echo "same_category-post-current"; } ?>" >
 				
-					<?php
-						if( isset( $instance["thumbTop"] ) ) : 
-							$this->show_thumb();
-						endif; 
-					?>				
-				
-					<a class="post-title" href="<?php the_permalink() ?>" rel="bookmark" title="Permanent Link to <?php the_title_attribute(); ?>"><?php the_title(); ?></a>
-					
-					<?php if ( isset( $instance['date'] ) ) : ?>
-					<p class="post-date"><?php the_time("j M Y"); ?></p>
-					<?php endif; ?>					
-					
-					<?php 
-						if( !isset( $instance["thumbTop"] ) ) : 
-							$this->show_thumb(); 
-						endif; 
-					?>
-					
-					<?php if ( isset ( $instance['excerpt'] ) ) : ?>
-					<?php the_excerpt(); ?> 
-					<?php endif; ?>
-					
-					<?php if ( isset ( $instance['comment_num'] ) ) : ?>
-					<p class="same-category-post-comment-num">(<?php comments_number(); ?>)</p>
-					<?php endif; ?>
-					
-					<?php if ( isset( $instance['author'] ) ) : ?>
-						<p class="post-author cat-post-author">
-							<?php the_author_posts_link(); ?>
-						</p>
-					<?php endif; ?>
-					
-				</li>
-				<?php
+				if( isset( $instance["separate_categories"] ) && $instance["separate_categories"] ) { // Separate categories
+					// Put itemHTML to all assigned categories
+					$postCategories = get_the_category($post->ID);
+					foreach ($postCategories as $val) {
+						$widgetHTML[$val->name][]['itemHTML'] = $this->itemHTML($instance,$current_post_id);
+						$widgetHTML[$val->name][]['ID'] = $post->ID;
+						
+						break; // Put itemHTML to not to all assigned categories
+					}
+				} else {					
+					echo $this->itemHTML($instance,$current_post_id);
+				}
+			} // end while
+
+			if( isset( $instance["separate_categories"] ) && $instance["separate_categories"] ) { // Separate categories
+				foreach($widgetHTML as $val) {
+					echo isset($val['title'])?$val['title']:"";
+					$count = 1;
+					$num_per_cat = (isset($instance['num_per_cate'])&&$instance['num_per_cate']!=0?($instance['num_per_cate']):99999);
+					$num_per_cat = $num_per_cat==1?4:$num_per_cat*2+2;
+					foreach($val as $key) {
+						if($count <= $num_per_cat)
+							echo isset($key['itemHTML'])?$key['itemHTML']:"";
+						$count++;
+					}
+				}
 			}
-			echo "</ul>\n";
-			
+
+			echo "</ul>\n";			
 			echo $after_widget;
 		}
 
@@ -368,6 +448,8 @@ class SameCategoryPosts extends WP_Widget {
 		$instance = wp_parse_args( ( array ) $instance, array(
 			'title'                => __( '' ),
 			'hide_title'           => __( '' ),
+			'separate_categories'  => __( '' ),
+			'num_per_cate'         => __( '' ),
 			'num'                  => __( '' ),
 			'sort_by'              => __( '' ),
 			'asc_sort_order'       => __( '' ),
@@ -389,6 +471,8 @@ class SameCategoryPosts extends WP_Widget {
 
 		$title                = $instance['title'];
 		$hide_title           = $instance['hide_title'];
+		$separate_categories  = $instance['separate_categories'];
+		$num_per_cate         = $instance['num_per_cate'];
 		$num                  = $instance['num'];
 		$sort_by              = $instance['sort_by'];
 		$asc_sort_order       = $instance['asc_sort_order'];
@@ -412,7 +496,7 @@ class SameCategoryPosts extends WP_Widget {
 				<label for="<?php echo $this->get_field_id("title"); ?>">
 					<?php _e( 'Title' ); ?>:
 					<input class="widefat" id="<?php echo $this->get_field_id("title"); ?>" name="<?php echo $this->get_field_name("title"); ?>" type="text" value="<?php echo esc_attr($instance["title"]); ?>" />
-					<span>(Placeholder: '%cat%' will be replaced with all referenced categories in the string above.)</span>
+					<span>(Placeholder: '%cat%' will be replaced with all assigned categories in the string above.)</span>
 				</label>
 			</p>
 
@@ -458,7 +542,21 @@ class SameCategoryPosts extends WP_Widget {
 							<?php _e( 'Reverse sort order (ascending)' ); ?>
 				</label>
 			</p>
-			
+
+			<p>
+				<label for="<?php echo $this->get_field_id("separate_categories"); ?>">
+					<input onchange="javascript:scpwp_namespace.toggleSeparateCategoriesPanel(this)" type="checkbox" class="checkbox" id="<?php echo $this->get_field_id("separate_categories"); ?>" name="<?php echo $this->get_field_name("separate_categories"); ?>"<?php checked( (bool) $instance["separate_categories"], true ); ?> />
+					<?php _e( 'Separate categories (If more than one assigned)' ); ?>
+				</label>
+			</p>			
+
+			<p class="scpwp-separate-categories-panel" style="border-left:5px solid #F1F1F1;padding-left:15px;display:<?php echo (isset($separate_categories) && $separate_categories) ? 'block' : 'none'?>">
+				<label for="<?php echo $this->get_field_id("num_per_cate"); ?>">
+					<?php _e('Number of posts per separated categories'); ?>:
+					<input style="text-align: center;" id="<?php echo $this->get_field_id("num_per_cate"); ?>" name="<?php echo $this->get_field_name("num_per_cate"); ?>" type="number" min="0" value="<?php echo absint($instance["num_per_cate"]); ?>" size='3' />
+				</label>
+			</p>
+
 			<p>
 				<label>
 					<?php _e( 'Exclude category' ); ?>:
@@ -480,19 +578,21 @@ class SameCategoryPosts extends WP_Widget {
 				</label>
 			</p>
 			
-			<p>
-				<label for="<?php echo $this->get_field_id("excerpt_length"); ?>">
-					<?php _e( 'Excerpt length (in words):' ); ?>
-				</label>
-				<input style="text-align: center;" type="number" min="0" id="<?php echo $this->get_field_id("excerpt_length"); ?>" name="<?php echo $this->get_field_name("excerpt_length"); ?>" value="<?php echo $instance["excerpt_length"]; ?>" size="3" />
-			</p>
-			
-			<p>
-				<label for="<?php echo $this->get_field_id("excerpt_more_text"); ?>">
-					<?php _e( 'Excerpt \'more\' text:' ); ?>
-				</label>
-				<input class="widefat" style="width:50%;" placeholder="<?php _e('... more')?>" id="<?php echo $this->get_field_id("excerpt_more_text"); ?>" name="<?php echo $this->get_field_name("excerpt_more_text"); ?>" type="text" value="<?php echo esc_attr($instance["excerpt_more_text"]); ?>" />
-			</p>
+			<div style="border-left:5px solid #F1F1F1;padding-left:15px;">
+				<p>
+					<label for="<?php echo $this->get_field_id("excerpt_length"); ?>">
+						<?php _e( 'Excerpt length (in words):' ); ?>
+					</label>
+					<input style="text-align: center;" type="number" min="0" id="<?php echo $this->get_field_id("excerpt_length"); ?>" name="<?php echo $this->get_field_name("excerpt_length"); ?>" value="<?php echo $instance["excerpt_length"]; ?>" size="3" />
+				</p>
+				
+				<p>
+					<label for="<?php echo $this->get_field_id("excerpt_more_text"); ?>">
+						<?php _e( 'Excerpt \'more\' text:' ); ?>
+					</label>
+					<input class="widefat" style="width:50%;" placeholder="<?php _e('... more')?>" id="<?php echo $this->get_field_id("excerpt_more_text"); ?>" name="<?php echo $this->get_field_name("excerpt_more_text"); ?>" type="text" value="<?php echo esc_attr($instance["excerpt_more_text"]); ?>" />
+				</p>
+			</div>
 			
 			<p>
 				<label for="<?php echo $this->get_field_id("comment_num"); ?>">
@@ -523,32 +623,39 @@ class SameCategoryPosts extends WP_Widget {
 						<input type="checkbox" class="checkbox" id="<?php echo $this->get_field_id("thumbTop"); ?>" name="<?php echo $this->get_field_name("thumbTop"); ?>"<?php checked( (bool) $instance["thumbTop"], true ); ?> />
 						<?php _e( 'Thumbnail to top' ); ?>
 					</label>
-				</p>				
+				</p>
+				
 				<p>
 					<label for="<?php echo $this->get_field_id("thumb"); ?>">
 						<input type="checkbox" class="checkbox" id="<?php echo $this->get_field_id("thumb"); ?>" name="<?php echo $this->get_field_name("thumb"); ?>"<?php checked( (bool) $instance["thumb"], true ); ?> />
 						<?php _e( 'Show post thumbnail' ); ?>
 					</label>
-				</p>			
-				<p>
-					<label>
-						<?php _e('Thumbnail dimensions (in pixels)'); ?>:<br />
-						<label for="<?php echo $this->get_field_id("thumb_w"); ?>">
-							Width: <input class="widefat" style="width:30%;" type="number" min="1" id="<?php echo $this->get_field_id("thumb_w"); ?>" name="<?php echo $this->get_field_name("thumb_w"); ?>" value="<?php echo $instance["thumb_w"]; ?>" />
-						</label>
-						
-						<label for="<?php echo $this->get_field_id("thumb_h"); ?>">
-							Height: <input class="widefat" style="width:30%;" type="number" min="1" id="<?php echo $this->get_field_id("thumb_h"); ?>" name="<?php echo $this->get_field_name("thumb_h"); ?>" value="<?php echo $instance["thumb_h"]; ?>" />
-						</label>
-					</label>
 				</p>
-				<p>
-					<label for="<?php echo $this->get_field_id("use_css_cropping"); ?>">
-						<input type="checkbox" class="checkbox" id="<?php echo $this->get_field_id("use_css_cropping"); ?>" name="<?php echo $this->get_field_name("use_css_cropping"); ?>"<?php checked( (bool) $instance["use_css_cropping"], true ); ?> />
-						<?php _e( 'Use CSS cropping' ); ?>
-					</label>
-				</p>
+				
+				<div style="border-left:5px solid #F1F1F1;padding-left:15px;">
+					<p>
+						<label for="<?php echo $this->get_field_id("use_css_cropping"); ?>">
+							<input type="checkbox" class="checkbox" id="<?php echo $this->get_field_id("use_css_cropping"); ?>" name="<?php echo $this->get_field_name("use_css_cropping"); ?>"<?php checked( (bool) $instance["use_css_cropping"], true ); ?> />
+							<?php _e( 'Use CSS cropping' ); ?>
+						</label>
+					</p>
+					
+					<p>
+						<label>
+							<?php _e('Thumbnail dimensions (in pixels)'); ?>:<br />
+							<label for="<?php echo $this->get_field_id("thumb_w"); ?>">
+								Width: <input class="widefat" style="width:30%;" type="number" min="1" id="<?php echo $this->get_field_id("thumb_w"); ?>" name="<?php echo $this->get_field_name("thumb_w"); ?>" value="<?php echo $instance["thumb_w"]; ?>" />
+							</label>
+							
+							<label for="<?php echo $this->get_field_id("thumb_h"); ?>">
+								Height: <input class="widefat" style="width:30%;" type="number" min="1" id="<?php echo $this->get_field_id("thumb_h"); ?>" name="<?php echo $this->get_field_name("thumb_h"); ?>" value="<?php echo $instance["thumb_h"]; ?>" />
+							</label>
+						</label>
+					</p>
+				</div>
+				
 				<hr>
+				
 				<p style="text-align:right;">
 					Follow us on <a target="_blank" href="https://www.facebook.com/TipTopPress">Facebook</a> and 
 					<a target="_blank" href="https://twitter.com/TipTopPress">Twitter</a></br></br>
