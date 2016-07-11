@@ -4,7 +4,7 @@ Plugin Name: Same Category Posts
 Plugin URI: https://wordpress.org/plugins/same-category-posts/
 Description: Adds a widget that shows the most recent posts from a single category.
 Author: DFlöter
-Version: 1.0.7
+Version: 1.0.8
 Author URI: https://profiles.wordpress.org/kometschuh/
 */
 
@@ -283,24 +283,26 @@ class SameCategoryPosts extends WP_Widget {
 			$categoryName = trim($categoryName, ",");
 
 			$category_info = get_category( $category );
-			if( !$instance["title"] ) {		
+			if( !isset($instance["title"]) ) {		
 				$instance["title"] = $categoryName;
 			}
 		}else{ // get post types
 			$category_info = (object) array( 'name' => get_post_type($post->ID));
 			
-			if( !$instance["title"] ) {		
+			if( !isset($instance["title"]) ) {		
 				$instance["title"] = $category_info->name;
 			}			 
 		}
 		
 		// Excerpt length filter
-		$new_excerpt_length = create_function('$length', "return " . $instance["excerpt_length"] . ";");
-		if ( $instance["excerpt_length"] > 0 )
+		
+		if ( isset($instance["excerpt_length"]) && $instance["excerpt_length"] > 0 ) {
+			$new_excerpt_length = create_function('$length', "return " . $instance["excerpt_length"] . ";");
 			add_filter('excerpt_length', $new_excerpt_length);
+		}
 		
 		$valid_sort_orders = array('date', 'title', 'comment_count', 'rand');
-		if ( in_array($instance['sort_by'], $valid_sort_orders) ) {
+		if ( isset($instance['sort_by']) && in_array($instance['sort_by'], $valid_sort_orders) ) {
 			$sort_by = $instance['sort_by'];
 			$sort_order = (bool) isset( $instance['asc_sort_order'] ) ? 'ASC' : 'DESC';
 		} else {
@@ -331,7 +333,7 @@ class SameCategoryPosts extends WP_Widget {
 				'cat' => array( 'cat' => $category),
 				'category__not_in' => array( $exclude_category ),
 				'post__not_in' => array( $exclude_current_post ),
-				'showposts' => $instance['num'], // Number of same posts that will be shown
+				'showposts' => isset($instance['num'])?$instance['num']:0, // Number of same posts that will be shown
 				'ignore_sticky_posts' => 1,
 				'orderby' => $sort_by,
 				'order' => $sort_order
@@ -413,7 +415,8 @@ class SameCategoryPosts extends WP_Widget {
 			echo $after_widget;
 		}
 
-		remove_filter('excerpt_length', $new_excerpt_length);
+		if(isset($new_excerpt_length))
+			remove_filter('excerpt_length', $new_excerpt_length);
 		remove_filter('excerpt_more', array($this,'excerpt_more_filter'));
 
 		$post = $post_old; // Restore the post object.
@@ -516,11 +519,25 @@ class SameCategoryPosts extends WP_Widget {
 			
 			<p>
 				<label for="<?php echo $this->get_field_id("num"); ?>">
-					<?php _e('Number of posts to show'); ?>:
+					<?php _e('Number of posts to show (overall)'); ?>:
 					<input style="text-align: center;" id="<?php echo $this->get_field_id("num"); ?>" name="<?php echo $this->get_field_name("num"); ?>" type="number" min="0" value="<?php echo absint($instance["num"]); ?>" size='3' />
 				</label>
 			</p>
-			
+	
+			<p>
+				<label for="<?php echo $this->get_field_id("separate_categories"); ?>">
+					<input onchange="javascript:scpwp_namespace.toggleSeparateCategoriesPanel(this)" type="checkbox" class="checkbox" id="<?php echo $this->get_field_id("separate_categories"); ?>" name="<?php echo $this->get_field_name("separate_categories"); ?>"<?php checked( (bool) $instance["separate_categories"], true ); ?> />
+					<?php _e( 'Separate categories (If more than one assigned)' ); ?>
+				</label>
+			</p>			
+
+			<p class="scpwp-separate-categories-panel" style="border-left:5px solid #F1F1F1;padding-left:15px;display:<?php echo (isset($separate_categories) && $separate_categories) ? 'block' : 'none'?>">
+				<label for="<?php echo $this->get_field_id("num_per_cate"); ?>">
+					<?php _e('Number of posts per separated categories'); ?>:
+					<input style="text-align: center;" id="<?php echo $this->get_field_id("num_per_cate"); ?>" name="<?php echo $this->get_field_name("num_per_cate"); ?>" type="number" min="0" value="<?php echo absint($instance["num_per_cate"]); ?>" size='3' />
+				</label>
+			</p>
+
 			<p>
 				<label for="<?php echo $this->get_field_id("sort_by"); ?>">
 					<?php _e('Sort by'); ?>:
@@ -540,20 +557,6 @@ class SameCategoryPosts extends WP_Widget {
 						name="<?php echo $this->get_field_name("asc_sort_order"); ?>"
 						<?php checked( (bool) $instance["asc_sort_order"], true ); ?> />
 							<?php _e( 'Reverse sort order (ascending)' ); ?>
-				</label>
-			</p>
-
-			<p>
-				<label for="<?php echo $this->get_field_id("separate_categories"); ?>">
-					<input onchange="javascript:scpwp_namespace.toggleSeparateCategoriesPanel(this)" type="checkbox" class="checkbox" id="<?php echo $this->get_field_id("separate_categories"); ?>" name="<?php echo $this->get_field_name("separate_categories"); ?>"<?php checked( (bool) $instance["separate_categories"], true ); ?> />
-					<?php _e( 'Separate categories (If more than one assigned)' ); ?>
-				</label>
-			</p>			
-
-			<p class="scpwp-separate-categories-panel" style="border-left:5px solid #F1F1F1;padding-left:15px;display:<?php echo (isset($separate_categories) && $separate_categories) ? 'block' : 'none'?>">
-				<label for="<?php echo $this->get_field_id("num_per_cate"); ?>">
-					<?php _e('Number of posts per separated categories'); ?>:
-					<input style="text-align: center;" id="<?php echo $this->get_field_id("num_per_cate"); ?>" name="<?php echo $this->get_field_name("num_per_cate"); ?>" type="number" min="0" value="<?php echo absint($instance["num_per_cate"]); ?>" size='3' />
 				</label>
 			</p>
 
