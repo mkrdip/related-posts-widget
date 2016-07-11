@@ -389,13 +389,15 @@ class SameCategoryPosts extends WP_Widget {
 				$my_query->the_post();
 				
 				if( isset( $instance["separate_categories"] ) && $instance["separate_categories"] ) { // Separate categories
-					// Put itemHTML to all assigned categories
-					$postCategories = get_the_category($post->ID);
+					// Put itemHTML to all assigned categories from current post
+					foreach ($categories as $key => $cat)
+						$cats[] = $cat->name;
+					$postCategories = get_the_category($post->ID); 
 					foreach ($postCategories as $val) {
-						$widgetHTML[$val->name][]['itemHTML'] = $this->itemHTML($instance,$current_post_id);
-						$widgetHTML[$val->name][]['ID'] = $post->ID;
-						
-						break; // Put itemHTML to not to all assigned categories
+						if(in_array($val->name,$cats)) {
+							$widgetHTML[$val->name][$post->ID]['itemHTML'] = $this->itemHTML($instance,$current_post_id);
+							$widgetHTML[$val->name][$post->ID]['ID'] = $post->ID;						
+						}
 					}
 				} else {					
 					echo $this->itemHTML($instance,$current_post_id);
@@ -403,17 +405,27 @@ class SameCategoryPosts extends WP_Widget {
 			} // end while
 
 			if( isset( $instance["separate_categories"] ) && $instance["separate_categories"] ) { // Separate categories
+				$isOnPage = array();
 				foreach($widgetHTML as $val) {
-					echo isset($val['title'])?$val['title']:"";
+					$haveItemHTML = false;
+					$ret = isset($val['title'])?$val['title']:"";
 					$count = 1;
 					$num_per_cat = (isset($instance['num_per_cate'])&&$instance['num_per_cate']!=0?($instance['num_per_cate']):99999);
-					foreach($val as $key) {
+					foreach($val as $key) { 
 						if(is_array($key) && array_key_exists('itemHTML', $key)) {
-							if($count <= $num_per_cat)
-								echo isset($key['itemHTML'])?$key['itemHTML']:"";
-							$count++;
+							if( !in_array($key['ID'], $isOnPage) ) { //echo "a";
+								if($count <= $num_per_cat) {
+									$ret .= $key['itemHTML'];
+									$haveItemHTML = true;
+									$isOnPage[] = $key['ID'];
+								} else
+									break;
+								$count++;
+							}
 						}
 					}
+				if($haveItemHTML)
+					echo $ret;
 				}
 			}
 
