@@ -36,21 +36,6 @@ function same_category_posts_admin_scripts($hook) {
 add_action('admin_enqueue_scripts', 'same_category_posts_admin_scripts');
 
 /**
- * Register thumbnail sizes.
- *
- * @return void
- */
-if ( function_exists('add_image_size') )
-{
-	$sizes = get_option('kts_same_category_post_thumb_sizes');
-	if ( $sizes )
-	{
-		foreach ( $sizes as $id=>$size )
-			add_image_size( 'related_post_thumb_size' . $id, $size[0], $size[1], true );
-	}
-}
-
-/**
  * Get image size
  *
  * $thumb_w, $thumb_h - the width and height of the thumbnail in the widget settings
@@ -280,16 +265,14 @@ class SameCategoryPosts extends WP_Widget {
 				$categoryName .= $val->name . ", ";
 			}
 			$category = trim($category, ",");
-			$categoryName = trim($categoryName, ",");
+			$categoryName = trim($categoryName, ", ");
 
 			$category_info = get_category( $category );
-			if( !isset($instance["title"]) ) {		
-				$instance["title"] = $categoryName;
-			}
+
 		}else{ // get post types
 			$category_info = (object) array( 'name' => get_post_type($post->ID));
 			
-			if( !isset($instance["title"]) ) {		
+			if( !isset($instance["title"]) || isset($instance["title"]) && !$instance["title"] ) {
 				$instance["title"] = $category_info->name;
 			}			 
 		}
@@ -368,10 +351,16 @@ class SameCategoryPosts extends WP_Widget {
 							$linkList .= '<a href="' . get_category_link( $cat ) . '">'. $cat->name . '</a>, ';
 						}
 						$linkList = trim($linkList, ", ");
-						$linkList = str_replace( "%cat%", $linkList, $instance["title"]);
+						if( isset($instance["title"]) && $instance["title"] ) // title is not empty
+							if(strpos($instance["title"], '%cat%') !== false) // category placeholder is used
+								$linkList = str_replace( "%cat%", $linkList, $instance["title"]);
+							else // no category placeholder is used
+								$linkList = '<a href="' . get_category_link( $categories[0] ) . '">'. $instance["title"] . '</a>';
 						echo $linkList;
 					} else {
-						echo str_replace( "%cat%", $categoryName, $instance["title"]);
+						if( isset($instance["title"]) && $instance["title"] ) // title is not empty
+							$categoryName = str_replace( "%cat%", $categoryName, $instance["title"]);
+						echo $categoryName;
 					}
 					echo $after_title;
 				}
@@ -430,13 +419,6 @@ class SameCategoryPosts extends WP_Widget {
 	 * @return array
 	 */
 	function update($new_instance, $old_instance) {
-		if ( function_exists('the_post_thumbnail') )
-		{
-			$sizes = get_option('kts_same_category_post_thumb_sizes');
-			if ( !$sizes ) $sizes = array();
-			$sizes[$this->id] = array($new_instance['thumb_w'], $new_instance['thumb_h']);
-			update_option('kts_same_category_post_thumb_sizes', $sizes);
-		}
 		
 		return $new_instance;
 	}
