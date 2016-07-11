@@ -338,7 +338,11 @@ class SameCategoryPosts extends WP_Widget {
 				if( isset( $instance["separate_categories"] ) && $instance["separate_categories"] ) { // Separate categories
 					foreach($categories as $cat) {
 						$widgetHTML[$cat->name]['ID'] = $cat->cat_ID;
-						$widgetHTML[$cat->name]['title'] = $before_title . $cat->name . $after_title;
+						if( isset ( $instance["title_link"] ) ) {
+							$widgetHTML[$cat->name]['title'] = $before_title . '<a href="' . get_category_link( $cat ) . '">'. $cat->name . '</a>' . $after_title;
+						} else {
+							$widgetHTML[$cat->name]['title'] = $before_title . $cat->name . $after_title;
+						}
 					}
 				} else {
 					echo $before_title;
@@ -403,11 +407,12 @@ class SameCategoryPosts extends WP_Widget {
 					echo isset($val['title'])?$val['title']:"";
 					$count = 1;
 					$num_per_cat = (isset($instance['num_per_cate'])&&$instance['num_per_cate']!=0?($instance['num_per_cate']):99999);
-					$num_per_cat = $num_per_cat==1?4:$num_per_cat*2+2;
 					foreach($val as $key) {
-						if($count <= $num_per_cat)
-							echo isset($key['itemHTML'])?$key['itemHTML']:"";
-						$count++;
+						if(is_array($key) && array_key_exists('itemHTML', $key)) {
+							if($count <= $num_per_cat)
+								echo isset($key['itemHTML'])?$key['itemHTML']:"";
+							$count++;
+						}
 					}
 				}
 			}
