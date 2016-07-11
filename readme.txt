@@ -19,14 +19,14 @@ We're [Tip Top Press](http://tiptoppress.com) and create widgets for Wordpress. 
 
 = Features =
 
+* Option seperate categories if more than one is assigned (layout feature).
+* Placeholder in title string.
 * Option to show post thumbnail & set dimension by width & height.
 * Option to crop thumbnails with CSS. [What is 'CSS Image Crop'](http://tiptoppress.com/css-image-crop).
 * Custom Post Types support.
 * Option to put thumbnail on top.
 * Option to change ordering of posts.
-* Option seperate categories if more than one is assigned
 * Set how many posts to show.
-* Placeholder in title string.
 * Option to make the widget title link to the category page.
 * Option to show/hide the title.
 * Option exclude a category.
@@ -40,7 +40,9 @@ We're [Tip Top Press](http://tiptoppress.com) and create widgets for Wordpress. 
 
 = Placeholder =
 
-In text boxes '%cat%' will replaced with the category name, e.g. "There are a lot of '%cat%'-News." -> "There are a lot of Tech-News."
+In text boxes '%cat%' will replaced with the (first assigned) category name, e.g. "There are a lot of '%cat%'-News." -> "There are a lot of Tech-News."
+
+And '%cat-all%' will replaced with all assigned category name, e.g. "Special offers for '%cat-all%'!" -> "Special offers for houses, flats, apartments."
 
 = Contribute =
 While using this plugin if you find any bug or any conflict, please submit an issue at 
@@ -86,7 +88,7 @@ Enable the check box "Make widget title link".
 * Add option seperate categories if more than one is assigned
 * Add option change excerpt 'more' text.
 * Title show and link to all referenced categories
-* Placeholder in the title gets (show and link) all referenced categories
+* Additional placeholder %cat-all% gets (show and link) all referenced categories
 
 = 1.0.7 - June 26 2016 =
 * Show all assigned categories

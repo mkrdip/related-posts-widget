@@ -257,19 +257,16 @@ class SameCategoryPosts extends WP_Widget {
 
 		// Get category
 		$categories = get_the_category();
-		$categoryName = "";
-		if( sizeof($categories) > 0 ) {
+		if( sizeof($categories) > 0 ) {		
 			$category = '';
 			foreach ($categories as $key => $val) {
 				$category .= $val->cat_ID . ",";
-				$categoryName .= $val->name . ", ";
 			}
 			$category = trim($category, ",");
-			$categoryName = trim($categoryName, ", ");
-
+		
 			$category_info = get_category( $category );
 
-		}else{ // get post types
+		} else { // get post types
 			$category_info = (object) array( 'name' => get_post_type($post->ID));
 			
 			if( !isset($instance["title"]) || isset($instance["title"]) && !$instance["title"] ) {
@@ -351,16 +348,31 @@ class SameCategoryPosts extends WP_Widget {
 							$linkList .= '<a href="' . get_category_link( $cat ) . '">'. $cat->name . '</a>, ';
 						}
 						$linkList = trim($linkList, ", ");
-						if( isset($instance["title"]) && $instance["title"] ) // title is not empty
-							if(strpos($instance["title"], '%cat%') !== false) // category placeholder is used
-								$linkList = str_replace( "%cat%", $linkList, $instance["title"]);
-							else // no category placeholder is used
+						if( isset($instance["title"]) && $instance["title"] ) { 								// use placeholders if title is not empty
+							if(strpos($instance["title"], '%cat-all%') !== false || 
+								strpos($instance["title"], '%cat%') !== false) {								// all-category placeholder is used
+								if(strpos($instance["title"], '%cat-all%') !== false)
+									$linkList = str_replace( "%cat-all%", $linkList, $instance["title"]);
+								else if(strpos($instance["title"], '%cat%') !== false)
+									$linkList = str_replace( "%cat%", '<a href="' . get_category_link( $categories[0] ) . '">'. $categories[0]->name . '</a>', $instance["title"]);
+							} else 																				// no category placeholder is used
 								$linkList = '<a href="' . get_category_link( $categories[0] ) . '">'. $instance["title"] . '</a>';
+						}
 						echo $linkList;
 					} else {
-						if( isset($instance["title"]) && $instance["title"] ) // title is not empty
-							$categoryName = str_replace( "%cat%", $categoryName, $instance["title"]);
-						echo $categoryName;
+						$categoryNames = "";
+						foreach ($categories as $key => $val) {
+							$categoryNames .= $val->name . ", ";
+						}
+						$categoryNames = trim($categoryNames, ", ");
+					
+						if( isset($instance["title"]) && $instance["title"] ) {									// use placeholders if title is not empty
+							if(strpos($instance["title"], '%cat-all%') !== false)								// all-category placeholder is used
+								$categoryNames = str_replace( "%cat-all%", $categoryNames, $instance["title"]);
+							else if(strpos($instance["title"], '%cat%') !== false)								// one-category placeholder is used
+								$categoryNames = str_replace( "%cat%", $categories[0]->name, $instance["title"]);
+						}
+						echo $categoryNames;
 					}
 					echo $after_title;
 				}
@@ -478,14 +490,6 @@ class SameCategoryPosts extends WP_Widget {
 		
 			?>
 			<p>
-				<label for="<?php echo $this->get_field_id("title"); ?>">
-					<?php _e( 'Title' ); ?>:
-					<input class="widefat" id="<?php echo $this->get_field_id("title"); ?>" name="<?php echo $this->get_field_name("title"); ?>" type="text" value="<?php echo esc_attr($instance["title"]); ?>" />
-					<span>(Placeholder: '%cat%' will be replaced with all assigned categories in the string above.)</span>
-				</label>
-			</p>
-
-			<p>
 				<label for="<?php echo $this->get_field_id("title_link"); ?>">
 					<input type="checkbox" class="checkbox" id="<?php echo $this->get_field_id("title_link"); ?>" name="<?php echo $this->get_field_name("title_link"); ?>"<?php checked( (bool) $instance["title_link"], true ); ?> />
 					<?php _e( 'Make widget title link' ); ?>
@@ -500,12 +504,13 @@ class SameCategoryPosts extends WP_Widget {
 			</p>
 			
 			<p>
-				<label for="<?php echo $this->get_field_id("num"); ?>">
-					<?php _e('Number of posts to show (overall)'); ?>:
-					<input style="text-align: center;" id="<?php echo $this->get_field_id("num"); ?>" name="<?php echo $this->get_field_name("num"); ?>" type="number" min="0" value="<?php echo absint($instance["num"]); ?>" size='3' />
+				<label for="<?php echo $this->get_field_id("title"); ?>">
+					<?php _e( 'Title' ); ?>:
+					<input class="widefat" id="<?php echo $this->get_field_id("title"); ?>" name="<?php echo $this->get_field_name("title"); ?>" type="text" value="<?php echo esc_attr($instance["title"]); ?>" />
+					<span>(Placeholder: '%cat%' for one category and '%cat-all%' for all assigned categories)</span>
 				</label>
 			</p>
-	
+			
 			<p>
 				<label for="<?php echo $this->get_field_id("separate_categories"); ?>">
 					<input onchange="javascript:scpwp_namespace.toggleSeparateCategoriesPanel(this)" type="checkbox" class="checkbox" id="<?php echo $this->get_field_id("separate_categories"); ?>" name="<?php echo $this->get_field_name("separate_categories"); ?>"<?php checked( (bool) $instance["separate_categories"], true ); ?> />
@@ -517,6 +522,13 @@ class SameCategoryPosts extends WP_Widget {
 				<label for="<?php echo $this->get_field_id("num_per_cate"); ?>">
 					<?php _e('Number of posts per separated categories'); ?>:
 					<input style="text-align: center;" id="<?php echo $this->get_field_id("num_per_cate"); ?>" name="<?php echo $this->get_field_name("num_per_cate"); ?>" type="number" min="0" value="<?php echo absint($instance["num_per_cate"]); ?>" size='3' />
+				</label>
+			</p>
+			
+			<p>
+				<label for="<?php echo $this->get_field_id("num"); ?>">
+					<?php _e('Number of posts to show (overall)'); ?>:
+					<input style="text-align: center;" id="<?php echo $this->get_field_id("num"); ?>" name="<?php echo $this->get_field_name("num"); ?>" type="number" min="0" value="<?php echo absint($instance["num"]); ?>" size='3' />
 				</label>
 			</p>
 
