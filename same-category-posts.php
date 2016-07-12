@@ -339,9 +339,19 @@ class SameCategoryPosts extends WP_Widget {
 					foreach($categories as $cat) {
 						$widgetHTML[$cat->name]['ID'] = $cat->cat_ID;
 						if( isset ( $instance["title_link"] ) ) {
-							$widgetHTML[$cat->name]['title'] = $before_title . '<a href="' . get_category_link( $cat ) . '">'. $cat->name . '</a>' . $after_title;
+							$title = '<a href="' . get_category_link( $cat ) . '">'. $cat->name . '</a>';
+							if(isset($instance["title"]) && strpos($instance["title"], '%cat-all%') !== false)
+								$title = str_replace( "%cat-all%", $title, $instance["title"]);
+							else if(isset($instance["title"]) && strpos($instance["title"], '%cat%') !== false)
+								$title = str_replace( "%cat%", $title, $instance["title"]);
+							$widgetHTML[$cat->name]['title'] = $before_title . $title . $after_title;
 						} else {
-							$widgetHTML[$cat->name]['title'] = $before_title . $cat->name . $after_title;
+							$title = $cat->name;
+							if(isset($instance["title"]) && strpos($instance["title"], '%cat-all%') !== false)
+								$title = str_replace( "%cat-all%", $title, $instance["title"]);
+							else if(isset($instance["title"]) && strpos($instance["title"], '%cat%') !== false)
+								$title = str_replace( "%cat%", $title, $instance["title"]);
+							$widgetHTML[$cat->name]['title'] = $before_title . $title . $after_title;
 						}
 					}
 				} else {
