@@ -19,7 +19,7 @@ We're [Tip Top Press](http://tiptoppress.com) and create widgets for Wordpress. 
 
 = Features =
 
-* Option seperate categories if more than one is assigned (layout feature).
+* Option [seperate categories](http://tiptoppress.com/new-dynamic-layout-feature-separate-categories) if more than one is assigned.
 * Placeholder in title string.
 * Option to show post thumbnail & set dimension by width & height.
 * Option to crop thumbnails with CSS. [What is 'CSS Image Crop'](http://tiptoppress.com/css-image-crop).
