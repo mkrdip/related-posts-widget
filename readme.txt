@@ -15,14 +15,14 @@ Adds a widget that shows posts from the same category to the current post.
 Same Category Posts shows a list of same posts to the current post. The widget is only shown on single post pages. Forked from [Related Posts Widget](https://wordpress.org/plugins/related-posts-widget).
 
 = Tip Top Press =
-We're [Tip Top Press](http://tiptoppress.com) and create widgets for Wordpress. If you want to know about what we're working on and you are interested in backgrounds then you can read all newes storys on our [blog](http://tiptoppress.com/blog).
+We're [Tip Top Press](http://tiptoppress.com/?utm_source=wordpress_org&utm_campaign=tiptoppress_toptoppress_scp&utm_medium=web) and create widgets for Wordpress. If you want to know about what we're working on and you are interested in backgrounds then you can read all newes storys on our [blog](http://tiptoppress.com/blog/?utm_source=wordpress_org&utm_campaign=toptoppress_blog_scp&utm_medium=web).
 
 = Features =
 
-* Option [seperate categories](http://tiptoppress.com/new-dynamic-layout-feature-separate-categories) if more than one is assigned.
+* Option [seperate categories](http://tiptoppress.com/new-dynamic-layout-feature-separate-categories/?utm_source=wordpress_org&utm_campaign=features_seperate_scp&utm_medium=web) if more than one is assigned.
 * Placeholder in title string.
 * Option to show post thumbnail & set dimension by width & height.
-* Option to crop thumbnails with CSS. [What is 'CSS Image Crop'](http://tiptoppress.com/css-image-crop).
+* Option to crop thumbnails with CSS. [What is 'CSS Image Crop'](http://tiptoppress.com/css-image-crop/?utm_source=wordpress_org&utm_campaign=features_crop_scp&utm_medium=web).
 * Custom Post Types support.
 * Option to put thumbnail on top.
 * Option to change ordering of posts.
@@ -81,6 +81,7 @@ Enable the check box "Make widget title link".
 
 1. The widget configuration dialog.
 2. Front end of the widget using a default WordPress Theme.
+3. Option 'Separate categories (If more than one assigned)' will show, separate and link to all assigned categories.
 
 == Changelog ==
 
