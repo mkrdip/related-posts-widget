@@ -36,6 +36,61 @@ function same_category_posts_admin_scripts($hook) {
 add_action('admin_enqueue_scripts', 'same_category_posts_admin_scripts');
 
 /**
+ * Add styles for widget sections
+ *
+ */ 
+function admin_styles() {
+?>
+<style>
+.same-category-widget-cont h4 {
+    padding: 12px 15px;
+    cursor: pointer;
+    margin: 5px 0;
+    border: 1px solid #E5E5E5;
+}
+.same-category-widget-cont h4:first-child {
+	margin-top: 10px;	
+}
+.same-category-widget-cont h4:last-of-type {
+	margin-bottom: 10px;
+}
+.same-category-widget-cont h4:after {
+	float:right;
+	font-family: "dashicons";
+	content: '\f140';
+	-ms-transform: translate(-1px,1px);
+	-webkit-transform: translate(-1px,1px);
+	-moz-transform: translate(-1px,1px);
+	transform: translate(-1px,1px);
+	-ms-transition: all 600ms;
+	-webkit-transition: all 600ms;
+	-moz-transition: all 600ms;
+    transition: all 600ms;	
+}	
+.same-category-widget-cont h4.open:after {
+	-ms-transition: all 600ms;
+	-webkit-transition: all 600ms;
+	-moz-transition: all 600ms;
+    transition: all 600ms;	
+	-ms-transform: rotate(180deg);
+    -webkit-transform: rotate(180deg);
+	-moz-transform: rotate(180deg);
+	transform: rotate(180deg);
+}	
+.same-category-widget-cont > div {
+	display:none;
+	overflow: hidden;
+}	
+.same-category-widget-cont > div.open {
+	display:block;
+}	
+</style>
+<?php
+}
+
+add_action( 'admin_print_styles-widgets.php', __NAMESPACE__.'\admin_styles' );
+
+/**
  * Get image size
  *
  * $thumb_w, $thumb_h - the width and height of the thumbnail in the widget settings
@@ -515,187 +570,197 @@ class SameCategoryPosts extends WP_Widget {
 		$thumb_h              = $instance['thumb_h'];
 		$use_css_cropping     = $instance['use_css_cropping'];		
 		
-			?>
-			<p>
-				<label for="<?php echo $this->get_field_id("title_link"); ?>">
-					<input type="checkbox" class="checkbox" id="<?php echo $this->get_field_id("title_link"); ?>" name="<?php echo $this->get_field_name("title_link"); ?>"<?php checked( (bool) $instance["title_link"], true ); ?> />
-					<?php _e( 'Make widget title link' ); ?>
-				</label>
-			</p>
-			
-			<p>
-				<label for="<?php echo $this->get_field_id("hide_title"); ?>">
-					<input type="checkbox" class="checkbox" id="<?php echo $this->get_field_id("hide_title"); ?>" name="<?php echo $this->get_field_name("hide_title"); ?>"<?php checked( (bool) $instance["hide_title"], true ); ?> />
-					<?php _e( 'Hide title' ); ?>
-				</label>
-			</p>
-			
-			<p>
-				<label for="<?php echo $this->get_field_id("title"); ?>">
-					<?php _e( 'Title' ); ?>:
-					<input style="width:80%;" class="widefat" id="<?php echo $this->get_field_id("title"); ?>" name="<?php echo $this->get_field_name("title"); ?>" type="text" value="<?php echo esc_attr($instance["title"]); ?>" />
-					<span>(Placeholder: </br>'%cat%' - One category (the first if more assigned)</br>'%cat-all%' - All assigned categories for the shown post)</span>
-				</label>
-			</p>
-
-			<p>
-				<label>
-					<?php _e( 'Exclude categories' ); ?>:
-					<select name="<?php echo $this->get_field_name("exclude_categories")?>[]" multiple="multiple">
-					<?php foreach(get_categories() as $cat){
-						$selected = in_array($cat->cat_ID,$instance["exclude_categories"])?'selected="selected"':'';
-						echo "<option value='".$cat->cat_ID."' ".$selected.">".$cat->name."</option>";
-					}
-					?>
-					</select>
-				</label>
-			</p>
-			
-			<p>
-				<label for="<?php echo $this->get_field_id("num"); ?>">
-					<?php _e('Number of posts to show (overall)'); ?>:
-					<input style="width:30%;" style="text-align: center;" id="<?php echo $this->get_field_id("num"); ?>" name="<?php echo $this->get_field_name("num"); ?>" type="number" min="0" value="<?php echo absint($instance["num"]); ?>" size='3' />
-				</label>
-			</p>
-			
-			<p>
-				<label for="<?php echo $this->get_field_id("separate_categories"); ?>">
-					<input onchange="javascript:scpwp_namespace.toggleSeparateCategoriesPanel(this)" type="checkbox" class="checkbox" id="<?php echo $this->get_field_id("separate_categories"); ?>" name="<?php echo $this->get_field_name("separate_categories"); ?>"<?php checked( (bool) $instance["separate_categories"], true ); ?> />
-					<?php _e( 'Separate categories (If more than one assigned)' ); ?>
-				</label>
-			</p>			
-
-			<p class="scpwp-separate-categories-panel" style="border-left:5px solid #F1F1F1;padding-left:10px;display:<?php echo (isset($separate_categories) && $separate_categories) ? 'block' : 'none'?>">
-				<label for="<?php echo $this->get_field_id("num_per_cate"); ?>">
-					<?php _e('Number of posts per separated categories'); ?>:
-					<input style="width: 15%; text-align: center;" id="<?php echo $this->get_field_id("num_per_cate"); ?>" name="<?php echo $this->get_field_name("num_per_cate"); ?>" type="number" min="0" value="<?php echo absint($instance["num_per_cate"]); ?>" size='3' />
-				</label>
-			</p>
-
-			<p>
-				<label for="<?php echo $this->get_field_id("sort_by"); ?>">
-					<?php _e('Sort by'); ?>:
-					<select id="<?php echo $this->get_field_id("sort_by"); ?>" name="<?php echo $this->get_field_name("sort_by"); ?>">
-						<option value="date"<?php selected( $instance["sort_by"], "date" ); ?>>Date</option>
-						<option value="title"<?php selected( $instance["sort_by"], "title" ); ?>>Title</option>
-						<option value="comment_count"<?php selected( $instance["sort_by"], "comment_count" ); ?>>Number of comments</option>
-						<option value="rand"<?php selected( $instance["sort_by"], "rand" ); ?>>Random</option>
-					</select>
-				</label>
-			</p>
-
-			<p>
-				<label for="<?php echo $this->get_field_id("asc_sort_order"); ?>">
-					<input type="checkbox" class="checkbox" 
-						id="<?php echo $this->get_field_id("asc_sort_order"); ?>" 
-						name="<?php echo $this->get_field_name("asc_sort_order"); ?>"
-						<?php checked( (bool) $instance["asc_sort_order"], true ); ?> />
-							<?php _e( 'Reverse sort order (ascending)' ); ?>
-				</label>
-			</p>
-			
-			<p>
-				<label for="<?php echo $this->get_field_id("exclude_current_post"); ?>">
-					<input type="checkbox" class="checkbox" id="<?php echo $this->get_field_id("exclude_current_post"); ?>" name="<?php echo $this->get_field_name("exclude_current_post"); ?>"<?php checked( (bool) $instance["exclude_current_post"], true ); ?> />
-					<?php _e( 'Exclude current post' ); ?>
-				</label>
-			</p>			
-			
-			<p>
-				<label for="<?php echo $this->get_field_id("excerpt"); ?>">
-					<input onchange="javascript:scpwp_namespace.toggleShowPostExcerptPanel(this)" type="checkbox" class="checkbox" id="<?php echo $this->get_field_id("excerpt"); ?>" name="<?php echo $this->get_field_name("excerpt"); ?>"<?php checked( (bool) $instance["excerpt"], true ); ?> />
-					<?php _e( 'Show post excerpt' ); ?>
-				</label>
-			</p>
-			
-			<div class="scpwp-show-post-excerpt-panel" style="border-left:5px solid #F1F1F1;padding-left:10px;display:<?php echo (isset($excerpt) && $excerpt) ? 'block' : 'none'?>">
+		?>
+		<div class="same-category-widget-cont">
+			<h4 data-panel="title"><?php _e('Title')?></h4>
+			<div>
 				<p>
-					<label for="<?php echo $this->get_field_id("excerpt_length"); ?>">
-						<?php _e( 'Excerpt length (in words):' ); ?>
+					<label for="<?php echo $this->get_field_id("title_link"); ?>">
+						<input type="checkbox" class="checkbox" id="<?php echo $this->get_field_id("title_link"); ?>" name="<?php echo $this->get_field_name("title_link"); ?>"<?php checked( (bool) $instance["title_link"], true ); ?> />
+						<?php _e( 'Make widget title link' ); ?>
 					</label>
-					<input style="width:30%; text-align: center;" placeholder="<?php _e('55')?>" type="number" min="0" id="<?php echo $this->get_field_id("excerpt_length"); ?>" name="<?php echo $this->get_field_name("excerpt_length"); ?>" value="<?php echo $instance["excerpt_length"]; ?>" size="3" />
 				</p>
 				
 				<p>
-					<label for="<?php echo $this->get_field_id("excerpt_more_text"); ?>">
-						<?php _e( 'Excerpt \'more\' text:' ); ?>
+					<label for="<?php echo $this->get_field_id("hide_title"); ?>">
+						<input type="checkbox" class="checkbox" id="<?php echo $this->get_field_id("hide_title"); ?>" name="<?php echo $this->get_field_name("hide_title"); ?>"<?php checked( (bool) $instance["hide_title"], true ); ?> />
+						<?php _e( 'Hide title' ); ?>
 					</label>
-					<input class="widefat" style="width:50%;" placeholder="<?php _e('... more')?>" id="<?php echo $this->get_field_id("excerpt_more_text"); ?>" name="<?php echo $this->get_field_name("excerpt_more_text"); ?>" type="text" value="<?php echo esc_attr($instance["excerpt_more_text"]); ?>" />
+				</p>
+				
+				<p>
+					<label for="<?php echo $this->get_field_id("title"); ?>">
+						<?php _e( 'Title' ); ?>:
+						<input style="width:80%;" class="widefat" id="<?php echo $this->get_field_id("title"); ?>" name="<?php echo $this->get_field_name("title"); ?>" type="text" value="<?php echo esc_attr($instance["title"]); ?>" />
+						<div style="border-left:5px solid #F1F1F1;padding-left:10px;">(Placeholder: </br>'%cat%' - One category (the first if more assigned)</br>'%cat-all%' - All assigned categories for the shown post)</div>
+					</label>
 				</p>
 			</div>
-			
-			<p>
-				<label for="<?php echo $this->get_field_id("comment_num"); ?>">
-					<input type="checkbox" class="checkbox" id="<?php echo $this->get_field_id("comment_num"); ?>" name="<?php echo $this->get_field_name("comment_num"); ?>"<?php checked( (bool) $instance["comment_num"], true ); ?> />
-					<?php _e( 'Show number of comments' ); ?>
-				</label>
-			</p>
-			
-			<p>
-				<label for="<?php echo $this->get_field_id("date"); ?>">
-					<input type="checkbox" class="checkbox" id="<?php echo $this->get_field_id("date"); ?>" name="<?php echo $this->get_field_name("date"); ?>"<?php checked( (bool) $instance["date"], true ); ?> />
-					<?php _e( 'Show post date' ); ?>
-				</label>
-			</p>
-			
-			<p>
-				<label for="<?php echo $this->get_field_id("author"); ?>">
-					<input type="checkbox" class="checkbox" id="<?php echo $this->get_field_id("author"); ?>" name="<?php echo $this->get_field_name("author"); ?>"<?php checked( (bool) $instance["author"], true ); ?> />
-					<?php _e( 'Show post author' ); ?>
-				</label>
-			</p>
-			
-			<?php 
-				if ( function_exists('the_post_thumbnail') && current_theme_supports("post-thumbnails") ) : 
-			?>				
+			<h4 data-panel="filter"><?php _e('Filter')?></h4>
+			<div>
 				<p>
-					<label for="<?php echo $this->get_field_id("thumb"); ?>">
-						<input onchange="javascript:scpwp_namespace.toggleShowPostThumbnailPanel(this)" type="checkbox" class="checkbox" id="<?php echo $this->get_field_id("thumb"); ?>" name="<?php echo $this->get_field_name("thumb"); ?>"<?php checked( (bool) $instance["thumb"], true ); ?> />
-						<?php _e( 'Show post thumbnail' ); ?>
+					<label>
+						<?php _e( 'Exclude categories' ); ?>:
+						<select name="<?php echo $this->get_field_name("exclude_categories")?>[]" multiple="multiple">
+						<?php foreach(get_categories() as $cat){
+							$selected = in_array($cat->cat_ID,$instance["exclude_categories"])?'selected="selected"':'';
+							echo "<option value='".$cat->cat_ID."' ".$selected.">".$cat->name."</option>";
+						}
+						?>
+						</select>
 					</label>
 				</p>
 				
-				<div class="scpwp-show-post-thumbnail-panel" style="border-left:5px solid #F1F1F1;padding-left:10px;display:<?php echo (isset($thumb) && $thumb) ? 'block' : 'none'?>">
+				<p>
+					<label for="<?php echo $this->get_field_id("num"); ?>">
+						<?php _e('Number of posts to show (overall)'); ?>:
+						<input style="width:30%;" style="text-align: center;" id="<?php echo $this->get_field_id("num"); ?>" name="<?php echo $this->get_field_name("num"); ?>" type="number" min="0" value="<?php echo absint($instance["num"]); ?>" size='3' />
+					</label>
+				</p>
+				
+				<p>
+					<label for="<?php echo $this->get_field_id("separate_categories"); ?>">
+						<input onchange="javascript:scpwp_namespace.toggleSeparateCategoriesPanel(this)" type="checkbox" class="checkbox" id="<?php echo $this->get_field_id("separate_categories"); ?>" name="<?php echo $this->get_field_name("separate_categories"); ?>"<?php checked( (bool) $instance["separate_categories"], true ); ?> />
+						<?php _e( 'Separate categories (If more than one assigned)' ); ?>
+					</label>
+				</p>			
+
+				<p class="scpwp-separate-categories-panel" style="border-left:5px solid #F1F1F1;padding-left:10px;display:<?php echo (isset($separate_categories) && $separate_categories) ? 'block' : 'none'?>">
+					<label for="<?php echo $this->get_field_id("num_per_cate"); ?>">
+						<?php _e('Number of posts per separated categories'); ?>:
+						<input style="width: 15%; text-align: center;" id="<?php echo $this->get_field_id("num_per_cate"); ?>" name="<?php echo $this->get_field_name("num_per_cate"); ?>" type="number" min="0" value="<?php echo absint($instance["num_per_cate"]); ?>" size='3' />
+					</label>
+				</p>
+
+				<p>
+					<label for="<?php echo $this->get_field_id("sort_by"); ?>">
+						<?php _e('Sort by'); ?>:
+						<select id="<?php echo $this->get_field_id("sort_by"); ?>" name="<?php echo $this->get_field_name("sort_by"); ?>">
+							<option value="date"<?php selected( $instance["sort_by"], "date" ); ?>>Date</option>
+							<option value="title"<?php selected( $instance["sort_by"], "title" ); ?>>Title</option>
+							<option value="comment_count"<?php selected( $instance["sort_by"], "comment_count" ); ?>>Number of comments</option>
+							<option value="rand"<?php selected( $instance["sort_by"], "rand" ); ?>>Random</option>
+						</select>
+					</label>
+				</p>
+
+				<p>
+					<label for="<?php echo $this->get_field_id("asc_sort_order"); ?>">
+						<input type="checkbox" class="checkbox" 
+							id="<?php echo $this->get_field_id("asc_sort_order"); ?>" 
+							name="<?php echo $this->get_field_name("asc_sort_order"); ?>"
+							<?php checked( (bool) $instance["asc_sort_order"], true ); ?> />
+								<?php _e( 'Reverse sort order (ascending)' ); ?>
+					</label>
+				</p>
+				
+				<p>
+					<label for="<?php echo $this->get_field_id("exclude_current_post"); ?>">
+						<input type="checkbox" class="checkbox" id="<?php echo $this->get_field_id("exclude_current_post"); ?>" name="<?php echo $this->get_field_name("exclude_current_post"); ?>"<?php checked( (bool) $instance["exclude_current_post"], true ); ?> />
+						<?php _e( 'Exclude current post' ); ?>
+					</label>
+				</p>			
+			</div>
+			<h4 data-panel="thumbnails"><?php _e('Thumbnails')?></h4>
+			<div>
+				<?php 
+					if ( function_exists('the_post_thumbnail') && current_theme_supports("post-thumbnails") ) : 
+				?>				
 					<p>
-						<label for="<?php echo $this->get_field_id("thumbTop"); ?>">
-							<input type="checkbox" class="checkbox" id="<?php echo $this->get_field_id("thumbTop"); ?>" name="<?php echo $this->get_field_name("thumbTop"); ?>"<?php checked( (bool) $instance["thumbTop"], true ); ?> />
-							<?php _e( 'Thumbnail to top' ); ?>
+						<label for="<?php echo $this->get_field_id("thumb"); ?>">
+							<input onchange="javascript:scpwp_namespace.toggleShowPostThumbnailPanel(this)" type="checkbox" class="checkbox" id="<?php echo $this->get_field_id("thumb"); ?>" name="<?php echo $this->get_field_name("thumb"); ?>"<?php checked( (bool) $instance["thumb"], true ); ?> />
+							<?php _e( 'Show post thumbnail' ); ?>
 						</label>
 					</p>
+					
+					<div class="scpwp-show-post-thumbnail-panel" style="border-left:5px solid #F1F1F1;padding-left:10px;display:<?php echo (isset($thumb) && $thumb) ? 'block' : 'none'?>">
+						<p>
+							<label for="<?php echo $this->get_field_id("thumbTop"); ?>">
+								<input type="checkbox" class="checkbox" id="<?php echo $this->get_field_id("thumbTop"); ?>" name="<?php echo $this->get_field_name("thumbTop"); ?>"<?php checked( (bool) $instance["thumbTop"], true ); ?> />
+								<?php _e( 'Thumbnail to top' ); ?>
+							</label>
+						</p>
 
-					<p>
-						<label>
-							<?php _e('Thumbnail dimensions (in pixels)'); ?>:<br />
-							<label for="<?php echo $this->get_field_id("thumb_w"); ?>">
-								Width: <input class="widefat" style="width:30%;" type="number" min="1" id="<?php echo $this->get_field_id("thumb_w"); ?>" name="<?php echo $this->get_field_name("thumb_w"); ?>" value="<?php echo $instance["thumb_w"]; ?>" />
+						<p>
+							<label>
+								<?php _e('Thumbnail dimensions (in pixels)'); ?>:<br />
+								<label for="<?php echo $this->get_field_id("thumb_w"); ?>">
+									Width: <input class="widefat" style="width:30%;" type="number" min="1" id="<?php echo $this->get_field_id("thumb_w"); ?>" name="<?php echo $this->get_field_name("thumb_w"); ?>" value="<?php echo $instance["thumb_w"]; ?>" />
+								</label>
+								
+								<label for="<?php echo $this->get_field_id("thumb_h"); ?>">
+									Height: <input class="widefat" style="width:30%;" type="number" min="1" id="<?php echo $this->get_field_id("thumb_h"); ?>" name="<?php echo $this->get_field_name("thumb_h"); ?>" value="<?php echo $instance["thumb_h"]; ?>" />
+								</label>
 							</label>
-							
-							<label for="<?php echo $this->get_field_id("thumb_h"); ?>">
-								Height: <input class="widefat" style="width:30%;" type="number" min="1" id="<?php echo $this->get_field_id("thumb_h"); ?>" name="<?php echo $this->get_field_name("thumb_h"); ?>" value="<?php echo $instance["thumb_h"]; ?>" />
+						</p>
+
+						<p>
+							<label for="<?php echo $this->get_field_id("use_css_cropping"); ?>">
+								<input type="checkbox" class="checkbox" id="<?php echo $this->get_field_id("use_css_cropping"); ?>" name="<?php echo $this->get_field_name("use_css_cropping"); ?>"<?php checked( (bool) $instance["use_css_cropping"], true ); ?> />
+								<?php _e( 'CSS crop to requested size' ); ?>
 							</label>
-						</label>
+						</p>
+					</div>
+					
+					<hr>
+					
+					<p style="text-align:right;">
+						Follow us on <a target="_blank" href="https://www.facebook.com/TipTopPress">Facebook</a> and 
+						<a target="_blank" href="https://twitter.com/TipTopPress">Twitter</a></br></br>
 					</p>
-
+					
+				<?php 
+					endif; 
+				?>
+			</div>
+			<h4 data-panel="details"><?php _e('Post details')?></h4>
+			<div>
+				<p>
+					<label for="<?php echo $this->get_field_id("excerpt"); ?>">
+						<input onchange="javascript:scpwp_namespace.toggleShowPostExcerptPanel(this)" type="checkbox" class="checkbox" id="<?php echo $this->get_field_id("excerpt"); ?>" name="<?php echo $this->get_field_name("excerpt"); ?>"<?php checked( (bool) $instance["excerpt"], true ); ?> />
+						<?php _e( 'Show post excerpt' ); ?>
+					</label>
+				</p>
+				
+				<div class="scpwp-show-post-excerpt-panel" style="border-left:5px solid #F1F1F1;padding-left:10px;display:<?php echo (isset($excerpt) && $excerpt) ? 'block' : 'none'?>">
 					<p>
-						<label for="<?php echo $this->get_field_id("use_css_cropping"); ?>">
-							<input type="checkbox" class="checkbox" id="<?php echo $this->get_field_id("use_css_cropping"); ?>" name="<?php echo $this->get_field_name("use_css_cropping"); ?>"<?php checked( (bool) $instance["use_css_cropping"], true ); ?> />
-							<?php _e( 'CSS crop to requested size' ); ?>
+						<label for="<?php echo $this->get_field_id("excerpt_length"); ?>">
+							<?php _e( 'Excerpt length (in words):' ); ?>
 						</label>
+						<input style="width:30%; text-align: center;" placeholder="<?php _e('55')?>" type="number" min="0" id="<?php echo $this->get_field_id("excerpt_length"); ?>" name="<?php echo $this->get_field_name("excerpt_length"); ?>" value="<?php echo $instance["excerpt_length"]; ?>" size="3" />
+					</p>
+					
+					<p>
+						<label for="<?php echo $this->get_field_id("excerpt_more_text"); ?>">
+							<?php _e( 'Excerpt \'more\' text:' ); ?>
+						</label>
+						<input class="widefat" style="width:50%;" placeholder="<?php _e('... more')?>" id="<?php echo $this->get_field_id("excerpt_more_text"); ?>" name="<?php echo $this->get_field_name("excerpt_more_text"); ?>" type="text" value="<?php echo esc_attr($instance["excerpt_more_text"]); ?>" />
 					</p>
 				</div>
 				
-				<hr>
-				
-				<p style="text-align:right;">
-					Follow us on <a target="_blank" href="https://www.facebook.com/TipTopPress">Facebook</a> and 
-					<a target="_blank" href="https://twitter.com/TipTopPress">Twitter</a></br></br>
+				<p>
+					<label for="<?php echo $this->get_field_id("comment_num"); ?>">
+						<input type="checkbox" class="checkbox" id="<?php echo $this->get_field_id("comment_num"); ?>" name="<?php echo $this->get_field_name("comment_num"); ?>"<?php checked( (bool) $instance["comment_num"], true ); ?> />
+						<?php _e( 'Show number of comments' ); ?>
+					</label>
 				</p>
 				
-			<?php 
-				endif; 
-			?>
-
-			<?php
+				<p>
+					<label for="<?php echo $this->get_field_id("date"); ?>">
+						<input type="checkbox" class="checkbox" id="<?php echo $this->get_field_id("date"); ?>" name="<?php echo $this->get_field_name("date"); ?>"<?php checked( (bool) $instance["date"], true ); ?> />
+						<?php _e( 'Show post date' ); ?>
+					</label>
+				</p>
+				
+				<p>
+					<label for="<?php echo $this->get_field_id("author"); ?>">
+						<input type="checkbox" class="checkbox" id="<?php echo $this->get_field_id("author"); ?>" name="<?php echo $this->get_field_name("author"); ?>"<?php checked( (bool) $instance["author"], true ); ?> />
+						<?php _e( 'Show post author' ); ?>
+					</label>
+				</p>
+			</div>
+		</div>
+		<?php
 
 	}
 
