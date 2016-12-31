@@ -297,10 +297,10 @@ class SameCategoryPosts extends WP_Widget {
 			add_filter('excerpt_more', array($this,'excerpt_more_filter'));
 		}		
 		
-		// Exclude category
+		// Exclude categories
 		if(!empty($categories[0])) {
-			$exclude_category = (isset( $instance['exclude_category'] ) && $instance['exclude_category'] != -1) ? $instance['exclude_category'] : "";
-			if($exclude_category == $categories[0]->cat_ID)
+			$exclude_categories = (isset( $instance['exclude_categories'] ) && is_array($instance['exclude_categories'])) ? $instance['exclude_categories'] : array();			
+			if(in_array($categories[0]->cat_ID,$exclude_categories))
 				return;
 		}
 		
@@ -311,7 +311,7 @@ class SameCategoryPosts extends WP_Widget {
 		if(!empty($categories[0])) {
 			$args = array(
 				'cat' => array( 'cat' => $category),
-				'category__not_in' => array( $exclude_category ),
+				'category__not_in' => $exclude_categories,
 				'post__not_in' => array( $exclude_current_post ),
 				'showposts' => isset($instance['num'])?$instance['num']:0, // Number of same posts that will be shown
 				'ignore_sticky_posts' => 1,
@@ -478,7 +478,7 @@ class SameCategoryPosts extends WP_Widget {
 			'sort_by'              => __( '' ),
 			'asc_sort_order'       => __( '' ),
 			'title_link'           => __( '' ),
-			'exclude_category'     => __( '' ),
+			'exclude_categories'   => __( '' ),
 			'exclude_current_post' => __( '' ),
 			'author'               => __( '' ),
 			'excerpt'              => __( '' ),
@@ -501,7 +501,7 @@ class SameCategoryPosts extends WP_Widget {
 		$sort_by              = $instance['sort_by'];
 		$asc_sort_order       = $instance['asc_sort_order'];
 		$title_link           = $instance['title_link'];
-		$exclude_category     = $instance['exclude_category'];
+		$exclude_categories   = $instance['exclude_categories'];
 		$exclude_current_post = $instance['exclude_current_post'];
 		$author               = $instance['author'];
 		$excerpt              = $instance['excerpt'];
@@ -583,8 +583,14 @@ class SameCategoryPosts extends WP_Widget {
 
 			<p>
 				<label>
-					<?php _e( 'Exclude category' ); ?>:
-					<?php wp_dropdown_categories( array( 'show_option_none' => ' ', 'name' => $this->get_field_name("exclude_category"), 'selected' => $instance["exclude_category"] ) ); ?>
+					<?php _e( 'Exclude categories' ); ?>:
+					<select name="<?php echo $this->get_field_name("exclude_categories")?>[]" multiple="multiple">
+					<?php foreach(get_categories() as $cat){
+						$selected = in_array($cat->cat_ID,$instance["exclude_categories"])?'selected="selected"':'';
+						echo "<option value='".$cat->cat_ID."' ".$selected.">".$cat->name."</option>";
+					}
+					?>
+					</select>
 				</label>
 			</p>
 			
