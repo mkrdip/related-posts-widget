@@ -440,6 +440,8 @@ class SameCategoryPosts extends WP_Widget {
 								$categoryNames = str_replace( "%cat-all%", $categoryNames, $instance["title"]);
 							else if(strpos($instance["title"], '%cat%') !== false)								// one-category placeholder is used
 								$categoryNames = str_replace( "%cat%", $categories[0]->name, $instance["title"]);
+							else
+								$categoryNames = $instance["title"];
 						}
 						echo $categoryNames;
 					}
