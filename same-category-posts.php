@@ -354,9 +354,13 @@ class SameCategoryPosts extends WP_Widget {
 		
 		// Exclude categories
 		if(!empty($categories[0])) {
-			$exclude_categories = (isset( $instance['exclude_categories'] ) && is_array($instance['exclude_categories'])) ? $instance['exclude_categories'] : array();			
-			if(in_array($categories[0]->cat_ID,$exclude_categories))
-				return;
+			$exclude_categories = (isset( $instance['exclude_categories'] ) && 
+										(is_array($instance['exclude_categories']) || $instance['exclude_categories'] != -1)
+								   ) ? $instance['exclude_categories'] : array();
+			foreach($categories as $cat){
+				if(in_array($cat->cat_ID,$exclude_categories))
+					return;
+			}
 		}
 		
 		// Exclude current post
@@ -605,11 +609,15 @@ class SameCategoryPosts extends WP_Widget {
 						<?php _e( 'Exclude categories' ); ?>:
 						<select name="<?php echo $this->get_field_name("exclude_categories")?>[]" multiple="multiple">
 						<?php foreach(get_categories() as $cat){
-							$selected = in_array($cat->cat_ID,$instance["exclude_categories"])?'selected="selected"':'';
+							if (is_array($instance["exclude_categories"]))
+								$selected = in_array($cat->cat_ID,$instance["exclude_categories"])?'selected="selected"':'';
+							else
+								$selected = $instance["exclude_categories"];
 							echo "<option value='".$cat->cat_ID."' ".$selected.">".$cat->name."</option>";
 						}
 						?>
 						</select>
+						<div>(Multiselect and clear: CTRL + click)</div>
 					</label>
 				</p>
 				
