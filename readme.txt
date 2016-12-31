@@ -4,7 +4,7 @@ Donate link: http://mkrdip.me/donate
 Tags: similar posts, related posts, post list, recent posts, same category
 Requires at least: 3.0
 Tested up to: 4.7
-Stable tag: 1.0.8
+Stable tag: 1.0.9
 License: GPLv2 or later 
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -29,7 +29,7 @@ We're [Tip Top Press](http://tiptoppress.com/?utm_source=wordpress_org&utm_campa
 * Set how many posts to show.
 * Option to make the widget title link to the category page.
 * Option to show/hide the title.
-* Option exclude a category.
+* Option exclude one or multi category.
 * Option exclude current post.
 * Option to show the post excerpt and how long the excerpt should be.
 * Option change excerpt 'more' text.
@@ -84,6 +84,9 @@ Enable the check box "Make widget title link".
 3. Option 'Separate categories (If more than one assigned)' will show, separate and link to all assigned categories.
 
 == Changelog ==
+
+= 1.0.9 - December 31 12 2016  =
+* Add option to exclude multi categories
 
 = 1.0.8 - Juli 07 2016 =
 * Add option seperate categories if more than one is assigned

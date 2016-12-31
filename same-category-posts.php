@@ -4,7 +4,7 @@ Plugin Name: Same Category Posts
 Plugin URI: https://wordpress.org/plugins/same-category-posts/
 Description: Adds a widget that shows the most recent posts from a single category.
 Author: Daniel Floeter
-Version: 1.0.8
+Version: 1.0.9
 Author URI: https://profiles.wordpress.org/kometschuh/
 */
 
@@ -13,7 +13,7 @@ namespace sameCategoryPosts;
 // Don't call the file directly
 if ( !defined( 'ABSPATH' ) ) exit;
 
-define( 'SAME_CATEGORY_POSTS_VERSION', "1.0.7");
+define( 'SAME_CATEGORY_POSTS_VERSION', "1.0.9");
 
 /**
  * Register our styles
@@ -713,14 +713,6 @@ class Widget extends \WP_Widget {
 							</label>
 						</p>
 					</div>
-					
-					<hr>
-					
-					<p style="text-align:right;">
-						Follow us on <a target="_blank" href="https://www.facebook.com/TipTopPress">Facebook</a> and 
-						<a target="_blank" href="https://twitter.com/TipTopPress">Twitter</a></br></br>
-					</p>
-					
 				<?php 
 					endif; 
 				?>
@@ -771,6 +763,12 @@ class Widget extends \WP_Widget {
 					</label>
 				</p>
 			</div>
+			<hr>
+			
+			<p style="text-align:right;">
+				Follow us on <a target="_blank" href="https://www.facebook.com/TipTopPress">Facebook</a> and 
+				<a target="_blank" href="https://twitter.com/TipTopPress">Twitter</a></br></br>
+			</p>
 		</div>
 		<?php
 
