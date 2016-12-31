@@ -8,6 +8,8 @@ Version: 1.0.8
 Author URI: https://profiles.wordpress.org/kometschuh/
 */
 
+namespace sameCategoryPosts;
+
 // Don't call the file directly
 if ( !defined( 'ABSPATH' ) ) exit;
 
@@ -22,7 +24,7 @@ function same_category_posts_styles() {
 	wp_register_style( 'same-category-posts', plugins_url( 'same-category-posts/same-category-posts.css' ) );
 	wp_enqueue_style( 'same-category-posts' );
 }
-add_action( 'wp_enqueue_scripts', 'same_category_posts_styles' );
+add_action( 'wp_enqueue_scripts', __NAMESPACE__.'\same_category_posts_styles' );
 
 /**
  * Register our admin scripts
@@ -33,7 +35,7 @@ function same_category_posts_admin_scripts($hook) {
 	wp_register_script( 'same_category-posts-admin-js', plugins_url( 'same-category-posts/js/admin/same-category-posts.js' ), array('jquery') , SAME_CATEGORY_POSTS_VERSION , true );
 	wp_enqueue_script( 'same_category-posts-admin-js' );
 }
-add_action('admin_enqueue_scripts', 'same_category_posts_admin_scripts');
+add_action('admin_enqueue_scripts', __NAMESPACE__.'\same_category_posts_admin_scripts');
 
 /**
  * Add styles for widget sections
@@ -130,7 +132,7 @@ function same_category_posts_get_image_size( $thumb_w,$thumb_h,$image_w,$image_h
  *
  * Shows posts from same category with some configurable options
  */
-class SameCategoryPosts extends WP_Widget {
+class Widget extends \WP_Widget {
 
 	function __construct() {
 		$widget_ops = array('classname' => 'same-category-posts', 'description' => __('List posts from same category in sidebar based on shown post\'s category'));
@@ -323,9 +325,9 @@ class SameCategoryPosts extends WP_Widget {
 
 		} else { // get post types
 			$category_info = (object) array( 'name' => get_post_type($post->ID));
-			
-			if( !isset($instance["title"]) || isset($instance["title"]) && !$instance["title"] ) {
-				$instance["title"] = $category_info->name;
+
+			if( !isset($instance['title']) || isset($instance['title']) && !$instance['title'] ) {
+				$instance['title'] = $category_info->name;
 			}			 
 		}
 		
@@ -386,7 +388,7 @@ class SameCategoryPosts extends WP_Widget {
 				'order' => $sort_order
 				);		
 		}
-		$my_query = new WP_Query($args);
+		$my_query = new \WP_Query($args);
 		
 		if( $my_query->have_posts() )
 		{
@@ -399,17 +401,17 @@ class SameCategoryPosts extends WP_Widget {
 						$widgetHTML[$cat->name]['ID'] = $cat->cat_ID;
 						if( isset ( $instance["title_link"] ) ) {
 							$title = '<a href="' . get_category_link( $cat ) . '">'. $cat->name . '</a>';
-							if(isset($instance["title"]) && strpos($instance["title"], '%cat-all%') !== false)
-								$title = str_replace( "%cat-all%", $title, $instance["title"]);
-							else if(isset($instance["title"]) && strpos($instance["title"], '%cat%') !== false)
-								$title = str_replace( "%cat%", $title, $instance["title"]);
+							if(isset($instance['title']) && strpos($instance['title'], '%cat-all%') !== false)
+								$title = str_replace( "%cat-all%", $title, $instance['title']);
+							else if(isset($instance['title']) && strpos($instance['title'], '%cat%') !== false)
+								$title = str_replace( "%cat%", $title, $instance['title']);
 							$widgetHTML[$cat->name]['title'] = $before_title . $title . $after_title;
 						} else {
 							$title = $cat->name;
-							if(isset($instance["title"]) && strpos($instance["title"], '%cat-all%') !== false)
-								$title = str_replace( "%cat-all%", $title, $instance["title"]);
-							else if(isset($instance["title"]) && strpos($instance["title"], '%cat%') !== false)
-								$title = str_replace( "%cat%", $title, $instance["title"]);
+							if(isset($instance['title']) && strpos($instance['title'], '%cat-all%') !== false)
+								$title = str_replace( "%cat-all%", $title, $instance['title']);
+							else if(isset($instance['title']) && strpos($instance['title'], '%cat%') !== false)
+								$title = str_replace( "%cat%", $title, $instance['title']);
 							$widgetHTML[$cat->name]['title'] = $before_title . $title . $after_title;
 						}
 					}
@@ -421,15 +423,15 @@ class SameCategoryPosts extends WP_Widget {
 							$linkList .= '<a href="' . get_category_link( $cat ) . '">'. $cat->name . '</a>, ';
 						}
 						$linkList = trim($linkList, ", ");
-						if( isset($instance["title"]) && $instance["title"] ) { 								// use placeholders if title is not empty
-							if(strpos($instance["title"], '%cat-all%') !== false || 
-								strpos($instance["title"], '%cat%') !== false) {								// all-category placeholder is used
-								if(strpos($instance["title"], '%cat-all%') !== false)
-									$linkList = str_replace( "%cat-all%", $linkList, $instance["title"]);
-								else if(strpos($instance["title"], '%cat%') !== false)
-									$linkList = str_replace( "%cat%", '<a href="' . get_category_link( $categories[0] ) . '">'. $categories[0]->name . '</a>', $instance["title"]);
+						if( isset($instance['title']) && $instance['title'] ) { 								// use placeholders if title is not empty
+							if(strpos($instance['title'], '%cat-all%') !== false || 
+								strpos($instance['title'], '%cat%') !== false) {								// all-category placeholder is used
+								if(strpos($instance['title'], '%cat-all%') !== false)
+									$linkList = str_replace( "%cat-all%", $linkList, $instance['title']);
+								else if(strpos($instance['title'], '%cat%') !== false)
+									$linkList = str_replace( "%cat%", '<a href="' . get_category_link( $categories[0] ) . '">'. $categories[0]->name . '</a>', $instance['title']);
 							} else 																				// no category placeholder is used
-								$linkList = '<a href="' . get_category_link( $categories[0] ) . '">'. $instance["title"] . '</a>';
+								$linkList = '<a href="' . get_category_link( $categories[0] ) . '">'. $instance['title'] . '</a>';
 						}
 						echo $linkList;
 					} else {
@@ -439,13 +441,13 @@ class SameCategoryPosts extends WP_Widget {
 						}
 						$categoryNames = trim($categoryNames, ", ");
 					
-						if( isset($instance["title"]) && $instance["title"] ) {									// use placeholders if title is not empty
-							if(strpos($instance["title"], '%cat-all%') !== false)								// all-category placeholder is used
-								$categoryNames = str_replace( "%cat-all%", $categoryNames, $instance["title"]);
-							else if(strpos($instance["title"], '%cat%') !== false)								// one-category placeholder is used
-								$categoryNames = str_replace( "%cat%", $categories[0]->name, $instance["title"]);
+						if( isset($instance['title']) && $instance['title'] ) {									// use placeholders if title is not empty
+							if(strpos($instance['title'], '%cat-all%') !== false)								// all-category placeholder is used
+								$categoryNames = str_replace( "%cat-all%", $categoryNames, $instance['title']);
+							else if(strpos($instance['title'], '%cat%') !== false)								// one-category placeholder is used
+								$categoryNames = str_replace( "%cat%", $categories[0]->name, $instance['title']);
 							else
-								$categoryNames = $instance["title"];
+								$categoryNames = $instance['title'];
 						}
 						echo $categoryNames;
 					}
@@ -597,7 +599,7 @@ class SameCategoryPosts extends WP_Widget {
 				<p>
 					<label for="<?php echo $this->get_field_id("title"); ?>">
 						<?php _e( 'Title' ); ?>:
-						<input style="width:80%;" class="widefat" id="<?php echo $this->get_field_id("title"); ?>" name="<?php echo $this->get_field_name("title"); ?>" type="text" value="<?php echo esc_attr($instance["title"]); ?>" />
+						<input style="width:80%;" class="widefat" id="<?php echo $this->get_field_id("title"); ?>" name="<?php echo $this->get_field_name("title"); ?>" type="text" value="<?php echo esc_attr($instance['title']); ?>" />
 						<div style="border-left:5px solid #F1F1F1;padding-left:10px;">(Placeholder: </br>'%cat%' - One category (the first if more assigned)</br>'%cat-all%' - All assigned categories for the shown post)</div>
 					</label>
 				</p>
@@ -776,4 +778,8 @@ class SameCategoryPosts extends WP_Widget {
 
 }
 
-add_action( 'widgets_init', create_function('', 'return register_widget("SameCategoryPosts");') );
+function register_widget() {
+    return \register_widget(__NAMESPACE__.'\Widget');
+}
+
+add_action( 'widgets_init', __NAMESPACE__.'\register_widget' );
