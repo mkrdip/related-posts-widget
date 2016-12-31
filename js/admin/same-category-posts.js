@@ -20,4 +20,27 @@
                 jQuery('.scpwp-separate-categories-panel').hide();
             }	
         },	
+
+        // Show hide length and more-text options on show post excerpt change
+        toggleShowPostExcerptPanel: function(item) {
+            var value = jQuery(item).prop("checked");		
+            if(value == true) {
+                jQuery('.scpwp-show-post-excerpt-panel').show();
+            }
+            else {
+                jQuery('.scpwp-show-post-excerpt-panel').hide();
+            }	
+        },	
+		
+        // Show hide width, height and crop options on show thumbnail change
+        toggleShowPostThumbnailPanel: function(item) {
+            var value = jQuery(item).prop("checked");		
+            if(value == true) {
+                jQuery('.scpwp-show-post-thumbnail-panel').show();
+            }
+            else {
+                jQuery('.scpwp-show-post-thumbnail-panel').hide();
+            }	
+        },	
+		
     }

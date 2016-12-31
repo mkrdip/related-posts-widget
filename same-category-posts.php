@@ -533,8 +533,28 @@ class SameCategoryPosts extends WP_Widget {
 			<p>
 				<label for="<?php echo $this->get_field_id("title"); ?>">
 					<?php _e( 'Title' ); ?>:
-					<input class="widefat" id="<?php echo $this->get_field_id("title"); ?>" name="<?php echo $this->get_field_name("title"); ?>" type="text" value="<?php echo esc_attr($instance["title"]); ?>" />
-					<span>(Placeholder: '%cat%' for one category and '%cat-all%' for all assigned categories)</span>
+					<input style="width:80%;" class="widefat" id="<?php echo $this->get_field_id("title"); ?>" name="<?php echo $this->get_field_name("title"); ?>" type="text" value="<?php echo esc_attr($instance["title"]); ?>" />
+					<span>(Placeholder: </br>'%cat%' - One category (the first if more assigned)</br>'%cat-all%' - All assigned categories for the shown post)</span>
+				</label>
+			</p>
+
+			<p>
+				<label>
+					<?php _e( 'Exclude categories' ); ?>:
+					<select name="<?php echo $this->get_field_name("exclude_categories")?>[]" multiple="multiple">
+					<?php foreach(get_categories() as $cat){
+						$selected = in_array($cat->cat_ID,$instance["exclude_categories"])?'selected="selected"':'';
+						echo "<option value='".$cat->cat_ID."' ".$selected.">".$cat->name."</option>";
+					}
+					?>
+					</select>
+				</label>
+			</p>
+			
+			<p>
+				<label for="<?php echo $this->get_field_id("num"); ?>">
+					<?php _e('Number of posts to show (overall)'); ?>:
+					<input style="width:30%;" style="text-align: center;" id="<?php echo $this->get_field_id("num"); ?>" name="<?php echo $this->get_field_name("num"); ?>" type="number" min="0" value="<?php echo absint($instance["num"]); ?>" size='3' />
 				</label>
 			</p>
 			
@@ -545,17 +565,10 @@ class SameCategoryPosts extends WP_Widget {
 				</label>
 			</p>			
 
-			<p class="scpwp-separate-categories-panel" style="border-left:5px solid #F1F1F1;padding-left:15px;display:<?php echo (isset($separate_categories) && $separate_categories) ? 'block' : 'none'?>">
+			<p class="scpwp-separate-categories-panel" style="border-left:5px solid #F1F1F1;padding-left:10px;display:<?php echo (isset($separate_categories) && $separate_categories) ? 'block' : 'none'?>">
 				<label for="<?php echo $this->get_field_id("num_per_cate"); ?>">
 					<?php _e('Number of posts per separated categories'); ?>:
-					<input style="text-align: center;" id="<?php echo $this->get_field_id("num_per_cate"); ?>" name="<?php echo $this->get_field_name("num_per_cate"); ?>" type="number" min="0" value="<?php echo absint($instance["num_per_cate"]); ?>" size='3' />
-				</label>
-			</p>
-			
-			<p>
-				<label for="<?php echo $this->get_field_id("num"); ?>">
-					<?php _e('Number of posts to show (overall)'); ?>:
-					<input style="text-align: center;" id="<?php echo $this->get_field_id("num"); ?>" name="<?php echo $this->get_field_name("num"); ?>" type="number" min="0" value="<?php echo absint($instance["num"]); ?>" size='3' />
+					<input style="width: 15%; text-align: center;" id="<?php echo $this->get_field_id("num_per_cate"); ?>" name="<?php echo $this->get_field_name("num_per_cate"); ?>" type="number" min="0" value="<?php echo absint($instance["num_per_cate"]); ?>" size='3' />
 				</label>
 			</p>
 
@@ -580,19 +593,6 @@ class SameCategoryPosts extends WP_Widget {
 							<?php _e( 'Reverse sort order (ascending)' ); ?>
 				</label>
 			</p>
-
-			<p>
-				<label>
-					<?php _e( 'Exclude categories' ); ?>:
-					<select name="<?php echo $this->get_field_name("exclude_categories")?>[]" multiple="multiple">
-					<?php foreach(get_categories() as $cat){
-						$selected = in_array($cat->cat_ID,$instance["exclude_categories"])?'selected="selected"':'';
-						echo "<option value='".$cat->cat_ID."' ".$selected.">".$cat->name."</option>";
-					}
-					?>
-					</select>
-				</label>
-			</p>
 			
 			<p>
 				<label for="<?php echo $this->get_field_id("exclude_current_post"); ?>">
@@ -603,17 +603,17 @@ class SameCategoryPosts extends WP_Widget {
 			
 			<p>
 				<label for="<?php echo $this->get_field_id("excerpt"); ?>">
-					<input type="checkbox" class="checkbox" id="<?php echo $this->get_field_id("excerpt"); ?>" name="<?php echo $this->get_field_name("excerpt"); ?>"<?php checked( (bool) $instance["excerpt"], true ); ?> />
+					<input onchange="javascript:scpwp_namespace.toggleShowPostExcerptPanel(this)" type="checkbox" class="checkbox" id="<?php echo $this->get_field_id("excerpt"); ?>" name="<?php echo $this->get_field_name("excerpt"); ?>"<?php checked( (bool) $instance["excerpt"], true ); ?> />
 					<?php _e( 'Show post excerpt' ); ?>
 				</label>
 			</p>
 			
-			<div style="border-left:5px solid #F1F1F1;padding-left:15px;">
+			<div class="scpwp-show-post-excerpt-panel" style="border-left:5px solid #F1F1F1;padding-left:10px;display:<?php echo (isset($excerpt) && $excerpt) ? 'block' : 'none'?>">
 				<p>
 					<label for="<?php echo $this->get_field_id("excerpt_length"); ?>">
 						<?php _e( 'Excerpt length (in words):' ); ?>
 					</label>
-					<input style="text-align: center;" type="number" min="0" id="<?php echo $this->get_field_id("excerpt_length"); ?>" name="<?php echo $this->get_field_name("excerpt_length"); ?>" value="<?php echo $instance["excerpt_length"]; ?>" size="3" />
+					<input style="width:30%; text-align: center;" placeholder="<?php _e('55')?>" type="number" min="0" id="<?php echo $this->get_field_id("excerpt_length"); ?>" name="<?php echo $this->get_field_name("excerpt_length"); ?>" value="<?php echo $instance["excerpt_length"]; ?>" size="3" />
 				</p>
 				
 				<p>
@@ -647,29 +647,22 @@ class SameCategoryPosts extends WP_Widget {
 			
 			<?php 
 				if ( function_exists('the_post_thumbnail') && current_theme_supports("post-thumbnails") ) : 
-			?>
-				<p>
-					<label for="<?php echo $this->get_field_id("thumbTop"); ?>">
-						<input type="checkbox" class="checkbox" id="<?php echo $this->get_field_id("thumbTop"); ?>" name="<?php echo $this->get_field_name("thumbTop"); ?>"<?php checked( (bool) $instance["thumbTop"], true ); ?> />
-						<?php _e( 'Thumbnail to top' ); ?>
-					</label>
-				</p>
-				
+			?>				
 				<p>
 					<label for="<?php echo $this->get_field_id("thumb"); ?>">
-						<input type="checkbox" class="checkbox" id="<?php echo $this->get_field_id("thumb"); ?>" name="<?php echo $this->get_field_name("thumb"); ?>"<?php checked( (bool) $instance["thumb"], true ); ?> />
+						<input onchange="javascript:scpwp_namespace.toggleShowPostThumbnailPanel(this)" type="checkbox" class="checkbox" id="<?php echo $this->get_field_id("thumb"); ?>" name="<?php echo $this->get_field_name("thumb"); ?>"<?php checked( (bool) $instance["thumb"], true ); ?> />
 						<?php _e( 'Show post thumbnail' ); ?>
 					</label>
 				</p>
 				
-				<div style="border-left:5px solid #F1F1F1;padding-left:15px;">
+				<div class="scpwp-show-post-thumbnail-panel" style="border-left:5px solid #F1F1F1;padding-left:10px;display:<?php echo (isset($thumb) && $thumb) ? 'block' : 'none'?>">
 					<p>
-						<label for="<?php echo $this->get_field_id("use_css_cropping"); ?>">
-							<input type="checkbox" class="checkbox" id="<?php echo $this->get_field_id("use_css_cropping"); ?>" name="<?php echo $this->get_field_name("use_css_cropping"); ?>"<?php checked( (bool) $instance["use_css_cropping"], true ); ?> />
-							<?php _e( 'Use CSS cropping' ); ?>
+						<label for="<?php echo $this->get_field_id("thumbTop"); ?>">
+							<input type="checkbox" class="checkbox" id="<?php echo $this->get_field_id("thumbTop"); ?>" name="<?php echo $this->get_field_name("thumbTop"); ?>"<?php checked( (bool) $instance["thumbTop"], true ); ?> />
+							<?php _e( 'Thumbnail to top' ); ?>
 						</label>
 					</p>
-					
+
 					<p>
 						<label>
 							<?php _e('Thumbnail dimensions (in pixels)'); ?>:<br />
@@ -680,6 +673,13 @@ class SameCategoryPosts extends WP_Widget {
 							<label for="<?php echo $this->get_field_id("thumb_h"); ?>">
 								Height: <input class="widefat" style="width:30%;" type="number" min="1" id="<?php echo $this->get_field_id("thumb_h"); ?>" name="<?php echo $this->get_field_name("thumb_h"); ?>" value="<?php echo $instance["thumb_h"]; ?>" />
 							</label>
+						</label>
+					</p>
+
+					<p>
+						<label for="<?php echo $this->get_field_id("use_css_cropping"); ?>">
+							<input type="checkbox" class="checkbox" id="<?php echo $this->get_field_id("use_css_cropping"); ?>" name="<?php echo $this->get_field_name("use_css_cropping"); ?>"<?php checked( (bool) $instance["use_css_cropping"], true ); ?> />
+							<?php _e( 'CSS crop to requested size' ); ?>
 						</label>
 					</p>
 				</div>
