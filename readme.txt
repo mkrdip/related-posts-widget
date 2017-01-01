@@ -4,7 +4,7 @@ Donate link: http://mkrdip.me/donate
 Tags: similar posts, related posts, post list, recent posts, same category
 Requires at least: 3.0
 Tested up to: 4.7
-Stable tag: 1.0.9
+Stable tag: 1.0.10
 License: GPLv2 or later 
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -85,8 +85,12 @@ Enable the check box "Make widget title link".
 
 == Changelog ==
 
+= 1.0.10 - January 01 01 2017  =
+* Patch panels do not open
+
 = 1.0.9 - December 31 12 2016  =
-* Add option to exclude multi categories
+* Add option to exclude multi categories (pull-request from [arielcannal](https://github.com/arielcannal))
+* Add panels on the admin sites
 
 = 1.0.8 - Juli 07 2016 =
 * Add option seperate categories if more than one is assigned

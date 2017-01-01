@@ -4,7 +4,7 @@ Plugin Name: Same Category Posts
 Plugin URI: https://wordpress.org/plugins/same-category-posts/
 Description: Adds a widget that shows the most recent posts from a single category.
 Author: Daniel Floeter
-Version: 1.0.9
+Version: 1.0.10
 Author URI: https://profiles.wordpress.org/kometschuh/
 */
 

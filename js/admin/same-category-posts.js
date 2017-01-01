@@ -62,29 +62,26 @@
                 jQuery('.scpwp-show-post-thumbnail-panel').hide();
             }
         },
-
     }
 
 jQuery(document).ready( function () {
 
     jQuery('.same-category-widget-cont h4').click(function () { // for widgets page
-        cwp_namespace.autoCloseOpenPanels(this);
         // toggle panel open/close
-        cwp_namespace.clickHandler(this);
+        scpwp_namespace.clickHandler(this);
     });
 
     // needed to reassign click handlers after widget refresh
     jQuery(document).on('widget-added widget-updated', function(root,element){ // for customize and after save on widgets page
         jQuery('.same-category-widget-cont h4').off('click').on('click', function () {
-            cwp_namespace.autoCloseOpenPanels(this);
             // toggle panel open/close
-            cwp_namespace.clickHandler(this);
+            scpwp_namespace.clickHandler(this);
         });
 
         // refresh panels to state before the refresh
         var id = jQuery(element).attr('id');
-        if (cwp_namespace.open_panels.hasOwnProperty(id)) {
-            var o = cwp_namespace.open_panels[id];
+        if (scpwp_namespace.open_panels.hasOwnProperty(id)) {
+            var o = scpwp_namespace.open_panels[id];
             for (var panel in o) {
                 jQuery(element).find('[data-panel='+panel+']').toggleClass('open')
                     .next().stop().show();
