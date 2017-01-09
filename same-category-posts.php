@@ -13,7 +13,7 @@ namespace sameCategoryPosts;
 // Don't call the file directly
 if ( !defined( 'ABSPATH' ) ) exit;
 
-define( 'SAME_CATEGORY_POSTS_VERSION', "1.0.9");
+define( 'SAME_CATEGORY_POSTS_VERSION', "1.0.10");
 
 /**
  * Register our styles
