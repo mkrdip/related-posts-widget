@@ -62,6 +62,28 @@
                 jQuery('.scpwp-show-post-thumbnail-panel').hide();
             }
         },
+		
+        // Show hide width, height and crop options on show thumbnail change
+        toggleDatePanel: function(item) {
+            var value = jQuery(item).find("input").prop("checked");		
+            if(value == true) {
+                jQuery('.scpwp-data-panel-date').show();
+            }
+            else {
+                jQuery('.scpwp-data-panel-date').hide();
+            }
+        },
+		
+        // Show hide width, height and crop options on show thumbnail change
+        toggleUseWPDateFormatPanel: function(item) {
+            var value = jQuery(item).find("input").prop("checked");		
+            if(value == true) {
+                jQuery('.scpwp-data-panel-date-format').hide();
+            }
+            else {
+                jQuery('.scpwp-data-panel-date-format').show();
+            }
+        },
     }
 
 jQuery(document).ready( function () {

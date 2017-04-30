@@ -272,8 +272,25 @@ class Widget extends \WP_Widget {
 
 		$ret .= '<a class="post-title" href="' . get_the_permalink() . '" rel="bookmark" title="Permanent Link to ' . get_the_title() . '">' . get_the_title() . '</a>';
 
-		if ( isset( $instance['date'] ) ) {
-			$ret .= '<p class="post-date">' . get_the_time("j M Y") . '</p>';
+		if ( isset( $instance['date'] ) ) {			
+            if (isset($instance['date_format']) && strlen(trim($instance['date_format'])) > 0)
+                $date_format = $instance['date_format']; 
+            else if (isset($instance['use_wp_date_format']) && strlen(trim($instance['use_wp_date_format'])) > 0)
+				$date_format = "";
+			else
+                $date_format = "j M Y"; 
+				
+            $ret .= '<p class="post-date">';
+			
+            if (isset($instance["date_link"]) && $instance["date_link"])
+                $ret .= '<a href="'.get_the_permalink().'">';
+				
+            $ret .= get_the_date($date_format);
+			
+            if (isset($instance["date_link"]) && $instance["date_link"])
+                $ret .= '</a>';
+				
+            $ret .= '</p>';
 		}
 		
 		if( !isset( $instance["thumbTop"] ) ) : 
@@ -544,6 +561,9 @@ class Widget extends \WP_Widget {
 			'exclude_categories'   => __( '' ),
 			'exclude_current_post' => __( '' ),
 			'author'               => __( '' ),
+			'date'                 => __( '' ),
+			'use_wp_date_format'   => __( '' ),
+			'date_link'            => __( '' ),
 			'excerpt'              => __( '' ),
 			'excerpt_length'       => __( '' ),
 			'excerpt_more_text'    => __( '' ),
@@ -567,6 +587,9 @@ class Widget extends \WP_Widget {
 		$exclude_categories   = $instance['exclude_categories'];
 		$exclude_current_post = $instance['exclude_current_post'];
 		$author               = $instance['author'];
+		$date                 = $instance['date'];
+		$use_wp_date_format   = $instance['use_wp_date_format'];
+		$date_link            = $instance['date_link'];
 		$excerpt              = $instance['excerpt'];
 		$excerpt_length       = $instance['excerpt_length'];
 		$excerpt_more_text    = $instance['excerpt_more_text'];
@@ -750,11 +773,33 @@ class Widget extends \WP_Widget {
 				</p>
 				
 				<p>
-					<label for="<?php echo $this->get_field_id("date"); ?>">
+					<label for="<?php echo $this->get_field_id("date"); ?>" onchange="javascript:scpwp_namespace.toggleDatePanel(this)">
 						<input type="checkbox" class="checkbox" id="<?php echo $this->get_field_id("date"); ?>" name="<?php echo $this->get_field_name("date"); ?>"<?php checked( (bool) $instance["date"], true ); ?> />
 						<?php _e( 'Show post date' ); ?>
 					</label>
 				</p>
+				<div class="cpwp_ident scpwp-data-panel-date" style="display:<?php echo ((bool) $date) ? 'block' : 'none'?>">
+					<p>
+						<label for="<?php echo $this->get_field_id("use_wp_date_format"); ?>" onchange="javascript:scpwp_namespace.toggleUseWPDateFormatPanel(this)">
+							<input type="checkbox" class="checkbox" id="<?php echo $this->get_field_id("use_wp_date_format"); ?>" name="<?php echo $this->get_field_name("use_wp_date_format"); ?>"<?php checked( (bool) $instance["use_wp_date_format"], true ); ?> />
+							<?php _e( 'Use the WordPress Settings > General for the date format','category-posts' ); ?>
+						</label>
+					</p>
+					<div class="scpwp-data-panel-date-format" style="display:<?php echo ((bool) $use_wp_date_format) ? 'none' : 'block'?>">
+						<p>
+							<label for="<?php echo $this->get_field_id("date_format"); ?>">
+								<?php _e( 'Date format:','category-posts' ); ?>
+							</label>
+							<input class="text" placeholder="j M Y" id="<?php echo $this->get_field_id("date_format"); ?>" name="<?php echo $this->get_field_name("date_format"); ?>" type="text" value="<?php echo esc_attr($instance["date_format"]); ?>" size="8" />
+						</p>
+					</div>
+					<p>
+						<label for="<?php echo $this->get_field_id("date_link"); ?>">
+							<input type="checkbox" class="checkbox" id="<?php echo $this->get_field_id("date_link"); ?>" name="<?php echo $this->get_field_name("date_link"); ?>"<?php checked( (bool) $instance["date_link"], true ); ?> />
+							<?php _e( 'Make widget date link','category-posts' ); ?>
+						</label>
+					</p>
+				</div>
 				
 				<p>
 					<label for="<?php echo $this->get_field_id("author"); ?>">
