@@ -413,7 +413,7 @@ class Widget extends \WP_Widget {
 
 			// Widget title
 			if( !isset ( $instance["hide_title"] ) ) {
-				if( isset( $instance["separate_categories"] ) && $instance["separate_categories"] ) { // Separate categories
+				if( isset( $instance["separate_categories"] ) && $instance["separate_categories"] ) { // Separate categories: title to array
 					foreach($categories as $cat) {
 						$widgetHTML[$cat->name]['ID'] = $cat->cat_ID;
 						if( isset ( $instance["title_link"] ) ) {
@@ -422,17 +422,17 @@ class Widget extends \WP_Widget {
 								$title = str_replace( "%cat-all%", $title, $instance['title']);
 							else if(isset($instance['title']) && strpos($instance['title'], '%cat%') !== false)
 								$title = str_replace( "%cat%", $title, $instance['title']);
-							$widgetHTML[$cat->name]['title'] = $before_title . $title . $after_title;
+							$widgetHTML[$cat->name]['title'] = $title;
 						} else {
 							$title = $cat->name;
 							if(isset($instance['title']) && strpos($instance['title'], '%cat-all%') !== false)
 								$title = str_replace( "%cat-all%", $title, $instance['title']);
 							else if(isset($instance['title']) && strpos($instance['title'], '%cat%') !== false)
 								$title = str_replace( "%cat%", $title, $instance['title']);
-							$widgetHTML[$cat->name]['title'] = $before_title . $title . $after_title;
+							$widgetHTML[$cat->name]['title'] = $title;
 						}
 					}
-				} else {
+				} else { // !Separate categories: echo
 					echo $before_title;
 					if( isset ( $instance["title_link"] ) ) {
 						$linkList = "";
@@ -450,7 +450,7 @@ class Widget extends \WP_Widget {
 							} else 																				// no category placeholder is used
 								$linkList = '<a href="' . get_category_link( $categories[0] ) . '">'. $instance['title'] . '</a>';
 						}
-						echo $linkList;
+						echo apply_filters('widget_title',$linkList);
 					} else {
 						$categoryNames = "";
 						foreach ($categories as $key => $val) {
@@ -466,11 +466,12 @@ class Widget extends \WP_Widget {
 							else
 								$categoryNames = $instance['title'];
 						}
-						echo $categoryNames;
+						echo apply_filters('widget_title',$categoryNames);
 					}
 					echo $after_title;
 				}
 			}
+			// /Widget title
 			
 			// Post list
 			echo "<ul>\n";
@@ -478,7 +479,7 @@ class Widget extends \WP_Widget {
 			{
 				$my_query->the_post();
 				
-				if( isset( $instance["separate_categories"] ) && $instance["separate_categories"] ) { // Separate categories
+				if( isset( $instance["separate_categories"] ) && $instance["separate_categories"] ) { // Separate categories: get itemHTML to array
 					// Put itemHTML to all assigned categories from current post
 					foreach ($categories as $key => $cat)
 						$cats[] = $cat->name;
@@ -490,20 +491,21 @@ class Widget extends \WP_Widget {
 						}
 					}
 				} else {					
-					echo $this->itemHTML($instance,$current_post_id);
+					echo $this->itemHTML($instance,$current_post_id); // !Separate categories: get itemHTML and echo
 				}
 			} // end while
 
-			if( isset( $instance["separate_categories"] ) && $instance["separate_categories"] ) { // Separate categories
+			if( isset( $instance["separate_categories"] ) && $instance["separate_categories"] ) { // Separate categories: echo
 				$isOnPage = array();
 				foreach($widgetHTML as $val) {
+					// widget title
 					$haveItemHTML = false;
-					$ret = isset($val['title'])?$val['title']:"";
+					$ret = $before_title . apply_filters('widget_title',isset($val['title'])?$val['title']:"") . $after_title;
 					$count = 1;
 					$num_per_cat = (isset($instance['num_per_cate'])&&$instance['num_per_cate']!=0?($instance['num_per_cate']):99999);
 					foreach($val as $key) { 
 						if(is_array($key) && array_key_exists('itemHTML', $key)) {
-							if( !in_array($key['ID'], $isOnPage) ) { //echo "a";
+							if( !in_array($key['ID'], $isOnPage) ) {
 								if($count <= $num_per_cat) {
 									$ret .= $key['itemHTML'];
 									$haveItemHTML = true;
@@ -519,7 +521,9 @@ class Widget extends \WP_Widget {
 				}
 			}
 
-			echo "</ul>\n";			
+			echo "</ul>\n";
+			// /Post list
+			
 			echo $after_widget;
 		}
 
