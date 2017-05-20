@@ -4,7 +4,7 @@ Donate link: http://mkrdip.me/donate
 Tags: similar posts, related posts, post list, recent posts, same category
 Requires at least: 3.0
 Tested up to: 4.7
-Stable tag: 1.0.10
+Stable tag: 1.0.11
 License: GPLv2 or later 
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -29,6 +29,7 @@ We're [Tip Top Press](http://tiptoppress.com/?utm_source=wordpress_org&utm_campa
 * Set how many posts to show.
 * Option to make the widget title link to the category page.
 * Option to show/hide the title.
+* Filter hook for the post titles 'widget_title'.
 * Option exclude one or multi category.
 * Option exclude current post.
 * Option to show the post excerpt and how long the excerpt should be.
@@ -67,6 +68,14 @@ Read more about installting plugins at [WordPress Codex](https://codex.wordpress
 
 == Frequently Asked Questions ==
 
+= Post title filter example =
+To use the the hook add a filter 'widget_title' in wp-content\Themes\[your-Theme]\functions.php:
+
+function cruise_shortcode_iconship( $html ) {
+	return "prefix-" . $html . "-suffix";
+}
+add_filter( 'widget_title', 'cruise_shortcode_iconship' );
+
 = The feature image dimention are not correctly displayed? =
 Enable the option "Use CSS cropping". This option don't care about stored setting (Settings > Media) or added image sizes. [What is 'CSS feature image cropping'](http://tiptoppress.com/css-image-crop/)?
 
@@ -85,10 +94,14 @@ Enable the check box "Make widget title link".
 
 == Changelog ==
 
-= 1.0.10 - January 01 01 2017  =
+= 1.0.11 - May 20 2017  =
+* Add a filter hook for the post titles 'widget_title'
+* Add option to format the date
+
+= 1.0.10 - January 01 2017  =
 * Patch panels do not open
 
-= 1.0.9 - December 31 12 2016  =
+= 1.0.9 - December 31 2016  =
 * Add option to exclude multi categories (pull-request from [arielcannal](https://github.com/arielcannal))
 * Add panels on the admin sites
 
