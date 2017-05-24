@@ -376,10 +376,6 @@ class Widget extends \WP_Widget {
 			$exclude_categories = (isset( $instance['exclude_categories'] ) && 
 										(is_array($instance['exclude_categories']) || $instance['exclude_categories'] != -1)
 								   ) ? $instance['exclude_categories'] : array();
-			foreach($categories as $cat){
-				if(in_array($cat->cat_ID,$exclude_categories))
-					return;
-			}
 		}
 		
 		// Exclude current post
@@ -388,7 +384,7 @@ class Widget extends \WP_Widget {
 
 		if(!empty($categories[0])) {
 			$args = array(
-				'cat' => array( 'cat' => $category),
+				'cat' => $category,
 				'category__not_in' => $exclude_categories,
 				'post__not_in' => array( $exclude_current_post ),
 				'showposts' => isset($instance['num'])?$instance['num']:0, // Number of same posts that will be shown
@@ -437,6 +433,8 @@ class Widget extends \WP_Widget {
 					if( isset ( $instance["title_link"] ) ) {
 						$linkList = "";
 						foreach($categories as $cat) {
+							if(in_array($cat->cat_ID,$exclude_categories))
+								continue;
 							$linkList .= '<a href="' . get_category_link( $cat ) . '">'. $cat->name . '</a>, ';
 						}
 						$linkList = trim($linkList, ", ");
@@ -454,6 +452,8 @@ class Widget extends \WP_Widget {
 					} else {
 						$categoryNames = "";
 						foreach ($categories as $key => $val) {
+							if(in_array($val->cat_ID,$exclude_categories))
+								continue;
 							$categoryNames .= $val->name . ", ";
 						}
 						$categoryNames = trim($categoryNames, ", ");
