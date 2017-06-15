@@ -3,8 +3,8 @@ Contributors: kometschuh, mkrdip
 Donate link: http://mkrdip.me/donate
 Tags: similar posts, related posts, post list, recent posts, same category
 Requires at least: 3.0
-Tested up to: 4.7
-Stable tag: 1.0.11
+Tested up to: 4.8
+Stable tag: 1.0.12
 License: GPLv2 or later 
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -93,6 +93,10 @@ Enable the check box "Make widget title link".
 3. Option 'Separate categories (If more than one assigned)' will show, separate and link to all assigned categories.
 
 == Changelog ==
+
+= 1.0.12 - June 15 2017  =
+* Bugfix for if widget title as a link, there are HTML special characters in the rendered output
+* Bugfix for no posts are displayed, if some categories are excluded
 
 = 1.0.11 - May 20 2017  =
 * Add a filter hook for the post titles 'widget_title'
