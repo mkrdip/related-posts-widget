@@ -327,7 +327,20 @@ class Widget extends \WP_Widget {
 		$this->instance = $instance;
 		
 		// Get taxonomies
-		// $term_query = get_the_taxonomies( $post->ID );
+		$taxonomies = null;
+		$tax_name = get_object_taxonomies($post);
+		foreach ($tax_name as $tax) {
+			$terms = get_the_terms($post->ID, $tax); // echo $tax.$terms." - ";
+			/*if (!$terms) {
+				$args = array('taxonomy' => $tax); 
+				$terms = get_terms($args);
+			} */
+			if ($terms) {
+				foreach ($terms as $term) {
+					$taxonomies[$tax][] = $term->term_id; 
+				}
+			}
+		}
 
 		// Get category
 		$categories = get_the_category();
@@ -349,7 +362,6 @@ class Widget extends \WP_Widget {
 		}
 		
 		// Excerpt length filter
-		
 		if ( isset($instance["excerpt_length"]) && $instance["excerpt_length"] > 0 ) {
 			$new_excerpt_length = create_function('$length', "return " . $instance["excerpt_length"] . ";");
 			add_filter('excerpt_length', $new_excerpt_length);
@@ -382,6 +394,7 @@ class Widget extends \WP_Widget {
 		$current_post_id = get_the_ID();
 		$exclude_current_post = (isset( $instance['exclude_current_post'] ) && $instance['exclude_current_post'] != -1) ? $current_post_id : "";
 
+		/*
 		if(!empty($categories[0])) {
 			$args = array(
 				'cat' => $category,
@@ -401,6 +414,50 @@ class Widget extends \WP_Widget {
 				'order' => $sort_order
 				);		
 		}
+		*/
+
+		$term_query_in = array('relation' => 'OR');
+		foreach ( $taxonomies as $tax=>$terms) {
+			if ( isset($instance['exclude_terms']) && $instance['exclude_terms'] && array_key_exists($tax, $instance['exclude_terms']) )
+				$terms = array_diff($terms, $instance['exclude_terms'][$tax]);
+			if ($terms) {
+				$term_query_in[] = array(
+					'taxonomy' => $tax,
+					'field' => 'term_id',
+					'terms' => $terms,
+					'include_children' => true,
+					'operator' => 'IN',
+					);
+			}
+		}
+		
+		$term_query_not_in = array('relation' => 'AND');		
+		foreach ( $instance['exclude_terms'] as $tax=>$terms) {
+			$term_query_not_in[] = array(
+				'taxonomy' => $tax,
+				'field' => 'term_id',
+				'terms' => $instance['exclude_terms'][$tax],
+				'include_children' => true,
+				'operator' => 'NOT IN',
+				);
+		}
+		
+		$term_query[] = $term_query_in;
+		$term_query[] = $term_query_not_in;
+		
+		$args = array(
+			'orderby' => $sort_by,
+            'order'   => $sort_order
+		);
+		
+		$args['post_type'] = 'any';
+
+        if (is_array($term_query))
+            $args['tax_query'] = $term_query;
+
+        if ($exclude_current_post)
+            $args['post__not_in'] = array( $exclude_current_post );
+		
 		$my_query = new \WP_Query($args);
 		
 		if( $my_query->have_posts() )
@@ -563,9 +620,10 @@ class Widget extends \WP_Widget {
 			'asc_sort_order'       => __( '' ),
 			'title_link'           => __( '' ),
 			'exclude_categories'   => __( '' ),
+			'exclude_terms'        => __( '' ),
 			'exclude_current_post' => __( '' ),
 			'author'               => __( '' ),
-			'date'                 => __( '' ),
+			'date_format'          => __( '' ),
 			'use_wp_date_format'   => __( '' ),
 			'date_link'            => __( '' ),
 			'excerpt'              => __( '' ),
@@ -589,9 +647,10 @@ class Widget extends \WP_Widget {
 		$asc_sort_order       = $instance['asc_sort_order'];
 		$title_link           = $instance['title_link'];
 		$exclude_categories   = $instance['exclude_categories'];
+		$exclude_terms        = $instance['exclude_terms'];
 		$exclude_current_post = $instance['exclude_current_post'];
 		$author               = $instance['author'];
-		$date                 = $instance['date'];
+		$date_format          = $instance['date_format'];
 		$use_wp_date_format   = $instance['use_wp_date_format'];
 		$date_link            = $instance['date_link'];
 		$excerpt              = $instance['excerpt'];
@@ -634,20 +693,41 @@ class Widget extends \WP_Widget {
 			<h4 data-panel="filter"><?php _e('Filter')?></h4>
 			<div>
 				<p>
-					<label>
-						<?php _e( 'Exclude categories' ); ?>:
-						<select name="<?php echo $this->get_field_name("exclude_categories")?>[]" multiple="multiple">
-						<?php foreach(get_categories() as $cat){
-							if (is_array($instance["exclude_categories"]))
-								$selected = in_array($cat->cat_ID,$instance["exclude_categories"])?'selected="selected"':'';
-							else
-								$selected = $instance["exclude_categories"];
-							echo "<option value='".$cat->cat_ID."' ".$selected.">".$cat->name."</option>";
+				<?php _e( 'Exclude:' ); ?>
+				<?php
+					// get all taxonomies except for the built-in (menu, post format etc)
+					$args = array(
+								'public' => true
+								); 
+					$taxs = get_taxonomies( $args,'objects');
+					
+					// now get all tags
+					$args = array(
+									'hide_empty' => false, // we want to show not yet populated terms as well
+									'fields' => 'id=>name' // return array of names matched to ids
+							);
+					foreach ($taxs as $tax) {
+						$taxname = $tax->name;
+						$terms = get_terms($taxname,$args);
+						$selected = array(); // set default array to 'ignore'
+						if (isset($instance['exclude_terms'][$taxname]))
+							$selected = $instance['exclude_terms'][$taxname];
+						else if (isset($instance["exclude_categories"]) && $instance["exclude_categories"]) // deprecate >= 1.0.12: 'exclude_categories' becomes 'terms'
+							$selected = $instance["exclude_categories"];
+						if (!empty($terms)) {
+							echo '<p><label for="'.$this->get_field_id('exclude_terms['.$taxname.']').'">'.esc_html($tax->labels->name).'</label><br>';
+							echo '<select multiple="multiple" name="'.$this->get_field_name('exclude_terms').'['.$taxname.'][]" id="'.$this->get_field_id('exclude_terms['.$taxname.']').'">';
+							foreach ($terms as $id => $name)  {
+								$sel = '';
+								if (in_array($id,$selected))
+									$sel = ' selected="selected"';
+								echo '<option value="'.$id.'"'.$sel.'>'.esc_html($name).'</option>';
+							}
+							echo '</select></p>';
 						}
-						?>
-						</select>
-						<div>(Multiselect and clear: CTRL + click)</div>
-					</label>
+					}
+				?>
+				<div>(Multiselect and clear: CTRL + click)</div>
 				</p>
 				
 				<p>
