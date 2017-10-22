@@ -86,6 +86,14 @@ function admin_styles() {
 .same-category-widget-cont > div.open {
 	display:block;
 }	
+<?php //disable taxterms?>
+select[disabled] {
+    background: #ececec !important;
+}
+
+select[disabled] option {
+    color: #c3c3c3;
+}
 </style>
 <?php
 }
@@ -328,16 +336,14 @@ class Widget extends \WP_Widget {
 		
 		// Get taxonomies
 		$taxonomies = null;
-		$tax_name = get_object_taxonomies($post);
-		foreach ($tax_name as $tax) {
-			$terms = get_the_terms($post->ID, $tax); // echo $tax.$terms." - ";
-			/*if (!$terms) {
-				$args = array('taxonomy' => $tax); 
-				$terms = get_terms($args);
-			} */
-			if ($terms) {
-				foreach ($terms as $term) {
-					$taxonomies[$tax][] = $term->term_id; 
+		$taxes = get_object_taxonomies($post);
+		foreach ($taxes as $tax) {
+			if (array_key_exists($tax, $instance['include_tax'])) {
+				$terms = get_the_terms($post->ID, $tax);
+				if ($terms) {
+					foreach ($terms as $term) {
+						$taxonomies[$tax][] = $term->term_id; 
+					}
 				}
 			}
 		}
@@ -610,32 +616,36 @@ class Widget extends \WP_Widget {
 	 * @return void
 	 */
 	function form($instance) {
+		if (count($instance['include_tax'])<=0) {
+			$instance['include_tax']['category'] = true;
+		}
 		$instance = wp_parse_args( ( array ) $instance, array(
-			'title'                => __( '' ),
-			'hide_title'           => __( '' ),
-			'separate_categories'  => __( '' ),
-			'num_per_cate'         => __( '' ),
-			'num'                  => __( '' ),
-			'sort_by'              => __( '' ),
-			'asc_sort_order'       => __( '' ),
-			'title_link'           => __( '' ),
-			'exclude_categories'   => __( '' ),
-			'exclude_terms'        => __( '' ),
-			'exclude_current_post' => __( '' ),
-			'author'               => __( '' ),
-			'date_format'          => __( '' ),
-			'use_wp_date_format'   => __( '' ),
-			'date_link'            => __( '' ),
-			'excerpt'              => __( '' ),
-			'excerpt_length'       => __( '' ),
-			'excerpt_more_text'    => __( '' ),
-			'comment_num'          => __( '' ),
-			'date'                 => __( '' ),
-			'thumb'                => __( '' ),
-			'thumbTop'             => __( '' ),
-			'thumb_w'              => __( '' ),
-			'thumb_h'              => __( '' ),
-			'use_css_cropping'     => __( '' )
+			'title'                => '',
+			'hide_title'           => '',
+			'separate_categories'  => '',
+			'num_per_cate'         => '',
+			'num'                  => '',
+			'sort_by'              => '',
+			'asc_sort_order'       => '',
+			'title_link'           => '',
+			'exclude_categories'   => '',
+			'exclude_terms'        => array(),
+			'include_tax'          => array(),
+			'exclude_current_post' => '',
+			'author'               => '',
+			'date_format'          => '',
+			'use_wp_date_format'   => '',
+			'date_link'            => '',
+			'excerpt'              => '',
+			'excerpt_length'       => '',
+			'excerpt_more_text'    => '',
+			'comment_num'          => '',
+			'date'                 => '',
+			'thumb'                => '',
+			'thumbTop'             => '',
+			'thumb_w'              => '',
+			'thumb_h'              => '',
+			'use_css_cropping'     => ''
 		) );
 
 		$title                = $instance['title'];
@@ -648,6 +658,7 @@ class Widget extends \WP_Widget {
 		$title_link           = $instance['title_link'];
 		$exclude_categories   = $instance['exclude_categories'];
 		$exclude_terms        = $instance['exclude_terms'];
+		$include_tax          = $instance['include_tax'];
 		$exclude_current_post = $instance['exclude_current_post'];
 		$author               = $instance['author'];
 		$date_format          = $instance['date_format'];
@@ -692,43 +703,49 @@ class Widget extends \WP_Widget {
 			</div>
 			<h4 data-panel="filter"><?php _e('Filter')?></h4>
 			<div>
-				<p>
-				<?php _e( 'Exclude:' ); ?>
-				<?php
-					// get all taxonomies except for the built-in (menu, post format etc)
-					$args = array(
-								'public' => true
-								); 
-					$taxs = get_taxonomies( $args,'objects');
-					
-					// now get all tags
-					$args = array(
-									'hide_empty' => false, // we want to show not yet populated terms as well
-									'fields' => 'id=>name' // return array of names matched to ids
-							);
-					foreach ($taxs as $tax) {
-						$taxname = $tax->name;
-						$terms = get_terms($taxname,$args);
-						$selected = array(); // set default array to 'ignore'
-						if (isset($instance['exclude_terms'][$taxname]))
-							$selected = $instance['exclude_terms'][$taxname];
-						else if (isset($instance["exclude_categories"]) && $instance["exclude_categories"]) // deprecate >= 1.0.12: 'exclude_categories' becomes 'terms'
-							$selected = $instance["exclude_categories"];
-						if (!empty($terms)) {
-							echo '<p><label for="'.$this->get_field_id('exclude_terms['.$taxname.']').'">'.esc_html($tax->labels->name).'</label><br>';
-							echo '<select multiple="multiple" name="'.$this->get_field_name('exclude_terms').'['.$taxname.'][]" id="'.$this->get_field_id('exclude_terms['.$taxname.']').'">';
-							foreach ($terms as $id => $name)  {
-								$sel = '';
-								if (in_array($id,$selected))
-									$sel = ' selected="selected"';
-								echo '<option value="'.$id.'"'.$sel.'>'.esc_html($name).'</option>';
-							}
-							echo '</select></p>';
-						}
+			<?php	
+				// get all taxonomies except for the built-in (menu, post format etc)
+				$args = array(
+							'public' => true
+							); 
+				$taxs = get_taxonomies( $args,'objects');
+				
+				// now get all tags
+				$args = array(
+								'hide_empty' => false, // we want to show not yet populated terms as well
+								'fields' => 'id=>name' // return array of names matched to ids
+						);
+				foreach ($taxs as $tax) {
+					$taxname = $tax->name;
+					$terms = get_terms($taxname,$args);
+					if ($terms) {
+						?>
+						<p>
+							<label for="<?php echo $this->get_field_id('include_tax['.$taxname.']'); ?>">
+								<input data-taxname="<?php echo $taxname ?>" onchange="javascript:scpwp_namespace.toggleDeactivateExcludeTaxTerms(this)" type="checkbox" class="checkbox" id="<?php echo $this->get_field_id('include_tax['.$taxname.']'); ?>" name="<?php echo $this->get_field_name('include_tax['.$taxname.']'); ?>"<?php checked( (bool) $instance['include_tax'][$taxname], true ); ?> />
+								<?php printf( __( 'Include same "'.esc_html($tax->labels->name).'" %s and exclude one or more terms:' ), $taxname=="category"?"(default)":""); ?>
+							</label>
+						</p>
+						<?php
 					}
-				?>
+					
+					$selected = array(); // set default array to 'ignore'
+					if (isset($instance['exclude_terms'][$taxname]))
+						$selected = $instance['exclude_terms'][$taxname];
+					else if (isset($instance["exclude_categories"]) && $instance["exclude_categories"]) // deprecate >= 1.0.12: 'exclude_categories' becomes 'terms'
+						$selected = $instance["exclude_categories"];
+					if (!empty($terms)) {
+						echo '<select class=\'scpwp-deactivate-exclude-taxterms-'.$taxname.'\' '.($instance['include_tax'][$taxname]?'':'disabled').' multiple="multiple" name="'.$this->get_field_name('exclude_terms').'['.$taxname.'][]" id="'.$this->get_field_id('exclude_terms['.$taxname.']').'">';
+						foreach ($terms as $id => $name)  {
+							$sel = '';
+							if (in_array($id,$selected))
+								$sel = ' selected="selected"';
+							echo '<option value="'.$id.'"'.$sel.'>'.esc_html($name).'</option>';
+						}
+						echo '</select></p>';
+					}
+				} ?>
 				<div>(Multiselect and clear: CTRL + click)</div>
-				</p>
 				
 				<p>
 					<label for="<?php echo $this->get_field_id("num"); ?>">

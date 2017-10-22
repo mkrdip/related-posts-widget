@@ -29,6 +29,18 @@
                 o[panel] = true;
             this.open_panels[id] = o;
         },
+
+        // Deactivate terms on same taxonomy change
+        toggleDeactivateExcludeTaxTerms: function(item) {
+            var value = jQuery(item).prop("checked"),
+                taxname = jQuery(item).data("taxname");
+            if(value == true) {
+                jQuery('.scpwp-deactivate-exclude-taxterms-'+taxname).removeAttr("disabled");
+            }
+            else {
+                jQuery('.scpwp-deactivate-exclude-taxterms-'+taxname).prop('disabled', 'disabled');
+            }
+        },
         
         // Show hide number of categories options on separate categories change
         toggleSeparateCategoriesPanel: function(item) {
