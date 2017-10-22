@@ -338,8 +338,10 @@ class Widget extends \WP_Widget {
 		$taxonomies = null;
 		$taxes = get_object_taxonomies($post);
 		foreach ($taxes as $tax) {
+			if (count($instance['include_tax'])<=0)
+				$instance['include_tax']['category'] = "on";
 			if (array_key_exists($tax, $instance['include_tax'])) {
-				$terms = get_the_terms($post->ID, $tax);
+				$terms = get_the_terms($post->ID, $tax); 
 				if ($terms) {
 					foreach ($terms as $term) {
 						$taxonomies[$tax][] = $term->term_id; 
@@ -395,10 +397,6 @@ class Widget extends \WP_Widget {
 										(is_array($instance['exclude_categories']) || $instance['exclude_categories'] != -1)
 								   ) ? $instance['exclude_categories'] : array();
 		}
-		
-		// Exclude current post
-		$current_post_id = get_the_ID();
-		$exclude_current_post = (isset( $instance['exclude_current_post'] ) && $instance['exclude_current_post'] != -1) ? $current_post_id : "";
 
 		/*
 		if(!empty($categories[0])) {
@@ -461,11 +459,12 @@ class Widget extends \WP_Widget {
         if (is_array($term_query))
             $args['tax_query'] = $term_query;
 
-        if ($exclude_current_post)
-            $args['post__not_in'] = array( $exclude_current_post );
+		// Exclude current post
+		if (isset( $instance['exclude_current_post'] ) && $instance['exclude_current_post'])
+			$args['post__not_in'] = array( get_the_ID() );
 		
 		$my_query = new \WP_Query($args);
-		
+
 		if( $my_query->have_posts() )
 		{
 			echo $before_widget;
@@ -616,9 +615,9 @@ class Widget extends \WP_Widget {
 	 * @return void
 	 */
 	function form($instance) {
-		if (count($instance['include_tax'])<=0) {
-			$instance['include_tax']['category'] = true;
-		}
+		if (count($instance['include_tax'])<=0)
+			$instance['include_tax']['category'] = "on";
+
 		$instance = wp_parse_args( ( array ) $instance, array(
 			'title'                => '',
 			'hide_title'           => '',

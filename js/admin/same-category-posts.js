@@ -40,6 +40,18 @@
             else {
                 jQuery('.scpwp-deactivate-exclude-taxterms-'+taxname).prop('disabled', 'disabled');
             }
+
+			// default tax: 'category', if no tax is selected
+			var count = jQuery(item).closest('div').find('[data-taxname]').length;
+			jQuery(item).closest('div').find('[data-taxname]').each(function(){
+				if (jQuery(this).prop("checked") != true) {
+					count -= 1;
+				}
+			})
+			if (count <= 0) {
+				jQuery('.scpwp-deactivate-exclude-taxterms-category').removeAttr("disabled");
+				jQuery('[data-taxname=category]').prop('checked', 'checked');
+			}
         },
         
         // Show hide number of categories options on separate categories change
