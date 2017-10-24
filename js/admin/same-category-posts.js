@@ -31,9 +31,9 @@
         },
 
         // Deactivate terms on same taxonomy change
-        toggleDeactivateExcludeTaxTerms: function(item) {
+        toggleIncludeTaxPanel: function(item) {
             var value = jQuery(item).prop("checked"),
-                taxname = jQuery(item).data("taxname");
+				taxname = jQuery(item).data("taxname");
             if(value == true) {
                 jQuery('.scpwp-deactivate-exclude-taxterms-'+taxname).removeAttr("disabled");
             }
@@ -50,13 +50,13 @@
 			})
 			if (count <= 0) {
 				jQuery('.scpwp-deactivate-exclude-taxterms-category').removeAttr("disabled");
-				jQuery('[data-taxname=category]').prop('checked', 'checked');
+				jQuery('.scpwp-include-tax-panel[data-taxname=category]').prop('checked', 'checked');
 			}
         },
         
         // Show hide number of categories options on separate categories change
         toggleSeparateCategoriesPanel: function(item) {
-            var value = jQuery(item).prop("checked");		
+            var value = jQuery(item).prop("checked");			
             if(value == true) {
                 jQuery('.scpwp-separate-categories-panel').show();
             }

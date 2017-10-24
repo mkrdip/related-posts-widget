@@ -323,6 +323,32 @@ class Widget extends \WP_Widget {
 		return $ret;
 	}
 
+	/**
+	 * Set for each object_taxonomy the hierarchical post_type as default, if no tax is selected
+	 *
+	 * @param  array &$instance
+	 * @return by ref
+	 */
+	function checkDefaultTax(&$instance) {
+		$post_types = get_post_types( array( 'publicly_queryable' => true ) );
+		foreach ($post_types as $post_type) {
+			$object_taxes = get_object_taxonomies( $post_type, 'objects' );
+			
+			$set_default = true;
+			foreach ( $object_taxes as $tax ) {
+				if (array_key_exists( $tax->name, $instance['include_tax'] )) {
+					$set_default = false;
+				}
+			}
+			if ($set_default) {
+				foreach ( $object_taxes as $tax ) {
+					if ($tax->hierarchical)
+						$instance['include_tax'][$tax->name] = true;
+				}
+			}
+		}
+	}
+
 	// Displays a list of posts from same category on single post pages.
 	function widget($args, $instance) {
 		// Only show widget if on a post page.
@@ -333,15 +359,15 @@ class Widget extends \WP_Widget {
 		
 		extract( $args );
 		$this->instance = $instance;
+
+		$this->checkDefaultTax($instance);
 		
 		// Get taxonomies
 		$taxonomies = null;
-		$taxes = get_object_taxonomies($post);
+		$taxes = get_object_taxonomies( $post );
 		foreach ($taxes as $tax) {
-			if (count($instance['include_tax'])<=0)
-				$instance['include_tax']['category'] = "on";
 			if (array_key_exists($tax, $instance['include_tax'])) {
-				$terms = get_the_terms($post->ID, $tax); 
+				$terms = get_the_terms($post->ID, $tax);
 				if ($terms) {
 					foreach ($terms as $term) {
 						$taxonomies[$tax][] = $term->term_id; 
@@ -391,34 +417,18 @@ class Widget extends \WP_Widget {
 			add_filter('excerpt_more', array($this,'excerpt_more_filter'));
 		}		
 		
+		// deprecate >= 1.0.12: 'exclude_categories' get 'exclude_terms'
 		// Exclude categories
-		if(!empty($categories[0])) {
-			$exclude_categories = (isset( $instance['exclude_categories'] ) && 
-										(is_array($instance['exclude_categories']) || $instance['exclude_categories'] != -1)
-								   ) ? $instance['exclude_categories'] : array();
-		}
+		if (!isset($instance['exclude_terms']['category']) && isset($instance['exclude_categories']) && $instance['exclude_categories'])
+			$instance['exclude_terms'] = array( 'category' => $instance['exclude_categories']);
+				
+		// Query args
+		$args = array(
+			'orderby' => $sort_by,
+            'order'   => $sort_order
+		);
 
-		/*
-		if(!empty($categories[0])) {
-			$args = array(
-				'cat' => $category,
-				'category__not_in' => $exclude_categories,
-				'post__not_in' => array( $exclude_current_post ),
-				'showposts' => isset($instance['num'])?$instance['num']:0, // Number of same posts that will be shown
-				'ignore_sticky_posts' => 1,
-				'orderby' => $sort_by,
-				'order' => $sort_order
-				);
-		}else{
-			$args = array(
-				'post_type' => $category_info,
-				'showposts' => $instance['num'], // Number of same posts that will be shown
-				'ignore_sticky_posts' => 1,
-				'orderby' => $sort_by,
-				'order' => $sort_order
-				);		
-		}
-		*/
+		$args['post_type'] = array( get_post_type( $post ) );
 
 		$term_query_in = array('relation' => 'OR');
 		foreach ( $taxonomies as $tax=>$terms) {
@@ -448,20 +458,14 @@ class Widget extends \WP_Widget {
 		
 		$term_query[] = $term_query_in;
 		$term_query[] = $term_query_not_in;
-		
-		$args = array(
-			'orderby' => $sort_by,
-            'order'   => $sort_order
-		);
-		
-		$args['post_type'] = 'any';
 
         if (is_array($term_query))
             $args['tax_query'] = $term_query;
 
-		// Exclude current post
 		if (isset( $instance['exclude_current_post'] ) && $instance['exclude_current_post'])
 			$args['post__not_in'] = array( get_the_ID() );
+
+		$args['posts_per_page'] = (isset($instance['num']) && $instance['num']) ? $instance['num'] : -1;
 		
 		$my_query = new \WP_Query($args);
 
@@ -615,8 +619,8 @@ class Widget extends \WP_Widget {
 	 * @return void
 	 */
 	function form($instance) {
-		if (count($instance['include_tax'])<=0)
-			$instance['include_tax']['category'] = "on";
+		
+		$this->checkDefaultTax($instance);
 
 		$instance = wp_parse_args( ( array ) $instance, array(
 			'title'                => '',
@@ -704,10 +708,18 @@ class Widget extends \WP_Widget {
 			<div>
 			<?php	
 				// get all taxonomies except for the built-in (menu, post format etc)
-				$args = array(
-							'public' => true
-							); 
-				$taxs = get_taxonomies( $args,'objects');
+				$args = null;
+				if (true) {
+					$args = array(
+								'public' => true
+								); 
+				} else {
+					$args = array(
+								'public' => true,
+								'hierarchical' => true
+								); 
+				}
+				$taxs = get_taxonomies( $args, 'objects' );
 				
 				// now get all tags
 				$args = array(
@@ -721,19 +733,18 @@ class Widget extends \WP_Widget {
 						?>
 						<p>
 							<label for="<?php echo $this->get_field_id('include_tax['.$taxname.']'); ?>">
-								<input data-taxname="<?php echo $taxname ?>" onchange="javascript:scpwp_namespace.toggleDeactivateExcludeTaxTerms(this)" type="checkbox" class="checkbox" id="<?php echo $this->get_field_id('include_tax['.$taxname.']'); ?>" name="<?php echo $this->get_field_name('include_tax['.$taxname.']'); ?>"<?php checked( (bool) $instance['include_tax'][$taxname], true ); ?> />
-								<?php printf( __( 'Include same "'.esc_html($tax->labels->name).'" %s and exclude one or more terms:' ), $taxname=="category"?"(default)":""); ?>
+								<input class="scpwp-include-tax-panel" data-taxname="<?php echo $taxname ?>" onchange="javascript:scpwp_namespace.toggleIncludeTaxPanel(this)" type="checkbox" class="checkbox" id="<?php echo $this->get_field_id('include_tax['.$taxname.']'); ?>" name="<?php echo $this->get_field_name('include_tax['.$taxname.']'); ?>"<?php checked( (bool) $instance['include_tax'][$taxname], true ); ?> />
+								<?php printf( __( 'Same "%s" %s and exclude:' ), esc_html($tax->labels->name), $tax->hierarchical?"(default)":""); ?>
 							</label>
 						</p>
 						<?php
-					}
 					
-					$selected = array(); // set default array to 'ignore'
-					if (isset($instance['exclude_terms'][$taxname]))
-						$selected = $instance['exclude_terms'][$taxname];
-					else if (isset($instance["exclude_categories"]) && $instance["exclude_categories"]) // deprecate >= 1.0.12: 'exclude_categories' becomes 'terms'
-						$selected = $instance["exclude_categories"];
-					if (!empty($terms)) {
+						$selected = array();
+						if (isset($instance['exclude_terms'][$taxname]))
+							$selected = $instance['exclude_terms'][$taxname];
+						else if (isset($instance["exclude_categories"]) && $instance["exclude_categories"] && $taxname == 'category') // deprecate >= 1.0.12: 'exclude_categories' get 'exclude_terms'
+							$selected = $instance["exclude_categories"];
+	
 						echo '<select class=\'scpwp-deactivate-exclude-taxterms-'.$taxname.'\' '.($instance['include_tax'][$taxname]?'':'disabled').' multiple="multiple" name="'.$this->get_field_name('exclude_terms').'['.$taxname.'][]" id="'.$this->get_field_id('exclude_terms['.$taxname.']').'">';
 						foreach ($terms as $id => $name)  {
 							$sel = '';
@@ -742,9 +753,12 @@ class Widget extends \WP_Widget {
 							echo '<option value="'.$id.'"'.$sel.'>'.esc_html($name).'</option>';
 						}
 						echo '</select></p>';
+						echo '<p>CTRL+Click: Multiselection and clear</p>';
+						?>
+						<hr>
+						<?php
 					}
 				} ?>
-				<div>(Multiselect and clear: CTRL + click)</div>
 				
 				<p>
 					<label for="<?php echo $this->get_field_id("num"); ?>">
@@ -758,7 +772,7 @@ class Widget extends \WP_Widget {
 						<input onchange="javascript:scpwp_namespace.toggleSeparateCategoriesPanel(this)" type="checkbox" class="checkbox" id="<?php echo $this->get_field_id("separate_categories"); ?>" name="<?php echo $this->get_field_name("separate_categories"); ?>"<?php checked( (bool) $instance["separate_categories"], true ); ?> />
 						<?php _e( 'Separate categories (If more than one assigned)' ); ?>
 					</label>
-				</p>			
+				</p>
 
 				<p class="scpwp-separate-categories-panel" style="border-left:5px solid #F1F1F1;padding-left:10px;display:<?php echo (isset($separate_categories) && $separate_categories) ? 'block' : 'none'?>">
 					<label for="<?php echo $this->get_field_id("num_per_cate"); ?>">
