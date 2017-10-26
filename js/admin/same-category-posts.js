@@ -35,23 +35,35 @@
             var value = jQuery(item).prop("checked"),
 				taxname = jQuery(item).data("taxname");
             if(value == true) {
-                jQuery('.scpwp-deactivate-exclude-taxterms-'+taxname).removeAttr("disabled");
+                jQuery('.scpwp-exclude-taxterms-'+taxname+'-panel').show();
             }
             else {
-                jQuery('.scpwp-deactivate-exclude-taxterms-'+taxname).prop('disabled', 'disabled');
+                jQuery('.scpwp-exclude-taxterms-'+taxname+'-panel').hide();
             }
 
-			// default tax: 'category', if no tax is selected
-			var count = jQuery(item).closest('div').find('[data-taxname]').length;
-			jQuery(item).closest('div').find('[data-taxname]').each(function(){
-				if (jQuery(this).prop("checked") != true) {
-					count -= 1;
+			// default taxes for each post_type, if no tax is selected
+			var postTypes = [],	_this = jQuery(item);
+
+			_this.closest("div").find("p[data-post-type-attr]").each(function(i,val){
+				var postType = jQuery(this).data("post-type-attr").split("-")[0];
+				if(postTypes.indexOf(postType)==-1) {
+					postTypes.push(postType);
 				}
-			})
-			if (count <= 0) {
-				jQuery('.scpwp-deactivate-exclude-taxterms-category').removeAttr("disabled");
-				jQuery('.scpwp-include-tax-panel[data-taxname=category]').prop('checked', 'checked');
-			}
+			});
+
+			jQuery(postTypes).each(function(i,val){
+				var setDefault = true;
+				_this.closest("div").find("p[data-post-type-attr*="+val+"]").each(function(){
+					if(jQuery(this).find("input").prop("checked") == true) {
+						setDefault = false;
+					}	
+				});
+				if(setDefault == true){
+					var defaultTaxname = jQuery("[data-post-type-attr="+val+"-hierarchical]").find("input").data("taxname");
+					jQuery('.scpwp-include-tax-panel[data-taxname='+defaultTaxname+']').prop('checked', 'checked');
+					jQuery('.scpwp-exclude-taxterms-'+defaultTaxname+'-panel').show();
+				}
+			});
         },
         
         // Show hide number of categories options on separate categories change
@@ -110,28 +122,28 @@
         },
     }
 
-jQuery(document).ready( function () {
+	jQuery(document).ready( function () {
 
-    jQuery('.same-category-widget-cont h4').click(function () { // for widgets page
-        // toggle panel open/close
-        scpwp_namespace.clickHandler(this);
-    });
+		jQuery('.same-category-widget-cont h4').click(function () { // for widgets page
+			// toggle panel open/close
+			scpwp_namespace.clickHandler(this);
+		});
 
-    // needed to reassign click handlers after widget refresh
-    jQuery(document).on('widget-added widget-updated', function(root,element){ // for customize and after save on widgets page
-        jQuery('.same-category-widget-cont h4').off('click').on('click', function () {
-            // toggle panel open/close
-            scpwp_namespace.clickHandler(this);
-        });
+		// needed to reassign click handlers after widget refresh
+		jQuery(document).on('widget-added widget-updated', function(root,element){ // for customize and after save on widgets page
+			jQuery('.same-category-widget-cont h4').off('click').on('click', function () {
+				// toggle panel open/close
+				scpwp_namespace.clickHandler(this);
+			});
 
-        // refresh panels to state before the refresh
-        var id = jQuery(element).attr('id');
-        if (scpwp_namespace.open_panels.hasOwnProperty(id)) {
-            var o = scpwp_namespace.open_panels[id];
-            for (var panel in o) {
-                jQuery(element).find('[data-panel='+panel+']').toggleClass('open')
-                    .next().stop().show();
-            }
-        }
-    });
-});
+			// refresh panels to state before the refresh
+			var id = jQuery(element).attr('id');
+			if (scpwp_namespace.open_panels.hasOwnProperty(id)) {
+				var o = scpwp_namespace.open_panels[id];
+				for (var panel in o) {
+					jQuery(element).find('[data-panel='+panel+']').toggleClass('open')
+						.next().stop().show();
+				}
+			}
+		});
+	});
