@@ -358,6 +358,7 @@ class Widget extends \WP_Widget {
 		if ( !is_single() ) return;
 
 		global $post;
+		$current_post_id = get_the_ID();
 		$post_old = $post; // Save the post object.
 		
 		extract( $args );
@@ -380,29 +381,6 @@ class Widget extends \WP_Widget {
 				$categories = get_the_terms($post->ID,$tax);
 			}
 		}
-
-		// Get category
-		//$categories = get_the_category();
-		// echo var_dump($categories);		
-		/*
-		// echo var_dump($categories);
-		if( sizeof($categories) > 0 ) {		
-			$category = '';
-			foreach ($categories as $key => $val) {
-				$category .= $val->cat_ID . ",";
-			}
-			$category = trim($category, ",");
-		
-			$category_info = get_category( $category );
-
-		} /* else { // get post types
-			$category_info = (object) array( 'name' => get_post_type($post->ID));
-
-			if( !isset($instance['title']) || isset($instance['title']) && !$instance['title'] ) {
-				$instance['title'] = $category_info->name;
-			}			 
-		}
-		*/
 		
 		// Excerpt length filter
 		if ( isset($instance["excerpt_length"]) && $instance["excerpt_length"] > 0 ) {
@@ -484,7 +462,8 @@ class Widget extends \WP_Widget {
 
 			// Widget title
 			if( !isset ( $instance["hide_title"] ) ) {
-				if( isset( $instance["separate_categories"] ) && $instance["separate_categories"] ) { // Separate categories: title to array
+				if( isset( $instance["separate_categories"] ) && $instance["separate_categories"] ) { 
+					// Separate categories: title to array
 					foreach($categories as $cat) {
 						$widgetHTML[$cat->name]['ID'] = $cat->term_id;
 						if( isset ( $instance["title_link"] ) ) {
@@ -503,7 +482,8 @@ class Widget extends \WP_Widget {
 							$widgetHTML[$cat->name]['title'] = $title;
 						}
 					}
-				} else { // !Separate categories: echo
+				} else {
+					// ! Separate categories: echo
 					echo $before_title;
 					if( isset ( $instance["title_link"] ) ) {
 						$linkList = "";
@@ -513,14 +493,14 @@ class Widget extends \WP_Widget {
 							$linkList .= '<a href="' . get_category_link( $cat ) . '">'. $cat->name . '</a>, ';
 						}
 						$linkList = trim($linkList, ", ");
-						if( isset($instance['title']) && $instance['title'] ) { 								// use placeholders if title is not empty
+						if( isset($instance['title']) && $instance['title'] ) { 		// use placeholders if title is not empty
 							if(strpos($instance['title'], '%cat-all%') !== false || 
-								strpos($instance['title'], '%cat%') !== false) {								// all-category placeholder is used
+								strpos($instance['title'], '%cat%') !== false) {		// all-category placeholder is used
 								if(strpos($instance['title'], '%cat-all%') !== false)
 									$linkList = str_replace( "%cat-all%", $linkList, $instance['title']);
 								else if(strpos($instance['title'], '%cat%') !== false)
 									$linkList = str_replace( "%cat%", '<a href="' . get_category_link( $categories[0] ) . '">'. $categories[0]->name . '</a>', $instance['title']);
-							} else 																				// no category placeholder is used
+							} else 														// no category placeholder is used
 								$linkList = '<a href="' . get_category_link( $categories[0] ) . '">'. $instance['title'] . '</a>';
 						}
 						echo htmlspecialchars_decode(apply_filters('widget_title',$linkList));
@@ -533,10 +513,10 @@ class Widget extends \WP_Widget {
 						}
 						$categoryNames = trim($categoryNames, ", ");
 					
-						if( isset($instance['title']) && $instance['title'] ) {									// use placeholders if title is not empty
-							if(strpos($instance['title'], '%cat-all%') !== false)								// all-category placeholder is used
+						if( isset($instance['title']) && $instance['title'] ) {			// use placeholders if title is not empty
+							if(strpos($instance['title'], '%cat-all%') !== false)		// all-category placeholder is used
 								$categoryNames = str_replace( "%cat-all%", $categoryNames, $instance['title']);
-							else if(strpos($instance['title'], '%cat%') !== false)								// one-category placeholder is used
+							else if(strpos($instance['title'], '%cat%') !== false)		// one-category placeholder is used
 								$categoryNames = str_replace( "%cat%", $categories[0]->name, $instance['title']);
 							else
 								$categoryNames = $instance['title'];
@@ -554,23 +534,28 @@ class Widget extends \WP_Widget {
 			{
 				$my_query->the_post();
 				
-				if( isset( $instance["separate_categories"] ) && $instance["separate_categories"] ) { // Separate categories: get itemHTML to array
-					// Put itemHTML to all assigned categories from current post
-					foreach ($categories as $key => $cat)
-						$cats[] = $cat->name;
-					$postCategories = get_the_category($post->ID); 
-					foreach ($postCategories as $val) {
-						if(in_array($val->name,$cats)) {
-							$widgetHTML[$val->name][$post->ID]['itemHTML'] = $this->itemHTML($instance,$current_post_id);
-							$widgetHTML[$val->name][$post->ID]['ID'] = $post->ID;						
+				if( isset( $instance["separate_categories"] ) && $instance["separate_categories"] ) {
+					// Separate categories: get itemHTML to array
+					$object_taxes = get_object_taxonomies( $post, 'objects' );
+					$post_categories = null;
+					foreach ( $object_taxes as $tax ) {
+						if ($tax->hierarchical) {
+							$post_categories = get_the_terms($post->ID,$tax->name);
+							break;
 						}
 					}
+					foreach ($post_categories as $val) {
+						$widgetHTML[$val->name][$post->ID]['itemHTML'] = $this->itemHTML($instance,$current_post_id);
+						$widgetHTML[$val->name][$post->ID]['ID'] = $post->ID;
+					}
 				} else {					
-					echo $this->itemHTML($instance,$current_post_id); // !Separate categories: get itemHTML and echo
+					// ! Separate categories: get itemHTML and echo
+					echo $this->itemHTML($instance,$current_post_id);
 				}
 			} // end while
 
-			if( isset( $instance["separate_categories"] ) && $instance["separate_categories"] ) { // Separate categories: echo
+			if (isset( $instance["separate_categories"] ) && $instance["separate_categories"]) {
+				// Separate categories: echo
 				$isOnPage = array();
 				foreach($widgetHTML as $val) {
 					// widget title
@@ -591,13 +576,13 @@ class Widget extends \WP_Widget {
 							}
 						}
 					}
-				if($haveItemHTML)
+				if ($haveItemHTML)
 					echo $ret;
 				}
 			}
 
 			echo "</ul>\n";
-			// /Post list
+			// end Post list
 			
 			echo $after_widget;
 		}

@@ -19,11 +19,11 @@ We're [Tip Top Press](http://tiptoppress.com/?utm_source=wordpress_org&utm_campa
 
 = Features =
 
+* Custom Post Types support.
 * Option [seperate categories](http://tiptoppress.com/new-dynamic-layout-feature-separate-categories/?utm_source=wordpress_org&utm_campaign=features_seperate_scp&utm_medium=web) if more than one is assigned.
 * Placeholder in title string.
 * Option to show post thumbnail & set dimension by width & height.
 * Option to crop thumbnails with CSS. [What is 'CSS Image Crop'](http://tiptoppress.com/css-image-crop/?utm_source=wordpress_org&utm_campaign=features_crop_scp&utm_medium=web).
-* Custom Post Types support.
 * Option to put thumbnail on top.
 * Option to change ordering of posts.
 * Set how many posts to show.
