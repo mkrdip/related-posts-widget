@@ -336,8 +336,10 @@ class Widget extends \WP_Widget {
 			
 			$set_default = true;
 			foreach ( $object_taxes as $tax ) {
-				if (array_key_exists( $tax->name, $instance['include_tax'] ))
-					$set_default = false;
+				if (isset($instance['include_tax']) && $instance['include_tax']) {
+					if (array_key_exists( $tax->name, $instance['include_tax'] ))
+						$set_default = false;
+				}
 			}
 			if ($set_default) {
 				foreach ( $object_taxes as $tax ) {
