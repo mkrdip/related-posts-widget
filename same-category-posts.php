@@ -434,15 +434,17 @@ class Widget extends \WP_Widget {
 			}
 		}
 		
-		$term_query_not_in = array('relation' => 'AND');	
-		foreach ( $instance['exclude_terms'] as $tax=>$terms) {
-			$term_query_not_in[] = array(
-				'taxonomy' => $tax,
-				'field' => 'term_id',
-				'terms' => $instance['exclude_terms'][$tax],
-				'include_children' => true,
-				'operator' => 'NOT IN',
-				);
+		$term_query_not_in = array('relation' => 'AND');
+		if ( isset($instance['exclude_terms']) && $instance['exclude_terms'] ) {
+			foreach ( $instance['exclude_terms'] as $tax=>$terms) {
+				$term_query_not_in[] = array(
+					'taxonomy' => $tax,
+					'field' => 'term_id',
+					'terms' => $instance['exclude_terms'][$tax],
+					'include_children' => true,
+					'operator' => 'NOT IN',
+					);
+			}
 		}
 		
 		$term_query[] = $term_query_in;
@@ -490,7 +492,7 @@ class Widget extends \WP_Widget {
 					if( isset ( $instance["title_link"] ) ) {
 						$linkList = "";
 						foreach($categories as $cat) {
-							if(in_array($cat->term_id,$exclude_categories))
+							if(in_array($cat->term_id,$instance['exclude_terms']))
 								continue;
 							$linkList .= '<a href="' . get_category_link( $cat ) . '">'. $cat->name . '</a>, ';
 						}
@@ -509,7 +511,7 @@ class Widget extends \WP_Widget {
 					} else {
 						$categoryNames = "";
 						foreach ($categories as $key => $val) {
-							if(in_array($val->term_id,$exclude_categories))
+							if(in_array($val->term_id,$instance['exclude_terms']))
 								continue;
 							$categoryNames .= $val->name . ", ";
 						}
@@ -715,8 +717,8 @@ class Widget extends \WP_Widget {
 				
 				// now get all tags
 				$args = array(
-								'hide_empty' => false, // we want to show not yet populated terms as well
-								'fields' => 'id=>name' // return array of names matched to ids
+							'hide_empty' => false, // we want to show not yet populated terms as well
+							'fields' => 'id=>name' // return array of names matched to ids
 						);
 				foreach ($taxs as $tax) {
 					$taxname = $tax->name;
@@ -724,7 +726,6 @@ class Widget extends \WP_Widget {
 
 					if ($terms) {
 						$post_type_attr = $instance['post_types'][$taxname]['post_type'].($instance['post_types'][$taxname]['hierarchical']?'-hierarchical':'');
-
 						?>
 						<p data-post-type-attr="<?php echo $post_type_attr ?>">
 							<label for="<?php echo $this->get_field_id('include_tax['.$taxname.']'); ?>">
@@ -740,7 +741,7 @@ class Widget extends \WP_Widget {
 						else if (isset($instance["exclude_categories"]) && $instance["exclude_categories"] && $taxname == 'category') // deprecate >= 1.0.12: 'exclude_categories' get 'exclude_terms'
 							$selected = $instance["exclude_categories"];
 							
-						$style_display_attr = $instance['include_tax'][$taxname]?'block':'none';
+						$style_display_attr = (isset($instance['include_tax'][$taxname]) && $instance['include_tax'][$taxname])?'block':'none';
 	
 						echo '<div class=\'scpwp-exclude-taxterms-'.$taxname.'-panel\' style="display:'.$style_display_attr.'"><select multiple="multiple" name="'.$this->get_field_name('exclude_terms').'['.$taxname.'][]" id="'.$this->get_field_id('exclude_terms['.$taxname.']').'">';
 						foreach ($terms as $id => $name)  {
