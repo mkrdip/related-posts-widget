@@ -322,8 +322,8 @@ class Widget extends \WP_Widget {
 		$ret .= '</li>';
 		return $ret;
 	}
-
 	/**
+
 	 * Set for each object_taxonomy the hierarchical post_type as default, if no tax is selected
 	 *
 	 * @param  array &$instance
@@ -340,14 +340,18 @@ class Widget extends \WP_Widget {
 					if (array_key_exists( $tax->name, $instance['include_tax'] ))
 						$set_default = false;
 				}
+				// put all taxes with the post_type
+				if ($tax->hierarchical) {
+					$instance['post_types'][$tax->name] = array( 'post_type'=>$post_type, 'hierarchical'=>true );
+				} else {
+					$instance['post_types'][$tax->name] = array( 'post_type'=>$post_type, 'hierarchical'=>false );
+				}				
 			}
+			// put and set only 'default' taxes
 			if ($set_default) {
 				foreach ( $object_taxes as $tax ) {
 					if ($tax->hierarchical) {
-						$instance['include_tax'][$tax->name] = true;
-						$instance['post_types'][$tax->name] = array( 'post_type'=>$post_type, 'hierarchical'=>true );
-					} else {
-						$instance['post_types'][$tax->name] = array( 'post_type'=>$post_type, 'hierarchical'=>false );
+						$instance['include_tax'][$tax->name] = true; // set as 'default'
 					}
 				}
 			}
@@ -420,17 +424,19 @@ class Widget extends \WP_Widget {
 		$args['post_type'] = array( get_post_type( $post ) );
 
 		$term_query_in = array('relation' => 'OR');
-		foreach ( $taxonomies as $tax=>$terms) {
-			if ( isset($instance['exclude_terms']) && $instance['exclude_terms'] && array_key_exists($tax, $instance['exclude_terms']) )
-				$terms = array_diff($terms, $instance['exclude_terms'][$tax]);
-			if ($terms) {
-				$term_query_in[] = array(
-					'taxonomy' => $tax,
-					'field' => 'term_id',
-					'terms' => $terms,
-					'include_children' => true,
-					'operator' => 'IN',
-					);
+		if ($taxonomies) {
+			foreach ( $taxonomies as $tax=>$terms) {
+				if ( isset($instance['exclude_terms']) && $instance['exclude_terms'] && array_key_exists($tax, $instance['exclude_terms']) )
+					$terms = array_diff($terms, $instance['exclude_terms'][$tax]);
+				if ($terms) {
+					$term_query_in[] = array(
+						'taxonomy' => $tax,
+						'field' => 'term_id',
+						'terms' => $terms,
+						'include_children' => true,
+						'operator' => 'IN',
+						);
+				}
 			}
 		}
 		
@@ -492,7 +498,7 @@ class Widget extends \WP_Widget {
 					if( isset ( $instance["title_link"] ) ) {
 						$linkList = "";
 						foreach($categories as $cat) {
-							if(in_array($cat->term_id,$instance['exclude_terms']))
+							if(isset($instance['exclude_terms']) && $instance['exclude_terms'] && in_array($cat->term_id,$instance['exclude_terms']))
 								continue;
 							$linkList .= '<a href="' . get_category_link( $cat ) . '">'. $cat->name . '</a>, ';
 						}
@@ -509,13 +515,15 @@ class Widget extends \WP_Widget {
 						}
 						echo htmlspecialchars_decode(apply_filters('widget_title',$linkList));
 					} else {
-						$categoryNames = "";
-						foreach ($categories as $key => $val) {
-							if(in_array($val->term_id,$instance['exclude_terms']))
-								continue;
-							$categoryNames .= $val->name . ", ";
+						$categoryNames = ""; 
+						if ($categories) {
+							foreach ($categories as $key => $val) {
+								if(isset($instance['exclude_terms']) && $instance['exclude_terms'] && in_array($val->term_id,$instance['exclude_terms']))
+									continue;
+								$categoryNames .= $val->name . ", ";
+							}
+							$categoryNames = trim($categoryNames, ", ");
 						}
-						$categoryNames = trim($categoryNames, ", ");
 					
 						if( isset($instance['title']) && $instance['title'] ) {			// use placeholders if title is not empty
 							if(strpos($instance['title'], '%cat-all%') !== false)		// all-category placeholder is used
@@ -725,24 +733,24 @@ class Widget extends \WP_Widget {
 					$terms = get_terms($taxname,$args);
 
 					if ($terms) {
-						$post_type_attr = $instance['post_types'][$taxname]['post_type'].($instance['post_types'][$taxname]['hierarchical']?'-hierarchical':'');
+						$post_type_attr = $post_types[$taxname]['post_type'].($post_types[$taxname]['hierarchical']?'-hierarchical':'');
 						?>
 						<p data-post-type-attr="<?php echo $post_type_attr ?>">
 							<label for="<?php echo $this->get_field_id('include_tax['.$taxname.']'); ?>">
-								<input class="scpwp-include-tax-panel" data-taxname="<?php echo $taxname ?>" onchange="javascript:scpwp_namespace.toggleIncludeTaxPanel(this)" type="checkbox" class="checkbox" id="<?php echo $this->get_field_id('include_tax['.$taxname.']'); ?>" name="<?php echo $this->get_field_name('include_tax['.$taxname.']'); ?>"<?php checked( (bool) $instance['include_tax'][$taxname], true ); ?> />
+								<input class="scpwp-include-tax-panel" data-taxname="<?php echo $taxname ?>" onchange="javascript:scpwp_namespace.toggleIncludeTaxPanel(this)" type="checkbox" class="checkbox" id="<?php echo $this->get_field_id('include_tax['.$taxname.']'); ?>" name="<?php echo $this->get_field_name('include_tax['.$taxname.']'); ?>"<?php checked( (bool) isset($instance['include_tax'][$taxname]) && $instance['include_tax'][$taxname], true ); ?> />
 								<?php printf( __( 'Same "%s" %s and exclude:' ), esc_html($tax->labels->name), $tax->hierarchical?"(default)":""); ?>
 							</label>
 						</p>
 						<?php
-					
+
 						$selected = array();
 						if (isset($instance['exclude_terms'][$taxname]))
 							$selected = $instance['exclude_terms'][$taxname];
 						else if (isset($instance["exclude_categories"]) && $instance["exclude_categories"] && $taxname == 'category') // deprecate >= 1.0.12: 'exclude_categories' get 'exclude_terms'
 							$selected = $instance["exclude_categories"];
-							
+
 						$style_display_attr = (isset($instance['include_tax'][$taxname]) && $instance['include_tax'][$taxname])?'block':'none';
-	
+
 						echo '<div class=\'scpwp-exclude-taxterms-'.$taxname.'-panel\' style="display:'.$style_display_attr.'"><select multiple="multiple" name="'.$this->get_field_name('exclude_terms').'['.$taxname.'][]" id="'.$this->get_field_id('exclude_terms['.$taxname.']').'">';
 						foreach ($terms as $id => $name)  {
 							$sel = '';
