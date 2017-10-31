@@ -340,7 +340,7 @@ class Widget extends \WP_Widget {
 					if (array_key_exists( $tax->name, $instance['include_tax'] ))
 						$set_default = false;
 				}
-				// put all taxes with the post_type
+				// put all taxes and the associated post_type
 				if ($tax->hierarchical) {
 					$instance['post_types'][$tax->name] = array( 'post_type'=>$post_type, 'hierarchical'=>true );
 				} else {
@@ -423,8 +423,8 @@ class Widget extends \WP_Widget {
 
 		$args['post_type'] = array( get_post_type( $post ) );
 
-		$term_query_in = array('relation' => 'OR');
 		if ($taxonomies) {
+			$term_query_in = array('relation' => 'OR');
 			foreach ( $taxonomies as $tax=>$terms) {
 				if ( isset($instance['exclude_terms']) && $instance['exclude_terms'] && array_key_exists($tax, $instance['exclude_terms']) )
 					$terms = array_diff($terms, $instance['exclude_terms'][$tax]);
@@ -439,20 +439,22 @@ class Widget extends \WP_Widget {
 				}
 			}
 		}
-		
-		$term_query_not_in = array('relation' => 'AND');
+
 		if ( isset($instance['exclude_terms']) && $instance['exclude_terms'] ) {
 			foreach ( $instance['exclude_terms'] as $tax=>$terms) {
-				$term_query_not_in[] = array(
-					'taxonomy' => $tax,
-					'field' => 'term_id',
-					'terms' => $instance['exclude_terms'][$tax],
-					'include_children' => true,
-					'operator' => 'NOT IN',
-					);
+				if (isset($instance['include_tax'][$tax]) && $instance['include_tax'][$tax]) { // the checkbox include should be true
+					$term_query_not_in[] = array(
+						'taxonomy' => $tax,
+						'field' => 'term_id',
+						'terms' => $instance['exclude_terms'][$tax],
+						'include_children' => true,
+						'operator' => 'NOT IN',
+						);
+				}
 			}
 		}
 		
+		$term_query[] = array('relation' => 'AND');
 		$term_query[] = $term_query_in;
 		$term_query[] = $term_query_not_in;
 
@@ -751,7 +753,8 @@ class Widget extends \WP_Widget {
 
 						$style_display_attr = (isset($instance['include_tax'][$taxname]) && $instance['include_tax'][$taxname])?'block':'none';
 
-						echo '<div class=\'scpwp-exclude-taxterms-'.$taxname.'-panel\' style="display:'.$style_display_attr.'"><select multiple="multiple" name="'.$this->get_field_name('exclude_terms').'['.$taxname.'][]" id="'.$this->get_field_id('exclude_terms['.$taxname.']').'">';
+						echo '<div class=\'scpwp-exclude-taxterms-'.$taxname.'-panel\' style="display:'.$style_display_attr.'">';
+						echo '<select multiple="multiple" name="'.$this->get_field_name('exclude_terms').'['.$taxname.'][]" id="'.$this->get_field_id('exclude_terms['.$taxname.']').'">';
 						foreach ($terms as $id => $name)  {
 							$sel = '';
 							if (in_array($id,$selected))
@@ -759,7 +762,8 @@ class Widget extends \WP_Widget {
 							echo '<option value="'.$id.'"'.$sel.'>'.esc_html($name).'</option>';
 						}
 						echo '</select>';
-						echo '<p>(CTRL+Click: Multiselection and clear)</p></div>';
+						echo '<p>(CTRL+Click: Multiselection and clear)</p>';
+						echo '</div>';
 						?>
 						<hr>
 						<?php
