@@ -740,16 +740,16 @@ class Widget extends \WP_Widget {
 
 					if ($terms) {
 						if ($collect_post_types != $post_type) {
-							echo '<hr>';
-							echo 'Show <b>'.$post_type.'</b> with ...<br>';
-							echo '<hr>';
+							echo ($collect_post_types == "")?'':'</div>';
+							echo 'Show <b>'.$post_type.'</b> with:<br>';
+							echo '<div style="border-left:5px solid #F1F1F1;padding-left:10px;">';
 							$collect_post_types = $post_type;
 						}
 						?>
 						<p>
 							<label>
 								<input name="<?php echo $this->get_field_name('include_tax['.$post_type.']'); ?>" data-taxname-and-post-type="<?php echo $taxname.'-'.$post_type ?>" onchange="javascript:scpwp_namespace.toggleSelectTaxPanel(this)" type="radio" class="checkbox" id="<?php echo $this->get_field_id('include_tax['.$post_type.']'); ?>" value="<?php echo $taxname ?>"<?php checked( (bool) ($instance['include_tax'][$post_type] == $taxname), true ); ?> />
-								<?php printf( __( '... same "%s" and exclude:' ), esc_html($tax->labels->name)); ?>
+								<?php printf( __( 'Same "%s" and exclude:' ), esc_html($tax->labels->name)); ?>
 							</label>
 						</p>
 						<?php
@@ -775,6 +775,7 @@ class Widget extends \WP_Widget {
 						echo '</div>';
 					}
 				} ?>
+				</div>
 				
 				<p>
 					<label for="<?php echo $this->get_field_id("num"); ?>">
