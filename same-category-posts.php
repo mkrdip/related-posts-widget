@@ -329,15 +329,15 @@ class Widget extends \WP_Widget {
 	 * @param  array &$instance
 	 * @return by ref
 	 */
-	function checkDefaultTaxes(&$instance) {
+	function initPostTypesAndTaxes(&$instance) {
 		$post_types = get_post_types( array( 'publicly_queryable' => true ) );
 		foreach ($post_types as $post_type) {
 			$object_taxes = get_object_taxonomies( $post_type, 'objects' );
 			
 			$set_default = true;
 			foreach ( $object_taxes as $tax ) {
-				if (isset($instance['include_tax']) && $instance['include_tax']) {
-					if (array_key_exists( $tax->name, $instance['include_tax'] ))
+				if (isset($instance['include_tax'][$post_type]) && $instance['include_tax'][$post_type]) {
+					if ($tax->name == $instance['include_tax'][$post_type])
 						$set_default = false;
 				}
 				// put all taxes and the associated post_type
@@ -351,7 +351,7 @@ class Widget extends \WP_Widget {
 			if ($set_default) {
 				foreach ( $object_taxes as $tax ) {
 					if ($tax->hierarchical) {
-						$instance['include_tax'][$tax->name] = true; // set as 'default'
+						$instance['include_tax'][$post_type] = $tax->name; // set as 'default'
 					}
 				}
 			}
@@ -370,14 +370,15 @@ class Widget extends \WP_Widget {
 		extract( $args );
 		$this->instance = $instance;
 
-		$this->checkDefaultTaxes($instance);
+		$this->initPostTypesAndTaxes($instance);
 		
 		// Get taxonomies
 		$taxonomies = null;
 		$taxes = get_object_taxonomies( $post );
 		$categories = null;
 		foreach ($taxes as $tax) {
-			if (array_key_exists($tax, $instance['include_tax'])) {
+			$post_type = $instance['post_types'][$tax]['post_type'];
+			if ($tax == $instance['include_tax'][$post_type]) {
 				$terms = get_the_terms($post->ID, $tax);
 				if ($terms) {
 					foreach ($terms as $term) {
@@ -517,7 +518,7 @@ class Widget extends \WP_Widget {
 						}
 						echo htmlspecialchars_decode(apply_filters('widget_title',$linkList));
 					} else {
-						$categoryNames = ""; 
+						$categoryNames = "";
 						if ($categories) {
 							foreach ($categories as $key => $val) {
 								if(isset($instance['exclude_terms']) && $instance['exclude_terms'] && in_array($val->term_id,$instance['exclude_terms']))
@@ -553,7 +554,8 @@ class Widget extends \WP_Widget {
 					$object_taxes = get_object_taxonomies( $post, 'objects' );
 					$post_categories = null;
 					foreach ( $object_taxes as $tax ) {
-						if ($tax->hierarchical) {
+						$post_type = $instance['post_types'][$tax->name]['post_type'];
+						if ($tax->name == $instance['include_tax'][$post_type]) {
 							$post_categories = get_the_terms($post->ID,$tax->name);
 							break;
 						}
@@ -630,7 +632,7 @@ class Widget extends \WP_Widget {
 	
 		// ToDo seperate_cat get seperate_tax (if update, settings)
 		
-		$this->checkDefaultTaxes($instance);
+		$this->initPostTypesAndTaxes($instance);
 
 		$instance = wp_parse_args( ( array ) $instance, array(
 			'title'                => '',
@@ -730,17 +732,24 @@ class Widget extends \WP_Widget {
 							'hide_empty' => false, // we want to show not yet populated terms as well
 							'fields' => 'id=>name' // return array of names matched to ids
 						);
-				foreach ($taxs as $tax) {
-					$taxname = $tax->name;
-					$terms = get_terms($taxname,$args);
+				$collect_post_types = "";
+				foreach ($taxs as $key=>$tax) {
+					$taxname   = $tax->name;
+					$terms     = get_terms($taxname,$args);
+					$post_type = $post_types[$taxname]['post_type'];
 
 					if ($terms) {
-						$post_type_attr = $post_types[$taxname]['post_type'].($post_types[$taxname]['hierarchical']?'-hierarchical':'');
+						if ($collect_post_types != $post_type) {
+							echo '<hr>';
+							echo 'Show <b>'.$post_type.'</b> with ...<br>';
+							echo '<hr>';
+							$collect_post_types = $post_type;
+						}
 						?>
-						<p data-post-type-attr="<?php echo $post_type_attr ?>">
-							<label for="<?php echo $this->get_field_id('include_tax['.$taxname.']'); ?>">
-								<input class="scpwp-include-tax-panel" data-taxname="<?php echo $taxname ?>" onchange="javascript:scpwp_namespace.toggleIncludeTaxPanel(this)" type="checkbox" class="checkbox" id="<?php echo $this->get_field_id('include_tax['.$taxname.']'); ?>" name="<?php echo $this->get_field_name('include_tax['.$taxname.']'); ?>"<?php checked( (bool) isset($instance['include_tax'][$taxname]) && $instance['include_tax'][$taxname], true ); ?> />
-								<?php printf( __( 'Same "%s" %s and exclude:' ), esc_html($tax->labels->name), $tax->hierarchical?"(default)":""); ?>
+						<p>
+							<label>
+								<input name="<?php echo $this->get_field_name('include_tax['.$post_type.']'); ?>" data-taxname-and-post-type="<?php echo $taxname.'-'.$post_type ?>" onchange="javascript:scpwp_namespace.toggleSelectTaxPanel(this)" type="radio" class="checkbox" id="<?php echo $this->get_field_id('include_tax['.$post_type.']'); ?>" value="<?php echo $taxname ?>"<?php checked( (bool) ($instance['include_tax'][$post_type] == $taxname), true ); ?> />
+								<?php printf( __( '... same "%s" and exclude:' ), esc_html($tax->labels->name)); ?>
 							</label>
 						</p>
 						<?php
@@ -751,9 +760,9 @@ class Widget extends \WP_Widget {
 						else if (isset($instance["exclude_categories"]) && $instance["exclude_categories"] && $taxname == 'category') // deprecate >= 1.0.12: 'exclude_categories' get 'exclude_terms'
 							$selected = $instance["exclude_categories"];
 
-						$style_display_attr = (isset($instance['include_tax'][$taxname]) && $instance['include_tax'][$taxname])?'block':'none';
+						$style_display_attr = ($instance['include_tax'][$post_type] == $taxname)?'block':'none';
 
-						echo '<div class=\'scpwp-exclude-taxterms-'.$taxname.'-panel\' style="display:'.$style_display_attr.'">';
+						echo '<div data-post-type='.$post_type.' class=\'scpwp-exclude-taxterms-'.$taxname.'-panel\' style="display:'.$style_display_attr.'">';
 						echo '<select multiple="multiple" name="'.$this->get_field_name('exclude_terms').'['.$taxname.'][]" id="'.$this->get_field_id('exclude_terms['.$taxname.']').'">';
 						foreach ($terms as $id => $name)  {
 							$sel = '';
@@ -764,9 +773,6 @@ class Widget extends \WP_Widget {
 						echo '</select>';
 						echo '<p>(CTRL+Click: Multiselection and clear)</p>';
 						echo '</div>';
-						?>
-						<hr>
-						<?php
 					}
 				} ?>
 				
