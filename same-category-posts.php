@@ -441,9 +441,11 @@ class Widget extends \WP_Widget {
 			}
 		}
 
+		$term_query_not_in = null;
 		if ( isset($instance['exclude_terms']) && $instance['exclude_terms'] ) {
 			foreach ( $instance['exclude_terms'] as $tax=>$terms) {
-				if (isset($instance['include_tax'][$tax]) && $instance['include_tax'][$tax]) { // the checkbox include should be true
+				$post_type = $instance['post_types'][$tax]['post_type'];
+				if ($tax == $instance['include_tax'][$post_type]) {
 					$term_query_not_in[] = array(
 						'taxonomy' => $tax,
 						'field' => 'term_id',
@@ -454,7 +456,7 @@ class Widget extends \WP_Widget {
 				}
 			}
 		}
-		
+
 		$term_query[] = array('relation' => 'AND');
 		$term_query[] = $term_query_in;
 		$term_query[] = $term_query_not_in;
@@ -506,14 +508,14 @@ class Widget extends \WP_Widget {
 							$linkList .= '<a href="' . get_category_link( $cat ) . '">'. $cat->name . '</a>, ';
 						}
 						$linkList = trim($linkList, ", ");
-						if( isset($instance['title']) && $instance['title'] ) { 		// use placeholders if title is not empty
+						if( isset($instance['title']) && $instance['title'] ) { 			// use placeholders if title is not empty
 							if(strpos($instance['title'], '%cat-all%') !== false || 
-								strpos($instance['title'], '%cat%') !== false) {		// all-category placeholder is used
+								strpos($instance['title'], '%cat%') !== false) {			// all-category placeholder is used
 								if(strpos($instance['title'], '%cat-all%') !== false)
 									$linkList = str_replace( "%cat-all%", $linkList, $instance['title']);
 								else if(strpos($instance['title'], '%cat%') !== false)
 									$linkList = str_replace( "%cat%", '<a href="' . get_category_link( $categories[0] ) . '">'. $categories[0]->name . '</a>', $instance['title']);
-							} else 														// no category placeholder is used
+							} else 															// no category placeholder is used
 								$linkList = '<a href="' . get_category_link( $categories[0] ) . '">'. $instance['title'] . '</a>';
 						}
 						echo htmlspecialchars_decode(apply_filters('widget_title',$linkList));
@@ -521,17 +523,17 @@ class Widget extends \WP_Widget {
 						$categoryNames = "";
 						if ($categories) {
 							foreach ($categories as $key => $val) {
-								if(isset($instance['exclude_terms']) && $instance['exclude_terms'] && in_array($val->term_id,$instance['exclude_terms']))
+								if(isset($instance['exclude_terms']) && $instance['exclude_terms'] && in_array($val->term_id,$instance['exclude_terms'][$val->taxonomy]))
 									continue;
 								$categoryNames .= $val->name . ", ";
 							}
 							$categoryNames = trim($categoryNames, ", ");
 						}
 					
-						if( isset($instance['title']) && $instance['title'] ) {			// use placeholders if title is not empty
-							if(strpos($instance['title'], '%cat-all%') !== false)		// all-category placeholder is used
+						if( isset($instance['title']) && $instance['title'] ) {				// use placeholders if title is not empty
+							if(strpos($instance['title'], '%cat-all%') !== false)			// all-category placeholder is used
 								$categoryNames = str_replace( "%cat-all%", $categoryNames, $instance['title']);
-							else if(strpos($instance['title'], '%cat%') !== false)		// one-category placeholder is used
+							else if(strpos($instance['title'], '%cat%') !== false)			// one-category placeholder is used
 								$categoryNames = str_replace( "%cat%", $categories[0]->name, $instance['title']);
 							else
 								$categoryNames = $instance['title'];
@@ -720,84 +722,63 @@ class Widget extends \WP_Widget {
 			</div>
 			<h4 data-panel="filter"><?php _e('Filter')?></h4>
 			<div>
-			<?php	
-				// get taxonomies except for the built-in
-				$args = array(
-							'public' => true
-							); 
-				$taxs = get_taxonomies( $args, 'objects' );
-				
-				// now get all tags
-				$args = array(
-							'hide_empty' => false, // we want to show not yet populated terms as well
-							'fields' => 'id=>name' // return array of names matched to ids
-						);
-				$collect_post_types = "";
-				foreach ($taxs as $key=>$tax) {
-					$taxname   = $tax->name;
-					$terms     = get_terms($taxname,$args);
-					$post_type = $post_types[$taxname]['post_type'];
+				<?php	
+					// get taxonomies except for the built-in
+					$args = array(
+								'public' => true
+								); 
+					$taxs = get_taxonomies( $args, 'objects' );
+					
+					// now get all tags
+					$args = array(
+								'hide_empty' => false, // we want to show not yet populated terms as well
+								'fields' => 'id=>name' // return array of names matched to ids
+							);
+					$collect_post_types = "";
+					foreach ($taxs as $key=>$tax) {
+						$taxname   = $tax->name;
+						$terms     = get_terms($taxname,$args);
+						$post_type = $post_types[$taxname]['post_type'];
 
-					if ($terms) {
-						if ($collect_post_types != $post_type) {
-							echo ($collect_post_types == "")?'':'</div>';
-							echo 'Show <b>'.$post_type.'</b> with:<br>';
-							echo '<div style="border-left:5px solid #F1F1F1;padding-left:10px;">';
-							$collect_post_types = $post_type;
+						if ($terms) {
+							if ($collect_post_types != $post_type) {
+								echo ($collect_post_types == "")?'':'</div>';
+								echo 'Show <b>'.$post_type.'</b> with:<br>';
+								echo '<div style="border-left:5px solid #F1F1F1;padding-left:10px;">';
+								$collect_post_types = $post_type;
+							}
+							?>
+							<p>
+								<label>
+									<input name="<?php echo $this->get_field_name('include_tax['.$post_type.']'); ?>" data-taxname-and-post-type="<?php echo $taxname.'-'.$post_type ?>" onchange="javascript:scpwp_namespace.toggleSelectTaxPanel(this)" type="radio" class="checkbox" id="<?php echo $this->get_field_id('include_tax['.$post_type.']'); ?>" value="<?php echo $taxname ?>"<?php checked( (bool) ($instance['include_tax'][$post_type] == $taxname), true ); ?> />
+									<?php printf( __( 'Same "%s" and exclude:' ), esc_html($tax->labels->name)); ?>
+								</label>
+							</p>
+							<?php
+
+							$selected = array();
+							if (isset($instance['exclude_terms'][$taxname]))
+								$selected = $instance['exclude_terms'][$taxname];
+							else if (isset($instance["exclude_categories"]) && $instance["exclude_categories"] && $taxname == 'category') // deprecate >= 1.0.12: 'exclude_categories' get 'exclude_terms'
+								$selected = $instance["exclude_categories"];
+
+							$style_display_attr = ($instance['include_tax'][$post_type] == $taxname)?'block':'none';
+
+							echo '<div data-post-type='.$post_type.' class=\'scpwp-exclude-taxterms-'.$taxname.'-panel\' style="display:'.$style_display_attr.'">';
+							echo '<select multiple="multiple" name="'.$this->get_field_name('exclude_terms').'['.$taxname.'][]" id="'.$this->get_field_id('exclude_terms['.$taxname.']').'">';
+							foreach ($terms as $id => $name)  {
+								$sel = '';
+								if (in_array($id,$selected))
+									$sel = ' selected="selected"';
+								echo '<option value="'.$id.'"'.$sel.'>'.esc_html($name).'</option>';
+							}
+							echo '</select>';
+							echo '<p>(CTRL+Click: Multiselection and clear)</p>';
+							echo '</div>';
 						}
-						?>
-						<p>
-							<label>
-								<input name="<?php echo $this->get_field_name('include_tax['.$post_type.']'); ?>" data-taxname-and-post-type="<?php echo $taxname.'-'.$post_type ?>" onchange="javascript:scpwp_namespace.toggleSelectTaxPanel(this)" type="radio" class="checkbox" id="<?php echo $this->get_field_id('include_tax['.$post_type.']'); ?>" value="<?php echo $taxname ?>"<?php checked( (bool) ($instance['include_tax'][$post_type] == $taxname), true ); ?> />
-								<?php printf( __( 'Same "%s" and exclude:' ), esc_html($tax->labels->name)); ?>
-							</label>
-						</p>
-						<?php
-
-						$selected = array();
-						if (isset($instance['exclude_terms'][$taxname]))
-							$selected = $instance['exclude_terms'][$taxname];
-						else if (isset($instance["exclude_categories"]) && $instance["exclude_categories"] && $taxname == 'category') // deprecate >= 1.0.12: 'exclude_categories' get 'exclude_terms'
-							$selected = $instance["exclude_categories"];
-
-						$style_display_attr = ($instance['include_tax'][$post_type] == $taxname)?'block':'none';
-
-						echo '<div data-post-type='.$post_type.' class=\'scpwp-exclude-taxterms-'.$taxname.'-panel\' style="display:'.$style_display_attr.'">';
-						echo '<select multiple="multiple" name="'.$this->get_field_name('exclude_terms').'['.$taxname.'][]" id="'.$this->get_field_id('exclude_terms['.$taxname.']').'">';
-						foreach ($terms as $id => $name)  {
-							$sel = '';
-							if (in_array($id,$selected))
-								$sel = ' selected="selected"';
-							echo '<option value="'.$id.'"'.$sel.'>'.esc_html($name).'</option>';
-						}
-						echo '</select>';
-						echo '<p>(CTRL+Click: Multiselection and clear)</p>';
-						echo '</div>';
 					}
-				} ?>
-				</div>
-				
-				<p>
-					<label for="<?php echo $this->get_field_id("num"); ?>">
-						<?php _e('Number of posts to show (overall)'); ?>:
-						<input style="width:30%;" style="text-align: center;" id="<?php echo $this->get_field_id("num"); ?>" name="<?php echo $this->get_field_name("num"); ?>" type="number" min="0" value="<?php echo absint($instance["num"]); ?>" size='3' />
-					</label>
-				</p>
-				
-				<p>
-					<label for="<?php echo $this->get_field_id("separate_categories"); ?>">
-						<input onchange="javascript:scpwp_namespace.toggleSeparateCategoriesPanel(this)" type="checkbox" class="checkbox" id="<?php echo $this->get_field_id("separate_categories"); ?>" name="<?php echo $this->get_field_name("separate_categories"); ?>"<?php checked( (bool) $instance["separate_categories"], true ); ?> />
-						<?php _e( 'Separate by "default" categories (If more than one assigned)' ); ?>
-					</label>
-				</p>
-
-				<p class="scpwp-separate-categories-panel" style="border-left:5px solid #F1F1F1;padding-left:10px;display:<?php echo (isset($separate_categories) && $separate_categories) ? 'block' : 'none'?>">
-					<label for="<?php echo $this->get_field_id("num_per_cate"); ?>">
-						<?php _e('Number of posts per separated categories'); ?>:
-						<input style="width: 15%; text-align: center;" id="<?php echo $this->get_field_id("num_per_cate"); ?>" name="<?php echo $this->get_field_name("num_per_cate"); ?>" type="number" min="0" value="<?php echo absint($instance["num_per_cate"]); ?>" size='3' />
-					</label>
-				</p>
-
+					echo '</div>';
+				?>
 				<p>
 					<label for="<?php echo $this->get_field_id("sort_by"); ?>">
 						<?php _e('Sort by'); ?>:
@@ -821,11 +802,32 @@ class Widget extends \WP_Widget {
 				</p>
 				
 				<p>
+					<label for="<?php echo $this->get_field_id("separate_categories"); ?>">
+						<input onchange="javascript:scpwp_namespace.toggleSeparateCategoriesPanel(this)" type="checkbox" class="checkbox" id="<?php echo $this->get_field_id("separate_categories"); ?>" name="<?php echo $this->get_field_name("separate_categories"); ?>"<?php checked( (bool) $instance["separate_categories"], true ); ?> />
+						<?php _e( 'Separate terms (If more than one assigned)' ); ?>
+					</label>
+				</p>
+
+				<p class="scpwp-separate-categories-panel" style="border-left:5px solid #F1F1F1;padding-left:10px;display:<?php echo (isset($separate_categories) && $separate_categories) ? 'block' : 'none'?>">
+					<label for="<?php echo $this->get_field_id("num_per_cate"); ?>">
+						<?php _e('Max. number of posts per separated categories'); ?>:
+						<input style="width: 15%; text-align: center;" id="<?php echo $this->get_field_id("num_per_cate"); ?>" name="<?php echo $this->get_field_name("num_per_cate"); ?>" type="number" min="0" value="<?php echo absint($instance["num_per_cate"]); ?>" size='3' />
+					</label>
+				</p>
+				
+				<p>
+					<label for="<?php echo $this->get_field_id("num"); ?>">
+						<?php _e('Number of posts to show (overall)'); ?>:
+						<input style="width:30%;" style="text-align: center;" id="<?php echo $this->get_field_id("num"); ?>" name="<?php echo $this->get_field_name("num"); ?>" type="number" min="0" value="<?php echo absint($instance["num"]); ?>" size='3' />
+					</label>
+				</p>
+				
+				<p>
 					<label for="<?php echo $this->get_field_id("exclude_current_post"); ?>">
 						<input type="checkbox" class="checkbox" id="<?php echo $this->get_field_id("exclude_current_post"); ?>" name="<?php echo $this->get_field_name("exclude_current_post"); ?>"<?php checked( (bool) $instance["exclude_current_post"], true ); ?> />
 						<?php _e( 'Exclude current post' ); ?>
 					</label>
-				</p>			
+				</p>
 			</div>
 			<h4 data-panel="thumbnails"><?php _e('Thumbnails')?></h4>
 			<div>
