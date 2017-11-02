@@ -93,7 +93,7 @@ To multiselect or clear terms in the "exclude"-text area hold CTRL-key + mouse c
 
 1. The widget configuration dialog.
 2. Front end of the widget using a default WordPress Theme.
-3. Option 'Separate categories (If more than one assigned)' will show, separate and link to all assigned categories.
+3. Separate categories shows and link to all assigned categories.
 
 == Changelog ==
 
@@ -151,19 +151,3 @@ To multiselect or clear terms in the "exclude"-text area hold CTRL-key + mouse c
 
 = 1.0 =
 * Initial release.
-
-== Upgrade Notice ==
-
-= 1.0.2 =
-* Added some features known from Category Posts Widget.
-
-= 1.0.1 =
-* Support question for a option that exclude a certain category.
-
-= 1.0 =
-* Designing a new widget, always a problem can be solved in the best possible.
-
-== Upgrade Notice ==
-
-= 1.0.4 =
-CSS feature image cropping was added. Read more in our [blog](http://tiptoppress.com/same-category-posts-v1-0-5-gets-css-cropping-feature/).
