@@ -4,7 +4,7 @@ Donate link: http://mkrdip.me/donate
 Tags: similar posts, related posts, post list, recent posts, same category
 Requires at least: 3.0
 Tested up to: 4.8
-Stable tag: 1.0.12
+Stable tag: 1.1.0
 License: GPLv2 or later 
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -86,6 +86,9 @@ WordPress Codex: [Excerpt, automatic excerpt, and teaser](http://codex.wordpress
 = I want the title as a link pointing to the selected Categorie page? =
 Enable the check box "Make widget title link".
 
+= Exclude (-terms) text area =
+To multiselect or clear terms in the "exclude"-text area hold CTRL-key + mouse click
+
 == Screenshots ==
 
 1. The widget configuration dialog.
@@ -93,6 +96,9 @@ Enable the check box "Make widget title link".
 3. Option 'Separate categories (If more than one assigned)' will show, separate and link to all assigned categories.
 
 == Changelog ==
+
+= 1.1.0 - November 02 2017  =
+* Custom Post Type support
 
 = 1.0.12 - June 15 2017  =
 * Bugfix for if widget title as a link, there are HTML special characters in the rendered output
