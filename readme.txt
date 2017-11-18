@@ -1,7 +1,7 @@
 === Same Category Posts ===
 Contributors: kometschuh, mkrdip
 Donate link: http://mkrdip.me/donate
-Tags: similar posts, related posts, post list, recent posts, same category
+Tags: similar posts, related posts, related, post list, recent posts, posts, same category
 Requires at least: 3.0
 Tested up to: 4.9
 Stable tag: 1.1.0
@@ -12,7 +12,7 @@ Adds a widget that shows posts from the same category to the current post.
 
 == Description ==
 
-Same Category Posts shows a list of same posts to the current post. The widget is only shown on single post pages. Forked from [Related Posts Widget](https://wordpress.org/plugins/related-posts-widget).
+Same Category Posts shows a list of related posts with a same term to the current post. The widget is only shown on single post pages. Forked from [Related Posts Widget](https://wordpress.org/plugins/related-posts-widget).
 
 = Tip Top Press =
 We're [Tip Top Press](http://tiptoppress.com/?utm_source=wordpress_org&utm_campaign=tiptoppress_toptoppress_scp&utm_medium=web) and create widgets for Wordpress. If you want to know about what we're working on and you are interested in backgrounds then you can read all newes storys on our [blog](http://tiptoppress.com/blog/?utm_source=wordpress_org&utm_campaign=toptoppress_blog_scp&utm_medium=web).
@@ -20,30 +20,28 @@ We're [Tip Top Press](http://tiptoppress.com/?utm_source=wordpress_org&utm_campa
 = Features =
 
 * Custom Post Types support.
+* Option to filter by popular posts (by comment count).
+* Option exclude one or multi categories or terms.
 * Option [seperate categories](http://tiptoppress.com/new-dynamic-layout-feature-separate-categories/?utm_source=wordpress_org&utm_campaign=features_seperate_scp&utm_medium=web) if more than one is assigned.
-* Placeholder in title string.
+* Set how many posts to show (overall and by category).
+* Option exclude current post.
+* Placeholders in title string (e.g. "There are a lot of %cat%-News." -> "There are a lot of Tech-News.").
+* Filter hook for the post titles 'widget_title'.
 * Option to show post thumbnail & set dimension by width & height.
 * Option to crop thumbnails with CSS. [What is 'CSS Image Crop'](http://tiptoppress.com/css-image-crop/?utm_source=wordpress_org&utm_campaign=features_crop_scp&utm_medium=web).
 * Option to put thumbnail on top.
-* Option to change ordering of posts.
-* Set how many posts to show.
 * Option to make the widget title link to the category page.
 * Option to show/hide the title.
-* Filter hook for the post titles 'widget_title'.
-* Option exclude one or multi category.
-* Option exclude current post.
 * Option to show the post excerpt and how long the excerpt should be.
 * Option change excerpt 'more' text.
-* Option to show the post date.
-* Option to show the post author.
-* Option to show the comment count.
+* Option to show the post date, author and comment count.
 * Multiple widgets.
 
 = Placeholder =
 
-In text boxes '%cat%' will replaced with the (first assigned) category name, e.g. "There are a lot of '%cat%'-News." -> "There are a lot of Tech-News."
+In text boxes **%cat%** will replaced with the (first assigned) category name, e.g. "There are a lot of %cat%-News." -> "There are a lot of Tech-News."
 
-And '%cat-all%' will replaced with all assigned category name, e.g. "Special offers for '%cat-all%'!" -> "Special offers for houses, flats, apartments."
+And **%cat-all%** will replaced with all assigned category name, e.g. "Special offers for %cat-all%!" -> "Special offers for houses, flats, apartments."
 
 = Contribute =
 While using this plugin if you find any bug or any conflict, please submit an issue at 
@@ -92,8 +90,9 @@ To multiselect or clear terms in the "exclude"-text area hold CTRL-key + mouse c
 == Screenshots ==
 
 1. The widget configuration dialog.
-2. Front end of the widget using a default WordPress Theme.
-3. Separate categories shows and link to all assigned categories.
+2. Option to exclude categories (and terms) and filter by popular posts (by comment count).
+3. Front end of the widget using a default WordPress Theme.
+4. Option 'Separate categories (If more than one assigned)' will show, separate and link to all assigned categories.
 
 == Changelog ==
 
@@ -151,3 +150,19 @@ To multiselect or clear terms in the "exclude"-text area hold CTRL-key + mouse c
 
 = 1.0 =
 * Initial release.
+
+== Upgrade Notice ==
+
+= 1.0.2 =
+* Added some features known from Category Posts Widget.
+
+= 1.0.1 =
+* Support question for a option that exclude a certain category.
+
+= 1.0 =
+* Designing a new widget, always a problem can be solved in the best possible.
+
+== Upgrade Notice ==
+
+= 1.0.4 =
+CSS feature image cropping was added. Read more in our [blog](http://tiptoppress.com/same-category-posts-v1-0-5-gets-css-cropping-feature/).
