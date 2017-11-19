@@ -19,20 +19,22 @@ We're [Tip Top Press](http://tiptoppress.com/?utm_source=wordpress_org&utm_campa
 
 = Features =
 
+* Shows a list of related posts.
 * Custom Post Types support.
-* Option to filter by popular posts (by comment count).
+* Option which Post Type should be the same to the current post.
 * Option exclude one or multi categories or terms.
+* Option to filter by popular posts (by comment count).
 * Option [seperate categories](http://tiptoppress.com/new-dynamic-layout-feature-separate-categories/?utm_source=wordpress_org&utm_campaign=features_seperate_scp&utm_medium=web) if more than one is assigned.
 * Set how many posts to show (overall and by category).
 * Option exclude current post.
 * Placeholders in title string (e.g. "There are a lot of %cat%-News." -> "There are a lot of Tech-News.").
 * Filter hook for the post titles 'widget_title'.
-* Option to show post thumbnail & set dimension by width & height.
+* Option to show post thumbnail and set width & height.
 * Option to crop thumbnails with CSS. [What is 'CSS Image Crop'](http://tiptoppress.com/css-image-crop/?utm_source=wordpress_org&utm_campaign=features_crop_scp&utm_medium=web).
 * Option to put thumbnail on top.
 * Option to make the widget title link to the category page.
 * Option to show/hide the title.
-* Option to show the post excerpt and how long the excerpt should be.
+* Option to show the post excerpt and how long (in words).
 * Option change excerpt 'more' text.
 * Option to show the post date, author and comment count.
 * Multiple widgets.
@@ -89,10 +91,10 @@ To multiselect or clear terms in the "exclude"-text area hold CTRL-key + mouse c
 
 == Screenshots ==
 
-1. The widget configuration dialog.
-2. Option to exclude categories (and terms) and filter by popular posts (by comment count).
-3. Front end of the widget using a default WordPress Theme.
-4. Option 'Separate categories (If more than one assigned)' will show, separate and link to all assigned categories.
+1. Option to exclude categories (and terms) and filter by popular posts (by comment count).
+2. Front end of the widget using a default WordPress Theme.
+3. Option 'Separate categories' (If more than one assigned) will separate and link to all assigned categories.
+4. The widget configuration dialog.
 
 == Changelog ==
 
