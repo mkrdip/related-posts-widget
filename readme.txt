@@ -12,25 +12,25 @@ Adds a widget that shows posts from the same category to the current post.
 
 == Description ==
 
-Same Category Posts shows a list of related posts with a same term to the current post. The widget is only shown on single post pages. Forked from [Related Posts Widget](https://wordpress.org/plugins/related-posts-widget).
+Same Category Posts shows a list of related posts with a same Post Type to the current post. The widget is only shown on single post pages. Forked from [Related Posts Widget](https://wordpress.org/plugins/related-posts-widget).
 
 = Tip Top Press =
-We're [Tip Top Press](http://tiptoppress.com/?utm_source=wordpress_org&utm_campaign=tiptoppress_toptoppress_scp&utm_medium=web) and create widgets for Wordpress. If you want to know about what we're working on and you are interested in backgrounds then you can read all newes storys on our [blog](http://tiptoppress.com/blog/?utm_source=wordpress_org&utm_campaign=toptoppress_blog_scp&utm_medium=web).
+We're [Tip Top Press](http://tiptoppress.com/) and create widgets for Wordpress. If you want to know about what we're working on and you are interested in backgrounds then you can read all newes storys on our [blog](http://tiptoppress.com/blog/).
 
 = Features =
 
 * Shows a list of related posts.
+* Option which Post Type should be the same (related) to the current post.
 * Custom Post Types support.
-* Option which Post Type should be the same to the current post.
 * Option exclude one or multi categories or terms.
 * Option to filter by popular posts (by comment count).
-* Option [seperate categories](http://tiptoppress.com/new-dynamic-layout-feature-separate-categories/?utm_source=wordpress_org&utm_campaign=features_seperate_scp&utm_medium=web) if more than one is assigned.
+* Option [separate categories](http://tiptoppress.com/new-dynamic-layout-feature-separate-categories/) if more than one is assigned.
 * Set how many posts to show (overall and by category).
 * Option exclude current post.
 * Placeholders in title string (e.g. "There are a lot of %cat%-News." -> "There are a lot of Tech-News.").
 * Filter hook for the post titles 'widget_title'.
 * Option to show post thumbnail and set width & height.
-* Option to crop thumbnails with CSS. [What is 'CSS Image Crop'](http://tiptoppress.com/css-image-crop/?utm_source=wordpress_org&utm_campaign=features_crop_scp&utm_medium=web).
+* Option to [crop thumbnails dimensions with CSS](http://tiptoppress.com/css-image-crop/).
 * Option to put thumbnail on top.
 * Option to make the widget title link to the category page.
 * Option to show/hide the title.
