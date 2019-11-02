@@ -4,7 +4,7 @@ Plugin Name: Same Category Posts
 Plugin URI: https://wordpress.org/plugins/same-category-posts/
 Description: Adds a widget that shows the most recent posts from a single category.
 Author: Daniel Floeter
-Version: 1.1.0
+Version: 1.1.1
 Author URI: https://profiles.wordpress.org/kometschuh/
 */
 
@@ -13,7 +13,7 @@ namespace sameCategoryPosts;
 // Don't call the file directly
 if ( !defined( 'ABSPATH' ) ) exit;
 
-define( 'SAME_CATEGORY_POSTS_VERSION', "1.1.0");
+define( 'SAME_CATEGORY_POSTS_VERSION', "1.1.1");
 
 /**
  * Register our styles
@@ -464,8 +464,12 @@ class Widget extends \WP_Widget {
         if (is_array($term_query))
             $args['tax_query'] = $term_query;
 
+		$args['post__not_in'] = array();
 		if (isset( $instance['exclude_current_post'] ) && $instance['exclude_current_post'])
 			$args['post__not_in'] = array( get_the_ID() );
+			
+		if(isset( $instance['exclude_sticky_posts'] ) && $instance['exclude_sticky_posts'])
+			array_push($args['post__not_in'], get_option( 'sticky_posts' ));
 
 		$args['posts_per_page'] = (isset($instance['num']) && $instance['num']) ? $instance['num'] : -1;
 		
@@ -650,6 +654,7 @@ class Widget extends \WP_Widget {
 			'include_tax'          => array(),
 			'post_types'           => array(),
 			'exclude_current_post' => '',
+			'exclude_sticky_posts' => '',
 			'author'               => '',
 			'date_format'          => '',
 			'use_wp_date_format'   => '',
@@ -679,6 +684,7 @@ class Widget extends \WP_Widget {
 		$include_tax          = $instance['include_tax'];
 		$post_types           = $instance['post_types'];
 		$exclude_current_post = $instance['exclude_current_post'];
+		$exclude_sticky_posts = $instance['exclude_sticky_posts'];
 		$author               = $instance['author'];
 		$date_format          = $instance['date_format'];
 		$use_wp_date_format   = $instance['use_wp_date_format'];
@@ -828,6 +834,14 @@ class Widget extends \WP_Widget {
 						<?php _e( 'Exclude current post' ); ?>
 					</label>
 				</p>
+
+				<p>
+					<label for="<?php echo $this->get_field_id("exclude_sticky_posts"); ?>">
+						<input type="checkbox" class="checkbox" id="<?php echo $this->get_field_id("exclude_sticky_posts"); ?>" name="<?php echo $this->get_field_name("exclude_sticky_posts"); ?>"<?php checked( (bool) $instance["exclude_sticky_posts"], true ); ?> />
+						<?php _e( 'Exclude sticky posts' ); ?>
+					</label>
+				</p>
+
 			</div>
 			<h4 data-panel="thumbnails"><?php _e('Thumbnails')?></h4>
 			<div>
