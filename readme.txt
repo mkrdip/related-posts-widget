@@ -4,7 +4,7 @@ Donate link: http://mkrdip.me/donate
 Tags: similar posts, related posts, related, post list, recent posts, posts, same category
 Requires at least: 3.0
 Tested up to: 5.3
-Stable tag: 1.1.1
+Stable tag: 1.1.2
 License: GPLv2 or later 
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -97,6 +97,9 @@ To multiselect or clear terms in the "exclude"-text area hold CTRL-key + mouse c
 4. The widget configuration dialog.
 
 == Changelog ==
+
+= 1.1.2 - November 03 2019  =
+* Bugfix for exclude sticky posts
 
 = 1.1.1 - November 02 2019  =
 * Exclude sticky posts
