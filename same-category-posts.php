@@ -724,9 +724,9 @@ class Widget extends \WP_Widget {
 				
 				<p>
 					<label for="<?php echo $this->get_field_id("title"); ?>">
-						<?php _e( 'Title' ); ?>:
+						<?php _e( 'Title *' ); ?>:
 						<input style="width:80%;" class="widefat" id="<?php echo $this->get_field_id("title"); ?>" name="<?php echo $this->get_field_name("title"); ?>" type="text" value="<?php echo esc_attr($instance['title']); ?>" />
-						<div style="border-left:5px solid #F1F1F1;padding-left:10px;">(Placeholder: </br>'%cat%' - One category (the first if more assigned)</br>'%cat-all%' - All assigned categories for the shown post)</div>
+						<div style="border-left:5px solid #F1F1F1;padding-left:10px;">* Placeholder: </br>'%cat%' - One category (the first if more assigned)</br>'%cat-all%' - All assigned categories for the shown post</div>
 					</label>
 				</p>
 			</div>
