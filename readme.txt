@@ -4,7 +4,7 @@ Donate link: http://mkrdip.me/donate
 Tags: similar posts, related posts, related, post list, recent posts, posts, same category
 Requires at least: 3.0
 Tested up to: 5.3
-Stable tag: 1.1.2
+Stable tag: 1.1.3
 License: GPLv2 or later 
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -26,7 +26,8 @@ We're [Tip Top Press](http://tiptoppress.com/) and create widgets for Wordpress.
 * Option to filter by popular posts (by comment count).
 * Option [separate categories](http://tiptoppress.com/new-dynamic-layout-feature-separate-categories/) if more than one is assigned.
 * Set how many posts to show (overall and by category).
-* Option exclude current post and sticky posts.
+* Option exclude current post, sticky posts or children.
+* Option exclude without exclude children.
 * Placeholders in title string (e.g. "There are a lot of %cat%-News." -> "There are a lot of Tech-News.").
 * Filter hook for the post titles 'widget_title'.
 * Option to show post thumbnail and set width & height.
@@ -97,6 +98,10 @@ To multiselect or clear terms in the "exclude"-text area hold CTRL-key + mouse c
 4. The widget configuration dialog.
 
 == Changelog ==
+
+= 1.1.3 - November 19 2019  =
+* Add option to exclude children
+* Add option to exclude without exclude children
 
 = 1.1.2 - November 03 2019  =
 * Bugfix for exclude sticky posts

@@ -4,7 +4,7 @@ Plugin Name: Same Category Posts
 Plugin URI: https://wordpress.org/plugins/same-category-posts/
 Description: Adds a widget that shows the most recent posts from a single category.
 Author: Daniel Floeter
-Version: 1.1.2
+Version: 1.1.3
 Author URI: https://profiles.wordpress.org/kometschuh/
 */
 
@@ -434,7 +434,7 @@ class Widget extends \WP_Widget {
 						'taxonomy' => $tax,
 						'field' => 'term_id',
 						'terms' => $terms,
-						'include_children' => true,
+						'include_children' => isset($instance['exclude_children']) && $instance['exclude_children'] ? false : true,
 						'operator' => 'IN',
 						);
 				}
@@ -450,7 +450,7 @@ class Widget extends \WP_Widget {
 						'taxonomy' => $tax,
 						'field' => 'term_id',
 						'terms' => $instance['exclude_terms'][$tax],
-						'include_children' => true,
+						'include_children' => isset($instance['exclude_no_children']) && $instance['exclude_no_children'] ? false : true,
 						'operator' => 'NOT IN',
 						);
 				}
@@ -650,6 +650,8 @@ class Widget extends \WP_Widget {
 			'separate_categories'  => '',
 			'num_per_cate'         => '',
 			'num'                  => '',
+			'exclude_no_children'  => '',
+			'exclude_children'     => '',
 			'sort_by'              => '',
 			'asc_sort_order'       => '',
 			'title_link'           => '',
@@ -680,6 +682,8 @@ class Widget extends \WP_Widget {
 		$separate_categories  = $instance['separate_categories'];
 		$num_per_cate         = $instance['num_per_cate'];
 		$num                  = $instance['num'];
+		$exclude_no_children  = $instance['exclude_no_children'];
+		$exclude_children     = $instance['exclude_children'];
 		$sort_by              = $instance['sort_by'];
 		$asc_sort_order       = $instance['asc_sort_order'];
 		$title_link           = $instance['title_link'];
@@ -787,8 +791,20 @@ class Widget extends \WP_Widget {
 							echo '</div>';
 						}
 					}
-					echo '</div>';
-				?>
+					?>
+
+					<p>
+						<label for="<?php echo $this->get_field_id("exclude_no_children"); ?>">
+							<input type="checkbox" class="checkbox" 
+								id="<?php echo $this->get_field_id("exclude_no_children"); ?>" 
+								name="<?php echo $this->get_field_name("exclude_no_children"); ?>"
+								<?php checked( (bool) $instance["exclude_no_children"], true ); ?> />
+									<?php _e( 'Perform the exclusion without children' ); ?>
+						</label>
+					</p>
+
+					</div>
+
 				<p>
 					<label for="<?php echo $this->get_field_id("sort_by"); ?>">
 						<?php _e('Sort by'); ?>:
@@ -843,6 +859,16 @@ class Widget extends \WP_Widget {
 					<label for="<?php echo $this->get_field_id("exclude_sticky_posts"); ?>">
 						<input type="checkbox" class="checkbox" id="<?php echo $this->get_field_id("exclude_sticky_posts"); ?>" name="<?php echo $this->get_field_name("exclude_sticky_posts"); ?>"<?php checked( (bool) $instance["exclude_sticky_posts"], true ); ?> />
 						<?php _e( 'Exclude sticky posts' ); ?>
+					</label>
+				</p>
+
+				<p>
+					<label for="<?php echo $this->get_field_id("exclude_children"); ?>">
+						<input type="checkbox" class="checkbox" 
+							id="<?php echo $this->get_field_id("exclude_children"); ?>" 
+							name="<?php echo $this->get_field_name("exclude_children"); ?>"
+							<?php checked( (bool) $instance["exclude_children"], true ); ?> />
+								<?php _e( 'Exclude  children' ); ?>
 					</label>
 				</p>
 
