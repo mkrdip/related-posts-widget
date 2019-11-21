@@ -1,14 +1,14 @@
 === Same Category Posts ===
 Contributors: kometschuh, mkrdip
 Donate link: http://mkrdip.me/donate
-Tags: similar posts, related posts, related, post list, recent posts, posts, same category
+Tags: related posts, related, post list, recent posts, posts, custom post type, products, events
 Requires at least: 3.0
 Tested up to: 5.3
 Stable tag: 1.1.3
 License: GPLv2 or later 
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Adds a widget that shows posts from the same category to the current post.
+Adds a widget that shows posts from the same related category, tag or other Custom Post Type to the current post, product-category, tag, event or some other custom page.
 
 == Description ==
 
