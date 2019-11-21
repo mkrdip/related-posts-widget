@@ -8,7 +8,9 @@ Stable tag: 1.1.3
 License: GPLv2 or later 
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Adds a widget that shows posts from the same related category, tag or other Custom Post Type to the current post, product-category, tag, event or some other custom page.
+Show posts related to the current (product-)category, tag, event or other custom post type.
+
+Adds a widget that shows posts from the same related category, tag or other Custom…
 
 == Description ==
 
