@@ -10,8 +10,6 @@ License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
 Show posts related to the current (product-)category, tag, event or other custom post type.
 
-Adds a widget that shows posts from the same related category, tag or other Custom…
-
 == Description ==
 
 Same Category Posts shows a list of related posts with a same Post Type to the current post. The widget is only shown on single post pages. Forked from [Related Posts Widget](https://wordpress.org/plugins/related-posts-widget).
