@@ -1,14 +1,14 @@
 === Same Category Posts ===
 Contributors: kometschuh, mkrdip
 Donate link: http://mkrdip.me/donate
-Tags: related posts, related, post list, recent posts, posts, custom post type, products, events
+Tags: related posts, related, custom post type, products, events
 Requires at least: 3.0
 Tested up to: 5.3
 Stable tag: 1.1.3
 License: GPLv2 or later 
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Show posts related to the current (product-)category, tag, event or other custom post type.
+Show posts related to the current category or other custom post types.
 
 == Description ==
 
@@ -20,7 +20,7 @@ We're [Tip Top Press](http://tiptoppress.com/) and create widgets for Wordpress.
 = Features =
 
 * Shows a list of related posts.
-* Option which Post Type should be the same (related) to the current post.
+* Option which Post Type should be related to the current post.
 * Custom Post Types support.
 * Option exclude one or multi categories or terms.
 * Option to filter by popular posts (by comment count).
