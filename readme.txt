@@ -3,8 +3,8 @@ Contributors: kometschuh, mkrdip
 Donate link: http://mkrdip.me/donate
 Tags: related posts, related, custom post type, products, events
 Requires at least: 3.0
-Tested up to: 5.3
-Stable tag: 1.1.3
+Tested up to: 5.5
+Stable tag: 1.1.4
 License: GPLv2 or later 
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -98,6 +98,9 @@ To multiselect or clear terms in the "exclude"-text area hold CTRL-key + mouse c
 4. The widget configuration dialog.
 
 == Changelog ==
+
+= 1.1.4 - November 03 2019  =
+* Bugfix Finding the current post is overwritten by other widgets
 
 = 1.1.3 - November 19 2019  =
 * Add option to exclude children
