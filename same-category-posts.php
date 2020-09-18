@@ -272,7 +272,7 @@ class Widget extends \WP_Widget {
     function itemHTML($instance,$current_post_id) {
         global $post;
 		
-        $ret = '<li class="same-category-post-item ' . ($post->ID == $current_post_id ? 'same_category-post-current' : '') . '">';
+        $ret = '<li class="same-category-post-item ' . ($post->ID == $current_post_id ? 'same-category-post-current' : '') . '">';
 		
 		if( isset( $instance["thumbTop"] ) ) : 
 			$ret .= $this->show_thumb($instance);
