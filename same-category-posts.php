@@ -467,7 +467,7 @@ class Widget extends \WP_Widget {
 
 		$args['post__not_in'] = array();
 		if (isset( $instance['exclude_current_post'] ) && $instance['exclude_current_post']) {
-			$args['post__not_in'] = array( get_the_ID() );
+			$args['post__not_in'] = array( $current_post_id );
 		}
 
 		if(isset( $instance['exclude_sticky_posts'] ) && $instance['exclude_sticky_posts']) {
