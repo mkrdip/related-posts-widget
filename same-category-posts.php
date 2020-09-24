@@ -216,12 +216,27 @@ class Widget extends \WP_Widget {
                 $size[0] = $size[1];
             else if (($size[0] != 0) && ($size[1] == 0))
                 $size[1] = $size[0];
-        } else 
-			$size= 'post-thumbnail'; // yet another form of junk
-            
-		add_filter('post_thumbnail_html',array($this,'post_thumbnail_html'),1,5);
-		$ret = get_the_post_thumbnail( null,$size,'');
-		remove_filter('post_thumbnail_html',array($this,'post_thumbnail_html'),1,5);
+        } else {
+            $size= 'post-thumbnail'; // yet another form of junk
+        }
+        
+        // don't use the thumbnail, if it is cropped
+        $thumbSize = array();
+        foreach ( get_intermediate_image_sizes() as $thumb ) {
+            if ( in_array( $thumb, array('thumbnail') ) ) {
+                $thumbSize['width']  = get_option( "{$thumb}_size_w" );
+                $thumbSize['height'] = get_option( "{$thumb}_size_h" );
+                $thumbSize['crop']   = (bool) get_option( "{$thumb}_crop" );
+            }
+        }
+        if ( $sizes['crop'] ) {
+            $size[0] = $size[0] <= $thumbSize['width'] ? ( $thumbSize['width'] + 1 ) : $size[0];
+            $size[1] = $size[1] <= $thumbSize['height'] ? ( $thumbSize['height'] + 1 ) : $size[1];
+        }
+
+        add_filter('post_thumbnail_html',array($this,'post_thumbnail_html'),1,5);
+        $ret = get_the_post_thumbnail( null,$size,'');
+        remove_filter('post_thumbnail_html',array($this,'post_thumbnail_html'),1,5);
         return $ret;
 	}
 
