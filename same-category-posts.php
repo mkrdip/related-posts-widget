@@ -348,7 +348,7 @@ class Widget extends \WP_Widget {
 		$post_types = get_post_types( array( 'publicly_queryable' => true ) );
 		foreach ($post_types as $post_type) {
 			$object_taxes = get_object_taxonomies( $post_type, 'objects' );
-			
+
 			$set_default = true;
 			foreach ( $object_taxes as $tax ) {
 				if (isset($instance['include_tax'][$post_type]) && $instance['include_tax'][$post_type]) {
@@ -387,10 +387,21 @@ class Widget extends \WP_Widget {
 		$this->instance = $instance;
 
 		$this->initPostTypesAndTaxes($instance);
+
+		$taxonomies     = null;
+		$all_taxonomies = null;
+		$taxes          = get_object_taxonomies( $post );
 		
-		// Get taxonomies
-		$taxonomies = null;
-		$taxes = get_object_taxonomies( $post );
+		// Get all taxonomies
+		$all_terms = array();
+		foreach ($taxes as $tax)  {
+			$terms = get_terms($tax,array('public'=>true), 'objects');
+			foreach ($terms as $id => $name)  {
+				$all_terms[$tax][] = $name->term_id;
+			}
+		}
+		
+		// Get post taxonomies
 		$categories = null;
 		foreach ($taxes as $tax) {
 			$post_type = $instance['post_types'][$tax]['post_type'];
@@ -442,9 +453,12 @@ class Widget extends \WP_Widget {
 
 		if ($taxonomies) {
 			$term_query_in = array('relation' => 'OR');
+			$term_query_not_in = null;
 			foreach ( $taxonomies as $tax=>$terms) {
-				if ( isset($instance['exclude_terms']) && $instance['exclude_terms'] && array_key_exists($tax, $instance['exclude_terms']) )
+				if ( isset($instance['exclude_terms']) && $instance['exclude_terms'] && array_key_exists($tax, $instance['exclude_terms']) ) {
 					$terms = array_diff($terms, $instance['exclude_terms'][$tax]);
+				}
+
 				if ($terms) {
 					$term_query_in[] = array(
 						'taxonomy' => $tax,
@@ -454,19 +468,14 @@ class Widget extends \WP_Widget {
 						'operator' => 'IN',
 						);
 				}
-			}
-		}
 
-		$term_query_not_in = null;
-		if ( isset($instance['exclude_terms']) && $instance['exclude_terms'] ) {
-			foreach ( $instance['exclude_terms'] as $tax=>$terms) {
-				$post_type = $instance['post_types'][$tax]['post_type'];
-				if ($tax == $instance['include_tax'][$post_type]) {
+				$not_terms = array_diff( $all_terms[$tax], $terms );
+				if ( $not_terms ) {
 					$term_query_not_in[] = array(
 						'taxonomy' => $tax,
 						'field' => 'term_id',
-						'terms' => $instance['exclude_terms'][$tax],
-						'include_children' => isset($instance['exclude_no_children']) && $instance['exclude_no_children'] ? false : true,
+						'terms' => $not_terms,
+						'include_children' => isset( $instance['exclude_no_children'] ) && $instance['exclude_no_children'] ? false : true,
 						'operator' => 'NOT IN',
 						);
 				}
