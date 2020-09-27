@@ -99,7 +99,11 @@ To multiselect or clear terms in the "exclude"-text area hold CTRL-key + mouse c
 
 == Changelog ==
 
-= 1.1.4 - November 03 2019  =
+= 1.1.5 - Septemer 27 2020  =
+* Bugfix Posts are from all categories
+* Bugfix Don't use the thumbnail, if it is cropped
+
+= 1.1.4 - September 17 2020  =
 * Bugfix Finding the current post is overwritten by other widgets
 
 = 1.1.3 - November 19 2019  =
