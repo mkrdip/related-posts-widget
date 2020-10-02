@@ -252,7 +252,7 @@ class Widget extends \WP_Widget {
                 $thumbSize['crop']   = (bool) get_option( "{$thumb}_crop" );
             }
         }
-        if ( $sizes['crop'] ) {
+        if ( $thumbSize['crop'] ) {
             $size[0] = $size[0] <= $thumbSize['width'] ? ( $thumbSize['width'] + 1 ) : $size[0];
             $size[1] = $size[1] <= $thumbSize['height'] ? ( $thumbSize['height'] + 1 ) : $size[1];
         }
@@ -400,6 +400,7 @@ class Widget extends \WP_Widget {
 		if ( !is_single() ) return;
 
 		global $wp_query;
+		global $post;
 		$post_old = $post; // Save the post object.
 		$post = $wp_query->post;
 		$current_post_id = $post->ID;
@@ -439,7 +440,7 @@ class Widget extends \WP_Widget {
 		
 		// Excerpt length filter
 		if ( isset($instance["excerpt_length"]) && $instance["excerpt_length"] > 0 ) {
-			$new_excerpt_length = create_function('$length', "return " . $instance["excerpt_length"] . ";");
+			$new_excerpt_length =  function ( $length ) use ( $instance ) { return $instance["excerpt_length"]; };
 			add_filter('excerpt_length', $new_excerpt_length);
 		}
 		
