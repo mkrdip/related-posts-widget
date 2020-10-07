@@ -486,6 +486,7 @@ class Widget extends \WP_Widget {
 					$exclude_terms = $instance['exclude_terms'][$tax];
 				}
 
+				// all terms associated with the current post
 				if ($terms) {
 					$term_query_in[] = array(
 						'taxonomy' => $tax,
@@ -496,6 +497,7 @@ class Widget extends \WP_Widget {
 						);
 				}
 
+				// excluded terms
 				if ( $exclude_terms ) {
 					$term_query_exclude[] = array(
 						'taxonomy' => $tax,
@@ -506,7 +508,22 @@ class Widget extends \WP_Widget {
 						);
 				}
 
-				$not_terms = array_diff( $all_terms[$tax], $terms, $exclude_terms );
+				// get children if not exclude children
+				$childrens = array();
+				$exclude_children = array();
+				if ( ! ( isset($instance['exclude_children']) && $instance['exclude_children'] ) ) {
+					foreach ($terms as $key => $termId)  {
+						$childrens[] = get_terms( $tax, array( 'parent' => $term->term_id ) );
+					}
+					if ( $childrens ) {
+						foreach ($childrens as $id => $name)  {
+							$exclude_children[] = $name[$id]->term_id;
+						}
+					}
+				}
+
+				// all not's (always include_children is false)
+				$not_terms = array_diff( $all_terms[$tax], $terms, $exclude_children, $exclude_terms );
 				if ( $not_terms ) {
 					$term_query_not_in[] = array(
 						'taxonomy' => $tax,
