@@ -402,7 +402,9 @@ class Widget extends \WP_Widget {
 		global $wp_query;
 		global $post;
 		$post_old = $post; // Save the post object.
-		$post = $wp_query->post;
+		if ( $wp_query->have_posts() ) {
+			$post = $wp_query->post;
+		}
 		$current_post_id = $post->ID;
 
 		extract( $args );
@@ -475,10 +477,13 @@ class Widget extends \WP_Widget {
 
 		if ($taxonomies) {
 			$term_query_in = array('relation' => 'OR');
-			$term_query_not_in = null;
+			$term_query_exclude = null;
+			$term_query_not_in  = null;
 			foreach ( $taxonomies as $tax=>$terms) {
+				$exclude_terms = array();
 				if ( isset($instance['exclude_terms']) && $instance['exclude_terms'] && array_key_exists($tax, $instance['exclude_terms']) ) {
-					$terms = array_diff($terms, $instance['exclude_terms'][$tax]);
+					$terms         = array_diff($terms, $instance['exclude_terms'][$tax]);
+					$exclude_terms = $instance['exclude_terms'][$tax];
 				}
 
 				if ($terms) {
@@ -491,13 +496,23 @@ class Widget extends \WP_Widget {
 						);
 				}
 
-				$not_terms = array_diff( $all_terms[$tax], $terms );
+				if ( $exclude_terms ) {
+					$term_query_exclude[] = array(
+						'taxonomy' => $tax,
+						'field' => 'term_id',
+						'terms' => $exclude_terms,
+						'include_children' => isset( $instance['exclude_no_children'] ) && $instance['exclude_no_children'] ? false : true,
+						'operator' => 'NOT IN',
+						);
+				}
+
+				$not_terms = array_diff( $all_terms[$tax], $terms, $exclude_terms );
 				if ( $not_terms ) {
 					$term_query_not_in[] = array(
 						'taxonomy' => $tax,
 						'field' => 'term_id',
 						'terms' => $not_terms,
-						'include_children' => isset( $instance['exclude_no_children'] ) && $instance['exclude_no_children'] ? false : true,
+						'include_children' => false,
 						'operator' => 'NOT IN',
 						);
 				}
@@ -506,6 +521,7 @@ class Widget extends \WP_Widget {
 
 		$term_query[] = array('relation' => 'AND');
 		$term_query[] = $term_query_in;
+		$term_query[] = $term_query_exclude;
 		$term_query[] = $term_query_not_in;
 
         if (is_array($term_query))
@@ -834,7 +850,7 @@ class Widget extends \WP_Widget {
 								echo '<option value="'.$id.'"'.$sel.'>'.esc_html($name).'</option>';
 							}
 							echo '</select>';
-							echo '<p>(CTRL+Click: Multiselection and clear)</p>';
+							echo '<p>(CTRL / ⌘ + Mouseclick: Multiselection and clear)</p>';
 							echo '</div>';
 						}
 					}
