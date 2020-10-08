@@ -4,7 +4,7 @@ Donate link: http://mkrdip.me/donate
 Tags: related posts, related, custom post type, products, events
 Requires at least: 3.0
 Tested up to: 5.5
-Stable tag: 1.1.5
+Stable tag: 1.1.6
 License: GPLv2 or later 
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -22,12 +22,13 @@ We're [Tip Top Press](http://tiptoppress.com/) and create widgets for Wordpress.
 * Shows a list of related posts.
 * Option which Post Type should be related to the current post.
 * Custom Post Types support.
+* Child category and terms support.
 * Option exclude one or multi categories or terms.
 * Option to filter by popular posts (by comment count).
 * Option [separate categories](http://tiptoppress.com/new-dynamic-layout-feature-separate-categories/) if more than one is assigned.
 * Set how many posts to show (overall and by category).
 * Option exclude current post, sticky posts or children.
-* Option exclude without exclude children.
+* Option exclude categories and terms without exclude their children.
 * Placeholders in title string (e.g. "There are a lot of %cat%-News." -> "There are a lot of Tech-News.").
 * Filter hook for the post titles 'widget_title'.
 * Option to show post thumbnail and set width & height.
@@ -98,6 +99,10 @@ To multiselect or clear terms in the "exclude"-text area hold CTRL-key + mouse c
 4. The widget configuration dialog.
 
 == Changelog ==
+
+= 1.1.6 - October 08 2020  =
+* Support child categories
+* Bugfix Not assigned categories exclude child categories
 
 = 1.1.5 - Septemer 27 2020  =
 * Bugfix Posts are from all categories
