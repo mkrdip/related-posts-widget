@@ -511,13 +511,15 @@ class Widget extends \WP_Widget {
 				// get children if not exclude children
 				$childrens = array();
 				$exclude_children = array();
-				if ( ! ( isset($instance['exclude_children']) && $instance['exclude_children'] ) ) {
+				if ( ! ( isset($instance['exclude_children'] ) && $instance['exclude_children'] ) ) {
 					foreach ($terms as $key => $termId)  {
 						$childrens[] = get_terms( $tax, array( 'parent' => $term->term_id ) );
 					}
 					if ( $childrens ) {
 						foreach ($childrens as $id => $name)  {
-							$exclude_children[] = $name[$id]->term_id;
+							if ( $name ) {
+								$exclude_children[] = $name[$id]->term_id;
+							}
 						}
 					}
 				}
