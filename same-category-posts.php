@@ -919,7 +919,7 @@ class Widget extends \WP_Widget {
 				<p class="scpwp-separate-categories-panel" style="border-left:5px solid #F1F1F1;padding-left:10px;display:<?php echo (isset($separate_categories) && $separate_categories) ? 'block' : 'none'?>">
 					<label for="<?php echo $this->get_field_id("num_per_cate"); ?>">
 						<?php _e('Max. number of posts per separated categories'); ?>:
-						<input style="width: 15%; text-align: center;" id="<?php echo $this->get_field_id("num_per_cate"); ?>" name="<?php echo $this->get_field_name("num_per_cate"); ?>" type="number" min="0" value="<?php echo absint($instance["num_per_cate"]); ?>" size='3' />
+						<input style="width: 30%; text-align: center;" id="<?php echo $this->get_field_id("num_per_cate"); ?>" name="<?php echo $this->get_field_name("num_per_cate"); ?>" type="number" min="0" value="<?php echo absint($instance["num_per_cate"]); ?>" size='3' />
 					</label>
 				</p>
 				
