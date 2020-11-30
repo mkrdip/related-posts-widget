@@ -3,7 +3,7 @@ Contributors: kometschuh, mkrdip
 Donate link: http://mkrdip.me/donate
 Tags: related posts, related, custom post type, products, events
 Requires at least: 3.0
-Tested up to: 5.5
+Tested up to: 5.6
 Stable tag: 1.1.6
 License: GPLv2 or later 
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
