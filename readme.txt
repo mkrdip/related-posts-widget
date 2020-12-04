@@ -4,7 +4,7 @@ Donate link: http://mkrdip.me/donate
 Tags: related posts, related, custom post type, products, events
 Requires at least: 3.0
 Tested up to: 5.6
-Stable tag: 1.1.6
+Stable tag: 1.1.7
 License: GPLv2 or later 
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -99,6 +99,9 @@ To multiselect or clear terms in the "exclude"-text area hold CTRL-key + mouse c
 4. The widget configuration dialog.
 
 == Changelog ==
+
+= 1.1.7 - December 04 2020  =
+* Bugfix Ensure the current post object
 
 = 1.1.6 - October 08 2020  =
 * Support child categories
