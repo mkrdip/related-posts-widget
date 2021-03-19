@@ -4,7 +4,7 @@ Plugin Name: Same Category Posts
 Plugin URI: https://wordpress.org/plugins/same-category-posts/
 Description: Adds a widget that shows the most recent posts from a single category.
 Author: Daniel Floeter
-Version: 1.1.8
+Version: 1.1.9
 Author URI: https://profiles.wordpress.org/kometschuh/
 */
 
@@ -13,7 +13,7 @@ namespace sameCategoryPosts;
 // Don't call the file directly
 if ( !defined( 'ABSPATH' ) ) exit;
 
-define( 'SAME_CATEGORY_POSTS_VERSION', "1.1.8");
+define( 'SAME_CATEGORY_POSTS_VERSION', "1.1.9");
 
 /**
  * Register our styles
@@ -377,11 +377,14 @@ class Widget extends \WP_Widget {
 						$set_default = false;
 				}
 				// put all taxes and the associated post_type
-				if ($tax->hierarchical) {
-					$instance['post_types'][$tax->name] = array( 'post_type'=>$post_type, 'hierarchical'=>true );
-				} else {
-					$instance['post_types'][$tax->name] = array( 'post_type'=>$post_type, 'hierarchical'=>false );
-				}				
+				if ( ! isset( $instance['post_types'][$tax->name] ) ||
+				( isset( $instance['post_types'][$tax->name] ) && ! array_key_exists( $tax->name, $instance['post_types'] ) ) ) {
+					if ($tax->hierarchical) {
+						$instance['post_types'][$tax->name] = array( 'post_type'=>$post_type, 'hierarchical'=>true );
+					} else {
+						$instance['post_types'][$tax->name] = array( 'post_type'=>$post_type, 'hierarchical'=>false );
+					}
+				}
 			}
 			// put and set only 'default' taxes
 			if ($set_default) {
@@ -808,7 +811,13 @@ class Widget extends \WP_Widget {
 				<p>
 					<label for="<?php echo $this->get_field_id("title"); ?>">
 						<?php _e( 'Title *' ); ?>:
-						<input style="width:80%;" class="widefat" id="<?php echo $this->get_field_id("title"); ?>" name="<?php echo $this->get_field_name("title"); ?>" type="text" value="<?php echo esc_attr($instance['title']); ?>" />
+						<input 
+							style="width:80%;" 
+							class="widefat" 
+							id="<?php echo $this->get_field_id("title"); ?>" 
+							name="<?php echo $this->get_field_name("title"); ?>" 
+							type="text" 
+							value="<?php echo esc_attr($instance['title']); ?>" />
 						<div style="border-left:5px solid #F1F1F1;padding-left:10px;">* Placeholder: </br>'%cat%' - One category (the first if more assigned)</br>'%cat-all%' - All assigned categories for the shown post</div>
 					</label>
 				</p>
@@ -828,22 +837,33 @@ class Widget extends \WP_Widget {
 								'fields' => 'id=>name' // return array of names matched to ids
 							);
 					$collect_post_types = "";
+					$collect_post_types_end = false;
 					foreach ($taxs as $key=>$tax) {
 						$taxname   = $tax->name;
 						$terms     = get_terms($taxname,$args);
 						$post_type = $post_types[$taxname]['post_type'];
 
 						if ($terms) {
+							
 							if ($collect_post_types != $post_type) {
-								echo ($collect_post_types == "")?'':'</div>';
-								echo 'Show <b>'.$post_type.'</b> with:<br>';
+								echo ( $collect_post_types_end == false ) ? '' : '</div>';
+								echo 'Show <b>' . get_post_type_object( $post_type )->label . '</b> with:<br>';
 								echo '<div style="border-left:5px solid #F1F1F1;padding-left:10px;">';
 								$collect_post_types = $post_type;
+								$collect_post_types_end = true;
 							}
 							?>
 							<p>
 								<label>
-									<input name="<?php echo $this->get_field_name('include_tax['.$post_type.']'); ?>" data-taxname-and-post-type="<?php echo $taxname.'-'.$post_type ?>" onchange="javascript:scpwp_namespace.toggleSelectTaxPanel(this)" type="radio" class="checkbox" id="<?php echo $this->get_field_id('include_tax['.$post_type.']'); ?>" value="<?php echo $taxname ?>"<?php checked( (bool) ($instance['include_tax'][$post_type] == $taxname), true ); ?> />
+									<input 
+										name="<?php echo $this->get_field_name('include_tax['.$post_type.']'); ?>" 
+										data-taxname-and-post-type="<?php echo $taxname.'-'.$post_type ?>" 
+										onchange="javascript:scpwp_namespace.toggleSelectTaxPanel(this)" 
+										type="radio" 
+										class="checkbox" 
+										id="<?php echo $this->get_field_id( $taxname ); ?>" 
+										value="<?php echo $taxname ?>"
+										<?php checked( (bool) ($instance['include_tax'][$post_type] == $taxname), true ); ?> />
 									<?php printf( __( 'Same "%s" and exclude:' ), esc_html($tax->labels->name)); ?>
 								</label>
 							</p>
@@ -870,6 +890,9 @@ class Widget extends \WP_Widget {
 							echo '</div>';
 						}
 					}
+
+					echo '</div>'; // $collect_post_types_end
+
 					?>
 
 					<p>
@@ -881,8 +904,6 @@ class Widget extends \WP_Widget {
 									<?php _e( 'Perform the exclusion without children' ); ?>
 						</label>
 					</p>
-
-					</div>
 
 				<p>
 					<label for="<?php echo $this->get_field_id("sort_by"); ?>">
