@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/donate?hosted_button_id=RSR28JGA4M7JC
 Tags: related posts, related, custom post type, products, events
 Requires at least: 3.0
 Tested up to: 5.7
-Stable tag: 1.1.9
+Stable tag: 1.1.11
 License: GPLv2 or later 
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -99,6 +99,12 @@ To multiselect or clear terms in the "exclude"-text area hold CTRL-key + mouse c
 4. The widget configuration dialog.
 
 == Changelog ==
+
+= 1.1.11 - April 06 2021  =
+* Bugfix Thumbnail to top
+
+= 1.1.10 - April 04 2021  =
+* Bugfix Title splits with Safari
 
 = 1.1.9 - March 19 2021  =
 * Bugfix Same Taxonomies
