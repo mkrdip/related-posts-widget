@@ -4,7 +4,7 @@ Plugin Name: Same Category Posts
 Plugin URI: https://wordpress.org/plugins/same-category-posts/
 Description: Adds a widget that shows the most recent posts from a single category.
 Author: Daniel Floeter
-Version: 1.1.11
+Version: 1.1.13
 Author URI: https://profiles.wordpress.org/kometschuh/
 */
 
@@ -13,7 +13,7 @@ namespace sameCategoryPosts;
 // Don't call the file directly
 if ( !defined( 'ABSPATH' ) ) exit;
 
-define( 'SAME_CATEGORY_POSTS_VERSION', "1.1.11");
+define( 'SAME_CATEGORY_POSTS_VERSION', "1.1.13");
 
 /**
  * Register our styles
@@ -399,23 +399,43 @@ class Widget extends \WP_Widget {
 
 	// Displays a list of posts from same category on single post pages.
 	function widget($args, $instance) {
-		// Only show widget if on a post page.
-		if ( !is_single() ) return;
+		// Only show widget on post- or archive page.
+		if ( !is_single() && !is_archive() || empty( get_the_ID() ) ) {
+			return;
+		}
 
 		global $wp_query;
 		global $post;
 		$post_old = $post; // Save the post object.
-		$current_post_id = get_the_ID();
+		if ( is_archive() ) {
+			// if archive page
+			$current_post_id = -1;
+		} else {
+			$current_post_id = get_the_ID();
+		}
 
 		extract( $args );
 		$this->instance = $instance;
 
 		$this->initPostTypesAndTaxes($instance);
 
+		// if archive page
+		$include_tax_save = array();
+		if( is_archive() ) {
+			$term = get_queried_object();
+			$post_type = get_post_type($term->slag);
+			$include_tax_save = $instance['include_tax'];
+			$instance['include_tax'] = array( $post_type => $term->taxonomy );
+		}
+
 		$taxonomies     = null;
 		$all_taxonomies = null;
-		$taxes          = get_object_taxonomies( $post );
-		
+		if ( is_archive() ) {
+			// if archive page
+			$taxes = array(get_queried_object()->taxonomy);
+		} else {
+			$taxes = get_object_taxonomies( $post );
+		}
 		// Get all taxonomies
 		$all_terms = array();
 		foreach ($taxes as $tax)  {
@@ -424,22 +444,39 @@ class Widget extends \WP_Widget {
 				$all_terms[$tax][] = $name->term_id;
 			}
 		}
-		
+
 		// Get post taxonomies
 		$categories = null;
 		foreach ($taxes as $tax) {
 			$post_type = $instance['post_types'][$tax]['post_type'];
 			if ($tax == $instance['include_tax'][$post_type]) {
-				$terms = get_the_terms($post->ID, $tax);
+				if ( is_archive() ) {
+					// if archive page
+					$terms = array( ( object ) array(
+						"term_id" => get_queried_object()->term_id,
+						"name" => get_queried_object()->name,
+						) );
+				} else {
+					$terms = get_the_terms($post->ID, $tax);
+				}
 				if ($terms) {
 					foreach ($terms as $term) {
-						$taxonomies[$tax][] = $term->term_id; 
+						$taxonomies[$tax][] = $term->term_id;
 					}
 				}
-				$categories = get_the_terms($post->ID,$tax);
+				if ( is_archive() ) {
+					// if archive page
+					$categories = array( ( object ) array(
+						"term_id"  => get_queried_object()->term_id,
+						"name"     => get_queried_object()->name,
+						"taxonomy" => get_queried_object()->taxonomy,
+						) );
+				} else {
+					$categories = get_the_terms($post->ID,$tax);
+				}
 			}
 		}
-		
+
 		// Excerpt length filter
 		if ( isset($instance["excerpt_length"]) && $instance["excerpt_length"] > 0 ) {
 			$new_excerpt_length =  function ( $length ) use ( $instance ) { return $instance["excerpt_length"]; };
@@ -481,11 +518,15 @@ class Widget extends \WP_Widget {
 			$term_query_not_in  = null;
 			foreach ( $taxonomies as $tax=>$terms) {
 				$exclude_terms = array();
-				if ( isset($instance['exclude_terms']) && $instance['exclude_terms'] && array_key_exists($tax, $instance['exclude_terms']) ) {
-					$terms         = array_diff($terms, $instance['exclude_terms'][$tax]);
+				if ( 
+					in_array($tax, $include_tax_save) && 
+					isset($instance['exclude_terms']) && 
+					$instance['exclude_terms'] && 
+					array_key_exists($tax, $instance['exclude_terms']) 
+				) {
+					$terms = array_diff($terms, $instance['exclude_terms'][$tax]);
 					$exclude_terms = $instance['exclude_terms'][$tax];
 				}
-
 				// all terms associated with the current post
 				if ($terms) {
 					$term_query_in[] = array(
@@ -495,6 +536,8 @@ class Widget extends \WP_Widget {
 						'include_children' => isset($instance['exclude_children']) && $instance['exclude_children'] ? false : true,
 						'operator' => 'IN',
 						);
+				} else {
+					return;
 				}
 
 				// excluded terms
@@ -507,41 +550,12 @@ class Widget extends \WP_Widget {
 						'operator' => 'NOT IN',
 						);
 				}
-
-				// get children if not exclude children
-				$childrens = array();
-				$exclude_children = array();
-				if ( ! ( isset($instance['exclude_children'] ) && $instance['exclude_children'] ) ) {
-					foreach ($terms as $key => $termId)  {
-						$childrens[] = get_terms( $tax, array( 'parent' => $term->term_id ) );
-					}
-					if ( $childrens ) {
-						foreach ($childrens as $id => $name)  {
-							if ( $name ) {
-								$exclude_children[] = $name[$id]->term_id;
-							}
-						}
-					}
-				}
-
-				// all not's (always include_children is false)
-				$not_terms = array_diff( $all_terms[$tax], $terms, $exclude_children, $exclude_terms );
-				if ( $not_terms ) {
-					$term_query_not_in[] = array(
-						'taxonomy' => $tax,
-						'field' => 'term_id',
-						'terms' => $not_terms,
-						'include_children' => false,
-						'operator' => 'NOT IN',
-						);
-				}
 			}
 		}
 
 		$term_query[] = array('relation' => 'AND');
 		$term_query[] = $term_query_in;
 		$term_query[] = $term_query_exclude;
-		$term_query[] = $term_query_not_in;
 
         if (is_array($term_query))
             $args['tax_query'] = $term_query;
@@ -613,8 +627,14 @@ class Widget extends \WP_Widget {
 						$categoryNames = "";
 						if ($categories) {
 							foreach ($categories as $key => $val) {
-								if(isset($instance['exclude_terms']) && $instance['exclude_terms'] && in_array($val->term_id,$instance['exclude_terms'][$val->taxonomy]))
+								if (
+									isset($instance['exclude_terms']) && 
+									$instance['exclude_terms'] && 
+									array_key_exists($val->taxonomy,$instance['exclude_terms']) && 
+									in_array($val->term_id,$instance['exclude_terms'][$val->taxonomy])
+								) {
 									continue;
+								}
 								$categoryNames .= $val->name . ", ";
 							}
 							$categoryNames = trim($categoryNames, ", ");

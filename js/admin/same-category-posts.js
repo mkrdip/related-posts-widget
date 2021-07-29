@@ -92,7 +92,7 @@ var scpwp_namespace = {
 
 jQuery(document).ready(function() {
 
-    jQuery('.same-category-widget-cont h4').click(function() { // for widgets page
+    jQuery('.same-category-widget-cont h4').on('click', function() { // for widgets page
         // toggle panel open/close
         scpwp_namespace.clickHandler(this);
     });

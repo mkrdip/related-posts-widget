@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/donate?hosted_button_id=RSR28JGA4M7JC
 Tags: related posts, related, custom post type, products, events
 Requires at least: 3.0
 Tested up to: 5.8
-Stable tag: 1.1.11
+Stable tag: 1.1.13
 License: GPLv2 or later 
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -23,6 +23,7 @@ We're [Tip Top Press](http://tiptoppress.com/) and create widgets for Wordpress.
 * Option which Post Type should be related to the current post.
 * Custom Post Types support.
 * Child category and terms support.
+* Archive page support.
 * Option exclude one or multi categories or terms.
 * Option to filter by popular posts (by comment count).
 * Option [separate categories](http://tiptoppress.com/new-dynamic-layout-feature-separate-categories/) if more than one is assigned.
@@ -99,6 +100,12 @@ To multiselect or clear terms in the "exclude"-text area hold CTRL-key + mouse c
 4. The widget configuration dialog.
 
 == Changelog ==
+
+= 1.1.13 - July 29 2021  =
+* Include archive pages
+
+= 1.1.12 - July 20 2021  =
+* jQuery Helper warnings
 
 = 1.1.11 - April 06 2021  =
 * Bugfix Thumbnail to top
