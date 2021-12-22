@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/donate?hosted_button_id=RSR28JGA4M7JC
 Tags: related posts, related, custom post type, products, events
 Requires at least: 3.0
 Tested up to: 5.8
-Stable tag: 1.1.13
+Stable tag: 1.2.0
 License: GPLv2 or later 
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -100,6 +100,9 @@ To multiselect or clear terms in the "exclude"-text area hold CTRL-key + mouse c
 4. The widget configuration dialog.
 
 == Changelog ==
+
+= 1.2.0 - Dezember 20 2021  =
+* Gutenberg Block support
 
 = 1.1.13 - July 29 2021  =
 * Include archive pages
@@ -198,19 +201,3 @@ To multiselect or clear terms in the "exclude"-text area hold CTRL-key + mouse c
 
 = 1.0 =
 * Initial release.
-
-== Upgrade Notice ==
-
-= 1.0.2 =
-* Added some features known from Category Posts Widget.
-
-= 1.0.1 =
-* Support question for a option that exclude a certain category.
-
-= 1.0 =
-* Designing a new widget, always a problem can be solved in the best possible.
-
-== Upgrade Notice ==
-
-= 1.0.4 =
-CSS feature image cropping was added. Read more in our [blog](http://tiptoppress.com/same-category-posts-v1-0-5-gets-css-cropping-feature/).

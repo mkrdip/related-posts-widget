@@ -4,16 +4,18 @@ Plugin Name: Same Category Posts
 Plugin URI: https://wordpress.org/plugins/same-category-posts/
 Description: Adds a widget that shows the most recent posts from a single category.
 Author: Daniel Floeter
-Version: 1.1.13
+Version: 1.2.0
 Author URI: https://profiles.wordpress.org/kometschuh/
 */
 
-namespace sameCategoryPosts;
+namespace samePosts;
 
 // Don't call the file directly
 if ( !defined( 'ABSPATH' ) ) exit;
 
-define( 'SAME_CATEGORY_POSTS_VERSION', "1.1.13");
+define( 'SAME_CATEGORY_POSTS_VERSION', "1.2.0");
+
+require_once __DIR__ . '/same-posts-block.php';
 
 /**
  * Register our styles
@@ -1079,13 +1081,13 @@ class Widget extends \WP_Widget {
 					<p>
 						<label for="<?php echo $this->get_field_id("use_wp_date_format"); ?>" onchange="javascript:scpwp_namespace.toggleUseWPDateFormatPanel(this)">
 							<input type="checkbox" class="checkbox" id="<?php echo $this->get_field_id("use_wp_date_format"); ?>" name="<?php echo $this->get_field_name("use_wp_date_format"); ?>"<?php checked( (bool) $instance["use_wp_date_format"], true ); ?> />
-							<?php _e( 'Use the WordPress Settings > General for the date format','category-posts' ); ?>
+							<?php _e( 'Use the WordPress Settings > General for the date format','same-posts' ); ?>
 						</label>
 					</p>
 					<div class="scpwp-data-panel-date-format" style="display:<?php echo ((bool) $use_wp_date_format) ? 'none' : 'block'?>">
 						<p>
 							<label for="<?php echo $this->get_field_id("date_format"); ?>">
-								<?php _e( 'Date format:','category-posts' ); ?>
+								<?php _e( 'Date format:','same-posts' ); ?>
 							</label>
 							<input class="text" placeholder="j M Y" id="<?php echo $this->get_field_id("date_format"); ?>" name="<?php echo $this->get_field_name("date_format"); ?>" type="text" value="<?php echo esc_attr($instance["date_format"]); ?>" size="8" />
 						</p>
@@ -1093,7 +1095,7 @@ class Widget extends \WP_Widget {
 					<p>
 						<label for="<?php echo $this->get_field_id("date_link"); ?>">
 							<input type="checkbox" class="checkbox" id="<?php echo $this->get_field_id("date_link"); ?>" name="<?php echo $this->get_field_name("date_link"); ?>"<?php checked( (bool) $instance["date_link"], true ); ?> />
-							<?php _e( 'Make widget date link','category-posts' ); ?>
+							<?php _e( 'Make widget date link','same-posts' ); ?>
 						</label>
 					</p>
 				</div>
