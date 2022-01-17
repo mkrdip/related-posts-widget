@@ -104,6 +104,9 @@ To multiselect or clear terms in the "exclude"-text area hold CTRL-key + mouse c
 = 1.2.0 - Dezember 20 2021  =
 * Gutenberg Block support
 
+= 1.1.14 - January 17 2022  =
+* Bugfix Exclude
+
 = 1.1.13 - July 29 2021  =
 * Include archive pages
 

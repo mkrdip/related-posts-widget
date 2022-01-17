@@ -411,7 +411,7 @@ class Widget extends \WP_Widget {
 		$post_old = $post; // Save the post object.
 		if ( is_archive() ) {
 			// if archive page
-			$current_post_id = -1;
+			$current_post_id = 0;
 		} else {
 			$current_post_id = get_the_ID();
 		}
@@ -428,6 +428,8 @@ class Widget extends \WP_Widget {
 			$post_type = get_post_type($term->slag);
 			$include_tax_save = $instance['include_tax'];
 			$instance['include_tax'] = array( $post_type => $term->taxonomy );
+		} else {
+			$include_tax_save = $instance['include_tax'];
 		}
 
 		$taxonomies     = null;
