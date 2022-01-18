@@ -3,7 +3,7 @@ Contributors: kometschuh, mkrdip
 Donate link: https://www.paypal.com/donate?hosted_button_id=RSR28JGA4M7JC
 Tags: related posts, related, custom post type, products, events
 Requires at least: 3.0
-Tested up to: 5.8
+Tested up to: 5.9
 Stable tag: 1.2.0
 License: GPLv2 or later 
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -15,7 +15,7 @@ Show posts related to the current category or other custom post types.
 Same Category Posts shows a list of related posts with a same Post Type to the current post. The widget is only shown on single post pages. Forked from [Related Posts Widget](https://wordpress.org/plugins/related-posts-widget).
 
 = Tip Top Press =
-We're [Tip Top Press](http://tiptoppress.com/) and create widgets for Wordpress. If you want to know about what we're working on and you are interested in backgrounds then you can read all newes storys on our [blog](http://tiptoppress.com/blog/).
+We're [Tip Top Press](http://tiptoppress.com/) and create widgets for Wordpress. If you want to know about what we're working on and you are interested in backgrounds then you can read all newes storys on our [blog](http://tiptoppress.com/blog/?utm_source=wp.org&utm_medium=readme.txt&utm_campaign=same+category+posts).
 
 = Features =
 
