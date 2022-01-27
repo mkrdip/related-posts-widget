@@ -282,7 +282,7 @@ class Widget extends \WP_Widget {
 			$ret .= '<a ';
 			$use_css_cropping = isset($this->instance['use_css_cropping']) ? "same-category-post-css-cropping" : "";
 			$ret .= 'class="same-category-post-thumbnail ' . $use_css_cropping . '"';
-			$ret .= 'href="' . get_the_permalink() . '" title="' . get_the_title() . '">';
+			$ret .= 'href="' . get_the_permalink() . '" title="' . htmlspecialchars( get_the_title() ) . '">';
 			$ret .= $this->the_post_thumbnail( array($this->instance['thumb_w'],$this->instance['thumb_h']));
 			$ret .= '</a>';
 		}
@@ -316,7 +316,7 @@ class Widget extends \WP_Widget {
 			$ret .= $this->show_thumb($instance);
 		endif; 		
 
-		$ret .= '<a class="post-title" href="' . get_the_permalink() . '" rel="bookmark" title="Permanent Link to ' . get_the_title() . '">' . get_the_title() . '</a>';
+		$ret .= '<a class="post-title" href="' . get_the_permalink() . '" rel="bookmark" title="Permanent Link to ' . htmlspecialchars( get_the_title() ) . '">' . get_the_title() . '</a>';
 
 		if ( isset( $instance['date'] ) ) {			
             if (isset($instance['date_format']) && strlen(trim($instance['date_format'])) > 0)
