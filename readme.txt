@@ -3,7 +3,7 @@ Contributors: kometschuh, mkrdip
 Donate link: https://www.paypal.com/donate?hosted_button_id=RSR28JGA4M7JC
 Tags: related posts, related, custom post type, products, events
 Requires at least: 3.0
-Tested up to: 5.9
+Tested up to: 6.0
 Stable tag: 1.2.0
 License: GPLv2 or later 
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -103,6 +103,9 @@ To multiselect or clear terms in the "exclude"-text area hold CTRL-key + mouse c
 
 = 1.2.0 - Dezember 20 2021  =
 * Gutenberg Block support
+
+= 1.1.16 - June 05 2022  =
+* Bugfix Showing to much posts from not related categories
 
 = 1.1.15 - January 27 2022  =
 * Bugfix HTML entities in title attributes

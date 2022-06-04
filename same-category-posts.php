@@ -675,12 +675,14 @@ class Widget extends \WP_Widget {
 							$post_categories = get_the_terms($post->ID,$tax->name);
 							break;
 						}
-					}
+					} 
 					foreach ($post_categories as $val) {
-						$widgetHTML[$val->name][$post->ID]['itemHTML'] = $this->itemHTML($instance,$current_post_id);
-						$widgetHTML[$val->name][$post->ID]['ID'] = $post->ID;
+						if ( in_array( $val, $categories ) ) {
+							$widgetHTML[$val->name][$post->ID]['itemHTML'] = $this->itemHTML($instance,$current_post_id);
+							$widgetHTML[$val->name][$post->ID]['ID'] = $post->ID;
+						}
 					}
-				} else {					
+				} else {
 					// ! Separate categories: get itemHTML and echo
 					echo $this->itemHTML($instance,$current_post_id);
 				}
