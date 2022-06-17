@@ -484,7 +484,7 @@ class Widget extends \WP_Widget {
 		// Excerpt length filter
 		if ( isset($instance["excerpt_length"]) && $instance["excerpt_length"] > 0 ) {
 			$new_excerpt_length =  function ( $length ) use ( $instance ) { return $instance["excerpt_length"]; };
-			add_filter('excerpt_length', $new_excerpt_length);
+			add_filter('excerpt_length', $new_excerpt_length,9999);
 		}
 		
 		$valid_sort_orders = array('date', 'title', 'comment_count', 'rand');
@@ -721,8 +721,7 @@ class Widget extends \WP_Widget {
 			echo $after_widget;
 		}
 
-		if(isset($new_excerpt_length))
-			remove_filter('excerpt_length', $new_excerpt_length);
+		remove_filter('excerpt_length', $new_excerpt_length);
 		remove_filter('excerpt_more', array($this,'excerpt_more_filter'));
 
 		$post = $post_old; // Restore the post object.
