@@ -145,7 +145,11 @@ function same_category_posts_get_image_size( $thumb_w,$thumb_h,$image_w,$image_h
 class Widget extends \WP_Widget {
 
 	function __construct() {
-		$widget_ops = array('classname' => 'same-category-posts', 'description' => __('List posts from same category in sidebar based on shown post\'s category'));
+		$widget_ops = array(
+			'show_instance_in_rest' => true,
+			'classname' => 'same-category-posts', 
+			'description' => __('List posts from same category in sidebar based on shown post\'s category')
+		);
 		parent::__construct('same-category-posts', __('Same Category Posts'), $widget_ops);
 	}
 	
@@ -288,7 +292,14 @@ class Widget extends \WP_Widget {
 		}
 		return $ret;
 	}
-	
+
+	/**
+	 * Excerpt length filter
+	 */
+	function excerpt_length_filter( $length ) {
+		return $this->instance["excerpt_length"];
+	}
+
 	/**
 	 * Excerpt more link filter
 	 */
@@ -483,8 +494,7 @@ class Widget extends \WP_Widget {
 
 		// Excerpt length filter
 		if ( isset($instance["excerpt_length"]) && $instance["excerpt_length"] > 0 ) {
-			$new_excerpt_length =  function ( $length ) use ( $instance ) { return $instance["excerpt_length"]; };
-			add_filter('excerpt_length', $new_excerpt_length,9999);
+			add_filter( 'excerpt_length', array( $this,'excerpt_length_filter' ), 9999 );
 		}
 		
 		$valid_sort_orders = array('date', 'title', 'comment_count', 'rand');
@@ -721,7 +731,7 @@ class Widget extends \WP_Widget {
 			echo $after_widget;
 		}
 
-		remove_filter('excerpt_length', $new_excerpt_length);
+		remove_filter( 'excerpt_length',  array( $this,'excerpt_length_filter' ) );
 		remove_filter('excerpt_more', array($this,'excerpt_more_filter'));
 
 		$post = $post_old; // Restore the post object.
