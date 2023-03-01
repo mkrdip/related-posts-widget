@@ -104,6 +104,9 @@ To multiselect or clear terms in the "exclude"-text area hold CTRL-key + mouse c
 = 1.2.0 - Dezember 20 2021  =
 * Gutenberg Block support
 
+= 1.1.18 - March 01 2023  =
+* Cleanup for anchor title
+
 = 1.1.17 - June 18 2022  =
 * Bugfix Excerpt length overrides other filters
 

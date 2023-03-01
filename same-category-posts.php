@@ -316,7 +316,7 @@ class Widget extends \WP_Widget {
 			$ret .= $this->show_thumb($instance);
 		endif; 		
 
-		$ret .= '<a class="post-title" href="' . get_the_permalink() . '" rel="bookmark" title="Permanent Link to ' . htmlspecialchars( get_the_title() ) . '">' . get_the_title() . '</a>';
+		$ret .= '<a class="post-title" href="' . get_the_permalink() . '" rel="bookmark" title="' . htmlspecialchars( get_the_title() ) . '">' . get_the_title() . '</a>';
 
 		if ( isset( $instance['date'] ) ) {			
             if (isset($instance['date_format']) && strlen(trim($instance['date_format'])) > 0)
