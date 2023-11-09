@@ -3,7 +3,7 @@ Contributors: kometschuh, mkrdip
 Donate link: https://www.paypal.com/donate?hosted_button_id=RSR28JGA4M7JC
 Tags: related posts, related, custom post type, products, events
 Requires at least: 3.0
-Tested up to: 6.0
+Tested up to: 6.4
 Stable tag: 1.2.0
 License: GPLv2 or later 
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
