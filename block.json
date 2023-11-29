@@ -1,0 +1,32 @@
+{
+    "apiVersion": 2,
+    "name": "tiptip/same-posts-block",
+    "title": "Same Category Posts",
+    "category": "widgets",
+    "description": "Show posts related to the current category or other custom post types.",
+    "textdomain": "same-posts",
+    "supports": {
+        "align": true,
+        "html": false
+    },
+    "attributes": {
+        "hideTitle": {},
+        "title": {"type": "string", "default": "Same Posts"},
+        "titleLink": {},
+        "disableCSS": {},
+        "disableFontStyles": {},
+        "disableThemeStyles": {},
+        "showPostCounts": {},
+        "displayAsDropdown": {},
+        "groupBy": {"type": "string", "default": "monthly"},
+        "order": {"type": "string", "default": "desc"},
+        "orderBy": {},
+        "categorySuggestions": {},
+        "selectCategories": {},
+        "categories": {}
+    },
+    "renderCallback": "samePosts\render_same_posts_block",
+    "editorScript": "file:./build/index.js",
+    "editorStyle": "file:./build/style-index.css",
+    "style": "file:./build/style-index.css"
+}
